@@ -75,8 +75,11 @@ export abstract class DynamoRepository<T> {
 		return null;
 	}
 
-	protected async get(partitionKeyValue: string, sortKeyValue?: string): Promise<T | null> {
-		const key = {
+	protected async get(
+		partitionKeyValue: string,
+		sortKeyValue?: string | number
+	): Promise<T | null> {
+		const key: { [x: string]: string | number } = {
 			[this.partitionKey]: partitionKeyValue
 		};
 
@@ -157,8 +160,12 @@ export abstract class DynamoRepository<T> {
 		return [];
 	}
 
-	protected async setDeleted(deleted: boolean, partitionKeyValue: string, sortKeyValue?: string) {
-		const key = {
+	protected async setDeleted(
+		deleted: boolean,
+		partitionKeyValue: string,
+		sortKeyValue?: string | number
+	) {
+		const key: { [x: string]: string | number } = {
 			[this.partitionKey]: partitionKeyValue
 		};
 

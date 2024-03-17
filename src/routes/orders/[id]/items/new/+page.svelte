@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
+	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { dateProxy, superForm } from 'sveltekit-superforms';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import Icon from 'svelte-awesome';
@@ -19,7 +19,6 @@
 	import CartItem from '$lib/components/item/CartItem.svelte';
 	import PricingSelectorSection from '$lib/components/item/PricingSelectorSection.svelte';
 	import Spacer from '$lib/components/item/Spacer.svelte';
-	import ObservationChip from '$lib/components/item/ObservationChip.svelte';
 	import ChipSet from '$lib/components/item/ChipSet.svelte';
 
 	const toastStore = getToastStore();
@@ -36,12 +35,7 @@
 		{ description: 'Cantoneras y embalaje', price: 2, quantity: 1 }
 	];
 
-	const defaultObservations = [
-		'Sabe que puede ondular',
-		'No pegar',
-		'Muy delicado',
-		'No recortar'
-	]
+	const defaultObservations = ['Sabe que puede ondular', 'No pegar', 'Muy delicado', 'No recortar'];
 
 	let predefinedElementInput: HTMLSelectElement;
 	let predefinedQuantityElementInput: HTMLSelectElement;
@@ -52,6 +46,42 @@
 	$form.extraParts = extraParts;
 	$form.partsToCalculate = partsToCalculate;
 	$form.extraObservations = extraObservations;
+
+	async function handleDimensionsChangeEvent() {
+		if (partsToCalulatePreview.length > 0) {
+			toastStore.trigger({
+				message: `Las dimensiones han cambiado, recalculando el precio...`,
+				background: 'variant-filled'
+			});
+
+			const promises = partsToCalculate.map((p) => getPartToCalculateWihtPre(p));
+			const parts = (await Promise.all(promises)).filter((p) => p != null) as {
+				pre: PreCalculatedItemPart;
+				post: CalculatedItemPart;
+			}[];
+
+			const validatedParts = parts.map((p) => p.pre);
+			partsToCalculate = validatedParts;
+			$form.partsToCalculate = partsToCalculate;
+			partsToCalulatePreview = parts;
+			updateTotal();
+			toastStore.trigger({
+				message: `Precios actualizados`,
+				background: 'variant-filled'
+			});
+		}
+	}
+
+	async function getPartToCalculateWihtPre(
+		partToCalculate: PreCalculatedItemPart
+	): Promise<{ pre: PreCalculatedItemPart; post: CalculatedItemPart } | undefined> {
+		const part = await getPartToCalculate(partToCalculate);
+		if (!part) {
+			return;
+		}
+
+		return { pre: partToCalculate, post: part };
+	}
 
 	function updateTotal() {
 		total = partsToCalulatePreview.reduce((acc, part) => {
@@ -117,6 +147,21 @@
 			type: pricingType
 		};
 
+		const part = await getPartToCalculate(partToCalculate);
+		if (!part) {
+			return;
+		}
+
+		partsToCalulatePreview = [...partsToCalulatePreview, { pre: partToCalculate, post: part }];
+		partsToCalculate = [...partsToCalculate, partToCalculate];
+		$form.partsToCalculate = partsToCalculate;
+		updateTotal();
+		showAddedPartToast(part);
+	}
+
+	async function getPartToCalculate(
+		partToCalculate: PreCalculatedItemPart
+	): Promise<CalculatedItemPart | undefined> {
 		const workingDimensions = getWorkingDimensions();
 		const request: PreCalculatedItemPartRequest = {
 			width: workingDimensions.workingWidth,
@@ -152,11 +197,7 @@
 		}
 
 		const part = (await response.json()) as CalculatedItemPart;
-		partsToCalulatePreview = [...partsToCalulatePreview, { pre: partToCalculate, post: part }];
-		partsToCalculate = [...partsToCalculate, partToCalculate];
-		$form.partsToCalculate = partsToCalculate;
-		updateTotal();
-		showAddedPartToast(part);
+		return part;
 	}
 
 	function addPredefinedElement() {
@@ -270,6 +311,7 @@
 				type="number"
 				step="0.01"
 				name="id"
+				on:change={() => handleDimensionsChangeEvent()}
 				bind:value={$form.height}
 			/>
 		</label>
@@ -282,6 +324,7 @@
 				type="number"
 				step="0.01"
 				name="width"
+				on:change={() => handleDimensionsChangeEvent()}
 				bind:value={$form.width}
 			/>
 		</label>
@@ -294,6 +337,7 @@
 				step="0.01"
 				min="0.00"
 				name="passePartoutWidth"
+				on:change={() => handleDimensionsChangeEvent()}
 				bind:value={$form.passePartoutWidth}
 			/>
 		</label>
@@ -306,6 +350,7 @@
 				step="0.01"
 				min="0.00"
 				name="passePartoutHeight"
+				on:change={() => handleDimensionsChangeEvent()}
 				bind:value={$form.passePartoutHeight}
 			/>
 		</label>
@@ -351,7 +396,11 @@
 			></textarea>
 		</label>
 
-		<ChipSet observations={defaultObservations} addFunction={addObservation} removeFunction={removeObservation} />
+		<ChipSet
+			observations={defaultObservations}
+			addFunction={addObservation}
+			removeFunction={removeObservation}
+		/>
 
 		<PricingSelectorSection
 			sectionTitle={'Molduras'}

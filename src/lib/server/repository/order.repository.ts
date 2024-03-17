@@ -30,6 +30,6 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 	}
 
 	public async setOrderDeleted(deleted: boolean, order: OrderDto) {
-		this.setDeleted(deleted, order.customerUuid, `${order.timestamp}`);
+		this.setDeleted(deleted, order.customerUuid, order.timestamp);
 	}
 }

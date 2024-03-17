@@ -31,6 +31,12 @@ export class OrderService {
 		return null;
 	}
 
+	async deleteOrder(order: Order) {
+		order.deleted = true
+		await this.repository.setOrderDeleted(true, OrderService.toDto(order));
+	}
+
+
 	async getOrdersByCustomerId(customerId: string): Promise<Order[] | null> {
 		const customer = await this.customerService.getCustomerById(customerId);
 		if (customer === null) return null;

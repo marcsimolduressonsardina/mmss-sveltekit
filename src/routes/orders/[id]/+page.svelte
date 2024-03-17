@@ -29,6 +29,17 @@
 				<span class="text-sm"> <OrderId {order} /></span>
 				<span class="text-md text-gray-700">{new Date(order.createdAt).toLocaleString()}</span>
 				<span class="text-md text-gray-700">Creado por {order.userName}</span>
+				<div class="flex w-full flex-row space-x-1 space-y-0">
+					<button class="variant-filled-success btn btn-sm w-full"
+						><Icon class="mr-1" data={faPrint} />Imprimir pedido</button
+					>
+					<form class="w-full" method="post" action="?/deleteOrder">
+						<button class="variant-filled-error btn btn-sm w-full"
+							><Icon class="mr-1" data={trash} />Eliminar pedido</button
+						>
+					</form>
+				</div>
+
 				{#await data.items}
 					<ProgressBar />
 				{:then items}
@@ -58,10 +69,9 @@
 									<form class="md:w-1/3" method="post" action="?/deleteItem">
 										<input type="hidden" name="itemId" value={item.itemInfo.id} />
 										<button class="variant-filled-error btn btn-sm w-full"
-										><Icon class="mr-1" data={trash} />Eliminar</button
-									>
+											><Icon class="mr-1" data={trash} />Eliminar</button
+										>
 									</form>
-									
 								</div>
 							</div>
 						{/each}
