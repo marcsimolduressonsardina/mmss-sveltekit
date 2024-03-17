@@ -38,7 +38,8 @@
 		"husky": "8.0.3",
 		"lint-staged": "15.2.0",
 		"aws-cdk": "2.130.0",
-		"esbuild": "0.19.11"
+		"esbuild": "0.19.11",
+		"ts-node": "10.9.2"
 	},
 	"type": "module",
 	"dependencies": {
