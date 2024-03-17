@@ -11,11 +11,11 @@ const config: SvelteKitAuthConfig = {
 			name: 'Auth0',
 			clientId: env['AUTH0_CLIENT_ID'],
 			clientSecret: env['AUTH0_CLIENT_SECRET'],
-			issuer: env['AUTH0_DOMAIN'],
-			wellKnown: env['AUTH0_DOMAIN'] + '.well-known/openid-configuration'
+			issuer: env['AUTH0_URL'],
+			wellKnown: `${env['AUTH0_URL']}.well-known/openid-configuration`
 		}) as Provider
 	],
-	secret: '-any-random-string-',
+	secret: env['AUTH_SECRET'],
 	debug: true,
 	session: {
 		maxAge: 60 * 60 * 24 // 30 mins
