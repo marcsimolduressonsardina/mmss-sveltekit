@@ -37,19 +37,17 @@ jobs:
       - name: Bootstrap
         run: npm run cdk bootstrap
         env:
-          ENV_NAME: dev
-          AUTH_TOKEN_ARN: ${{ secrets.AUTH_TOKEN_ARN }}
-          ALLOWED_UPLOAD_ORIGINS: '*'
+          CDK_ENV_NAME: dev
 
       - name: Diff stack
         run: npm run cdk diff
         env:
-          ENV_NAME: dev
+          CDK_ENV_NAME: dev
 
       - name: Deploy stack
         run: npx cdk deploy --all --require-approval never
         env:
-          ENV_NAME: dev
+          CDK_ENV_NAME: dev
 
   deploy-prod:
     name: Deploy to prod
@@ -82,14 +80,14 @@ jobs:
       - name: Bootstrap
         run: npm run cdk bootstrap
         env:
-          ENV_NAME: prod
+          CDK_ENV_NAME: prod
 
       - name: Diff stack
         run: npm run cdk diff
         env:
-          ENV_NAME: prod
+          CDK_ENV_NAME: prod
 
       - name: Deploy stack
         run: npx cdk deploy --all --require-approval never
         env:
-          ENV_NAME: prod
+          CDK_ENV_NAME: prod
