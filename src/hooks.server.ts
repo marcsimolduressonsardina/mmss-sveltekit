@@ -11,6 +11,7 @@ import {
 } from '$env/static/private';
 
 const config: SvelteKitAuthConfig = {
+	basePath: '/auth',
 	providers: [
 		Auth0Provider({
 			id: 'auth0',
