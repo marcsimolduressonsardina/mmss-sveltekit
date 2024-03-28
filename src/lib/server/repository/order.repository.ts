@@ -1,10 +1,11 @@
+import { ORDER_TABLE } from '$env/static/private';
+
 import type { OrderDto } from './dto/order.dto';
 import { DynamoRepository } from './dynamo.repository';
-import { env } from '../config/env';
 
 export class OrderRepository extends DynamoRepository<OrderDto> {
 	constructor() {
-		super(env.orderTable, 'customerUuid', 'timestamp');
+		super(ORDER_TABLE, 'customerUuid', 'timestamp');
 	}
 
 	public async getOrderById(orderId: string): Promise<OrderDto | null> {
@@ -18,7 +19,7 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 
 	public async getOrdersByCustomerId(customerUuid: string): Promise<OrderDto[]> {
 		const dtos = await this.getByPartitionKey(customerUuid);
-		return dtos.filter((dto) => !dto.deleted)
+		return dtos.filter((dto) => !dto.deleted);
 	}
 
 	public async createOrder(order: OrderDto) {

@@ -1,10 +1,11 @@
+import { CALCULATED_ITEM_ORDER_TABLE } from '$env/static/private';
+
 import type { CalculatedItemDto } from './dto/calculated-item.dto';
 import { DynamoRepository } from './dynamo.repository';
-import { env } from '../config/env';
 
 export class CalculatedItemRepository extends DynamoRepository<CalculatedItemDto> {
 	constructor() {
-		super(env.calculatedItemOrderTable, 'itemUuid');
+		super(CALCULATED_ITEM_ORDER_TABLE, 'itemUuid');
 	}
 
 	public async getCalculatedItemById(itemUuid: string): Promise<CalculatedItemDto | null> {

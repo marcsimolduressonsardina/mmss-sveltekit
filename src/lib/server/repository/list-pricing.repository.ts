@@ -1,11 +1,12 @@
+import { LIST_PRICING_TABLE } from '$env/static/private';
+
 import type { ListPriceDto } from './dto/list-price.dto';
 import { DynamoRepository } from './dynamo.repository';
-import { env } from '../config/env';
 import { PricingType } from '../../type/pricing.type';
 
 export class ListPricingRepository extends DynamoRepository<ListPriceDto> {
 	constructor() {
-		super(env.listPricingTable, 'type', 'id');
+		super(LIST_PRICING_TABLE, 'type', 'id');
 	}
 
 	public async getByTypeAndId(type: PricingType, id: string): Promise<ListPriceDto | null> {

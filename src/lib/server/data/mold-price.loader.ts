@@ -1,9 +1,9 @@
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { MOLD_PRICES_BUCKET } from '$env/static/private';
 import * as stream from 'stream';
 import { read } from 'xlsx';
 import * as log from 'lambda-log';
 
-import { env } from '../config/env';
 import type { ListPriceDto } from '../repository/dto/list-price.dto';
 import { ListPricingRepository } from '../repository/list-pricing.repository';
 import { PricingFormula, PricingType } from '../../type/pricing.type';
@@ -75,7 +75,7 @@ export class MoldPriceLoader {
 
 	private async getExcelFromS3(fileName: string): Promise<Buffer> {
 		const params = {
-			Bucket: env.moldPricesBucket,
+			Bucket: MOLD_PRICES_BUCKET,
 			Key: fileName
 		};
 

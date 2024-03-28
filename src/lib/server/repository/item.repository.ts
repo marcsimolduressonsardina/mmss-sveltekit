@@ -1,10 +1,11 @@
+import { ITEM_ORDER_TABLE } from '$env/static/private';
+
 import type { ItemDto } from './dto/item.dto';
 import { DynamoRepository } from './dynamo.repository';
-import { env } from '../config/env';
 
 export class ItemRepository extends DynamoRepository<ItemDto> {
 	constructor() {
-		super(env.itemOrderTable, 'orderUuid', 'itemUuid');
+		super(ITEM_ORDER_TABLE, 'orderUuid', 'itemUuid');
 	}
 
 	public async getItemById(orderUuid: string, itemUuid: string): Promise<ItemDto | null> {
