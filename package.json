@@ -37,7 +37,7 @@
 		"vite": "^5.0.3",
 		"husky": "8.0.3",
 		"lint-staged": "15.2.0",
-		"aws-cdk": "2.130.0",
+		"aws-cdk": "2.134.0",
 		"esbuild": "0.19.11",
 		"ts-node": "10.9.2"
 	},
@@ -58,7 +58,7 @@
 		"@fortawesome/free-brands-svg-icons": "6.5.1",
 		"@fortawesome/free-regular-svg-icons": "6.5.1",
 		"@fortawesome/free-solid-svg-icons": "6.5.1",
-		"aws-cdk-lib": "2.130.0",
+		"aws-cdk-lib": "2.134.0",
 		"constructs": "10.2.70",
 		"source-map-support": "0.5.21",
 		"uuid": "9.0.1",

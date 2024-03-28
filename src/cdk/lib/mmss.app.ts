@@ -1,5 +1,5 @@
 import { App } from 'aws-cdk-lib'
-import { MmSsStack } from './mmss.stack'
+import { MmSsStack } from './mmss.stack.js'
 
 export class MmSsApp extends App {
   constructor() {

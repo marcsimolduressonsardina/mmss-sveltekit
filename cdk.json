@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts cdk/bin/cdk.ts",
+  "app": "node --loader ts-node/esm src/cdk/bin/cdk.ts",
   "watch": {
     "include": ["**"],
     "exclude": [

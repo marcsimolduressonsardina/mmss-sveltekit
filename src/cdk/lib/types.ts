@@ -1,4 +1,4 @@
-import { StackProps } from 'aws-cdk-lib'
+import type { StackProps } from 'aws-cdk-lib'
 import { Table } from 'aws-cdk-lib/aws-dynamodb'
 
 export interface MssStackProps extends StackProps {

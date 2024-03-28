@@ -1,6 +1,6 @@
-import { Attribute, AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb'
+import { type Attribute, AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb'
 import { Construct } from 'constructs'
-import { DynamoTableSet } from '../types'
+import type { DynamoTableSet } from '../types.js'
 
 export function createDynamoTables(scope: Construct, envName: string): DynamoTableSet {
   return {

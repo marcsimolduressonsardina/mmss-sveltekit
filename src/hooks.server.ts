@@ -16,7 +16,7 @@ const config: SvelteKitAuthConfig = {
 		}) as Provider
 	],
 	secret: env['AUTH_SECRET'],
-	debug: true,
+	debug: env['AUTH_DEBUG'] === "debug",
 	session: {
 		maxAge: 60 * 60 * 24 // 30 mins
 	}
