@@ -4,7 +4,7 @@ import type { Provider } from '@auth/core/providers';
 import type { Handle } from '@sveltejs/kit';
 import { env } from "$env/dynamic/private";
 
-console.log(JSON.stringify(env));
+console.log(process.env['AUTH0_URL']);
 const config: SvelteKitAuthConfig = {
 	providers: [
 		Auth0Provider({
