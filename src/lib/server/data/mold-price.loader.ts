@@ -1,5 +1,12 @@
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { MOLD_PRICES_BUCKET } from '$env/static/private';
+import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import {
+	MOLD_PRICES_BUCKET,
+	AWS_REGION,
+	AWS_ACCESS_KEY_ID,
+	AWS_SECRET_ACCESS_KEY
+} from '$env/static/private';
+import { v4 as uuidv4 } from 'uuid';
 import * as stream from 'stream';
 import { read } from 'xlsx';
 import * as log from 'lambda-log';
@@ -13,7 +20,27 @@ export class MoldPriceLoader {
 	private s3Client: S3Client;
 	constructor() {
 		this.repository = new ListPricingRepository();
-		this.s3Client = new S3Client({});
+		this.s3Client = new S3Client({
+			region: AWS_REGION,
+			credentials: {
+				accessKeyId: AWS_ACCESS_KEY_ID,
+				secretAccessKey: AWS_SECRET_ACCESS_KEY
+			}
+		});
+	}
+
+	public async generateFileUploadUrl(): Promise<{ filename: string; url: string }> {
+		const filename = `${uuidv4()}.xlsx`;
+		const params = {
+			Bucket: MOLD_PRICES_BUCKET,
+			Key: filename,
+			ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+		};
+
+		const url = await getSignedUrl(this.s3Client, new PutObjectCommand(params), {
+			expiresIn: 3600
+		});
+		return { filename, url };
 	}
 
 	public async loadMoldPrices(fileName: string): Promise<void> {
