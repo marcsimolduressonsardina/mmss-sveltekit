@@ -4,9 +4,10 @@ import { MmSsStack } from './mmss.stack.js'
 export class MmSsApp extends App {
   constructor() {
     super()
-
+    
     const props = {
       envName: MmSsApp.getFromEnv('CDK_ENV_NAME'),
+      allowedUploadOrigins: MmSsApp.getFromEnv('ALLOWED_UPLOAD_ORIGINS').split(',')
     }
 
     new MmSsStack(this, `${props.envName}-mmss-stack`, props)

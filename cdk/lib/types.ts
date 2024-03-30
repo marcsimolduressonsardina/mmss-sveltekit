@@ -1,8 +1,10 @@
 import type { StackProps } from 'aws-cdk-lib'
 import { Table } from 'aws-cdk-lib/aws-dynamodb'
+import type { Bucket } from 'aws-cdk-lib/aws-s3';
 
 export interface MssStackProps extends StackProps {
-  envName: string
+  envName: string,
+  allowedUploadOrigins: string[]
 }
 
 export type DynamoTableSet = {
@@ -12,3 +14,7 @@ export type DynamoTableSet = {
   calculatedItemOrderTable: Table
   listPricingTable: Table
 }
+
+export type BucketSet = {
+	moldPricesBucket: Bucket;
+};
