@@ -7,9 +7,8 @@ import {
 	AWS_SECRET_ACCESS_KEY
 } from '$env/static/private';
 import { v4 as uuidv4 } from 'uuid';
-import * as stream from 'stream';
 import { read } from 'xlsx';
-import * as log from 'lambda-log';
+import { Readable } from 'node:stream';
 
 import type { ListPriceDto } from '../repository/dto/list-price.dto';
 import { ListPricingRepository } from '../repository/list-pricing.repository';
@@ -106,21 +105,16 @@ export class MoldPriceLoader {
 			Key: fileName
 		};
 
-		try {
-			const { Body } = await this.s3Client.send(new GetObjectCommand(params));
-			if (Body instanceof stream.Readable) {
-				const chunks: Uint8Array[] = [];
-				// eslint-disable-next-line no-restricted-syntax
-				for await (const chunk of Body) {
-					chunks.push(chunk);
-				}
-				return Buffer.concat(chunks);
+		const { Body } = await this.s3Client.send(new GetObjectCommand(params));
+		if (Body instanceof Readable) {
+			const chunks: Uint8Array[] = [];
+			// eslint-disable-next-line no-restricted-syntax
+			for await (const chunk of Body) {
+				chunks.push(chunk);
 			}
-
-			throw new Error('Failed to retrieve file from S3.');
-		} catch (error: unknown) {
-			log.error(`Error getting file from S3: ${(error as Error).toString()}`);
-			throw error;
+			return Buffer.concat(chunks);
 		}
+
+		throw new Error('Failed to retrieve file from S3.');
 	}
 }
