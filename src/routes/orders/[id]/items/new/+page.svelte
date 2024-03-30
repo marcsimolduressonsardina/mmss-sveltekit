@@ -23,7 +23,7 @@
 
 	const toastStore = getToastStore();
 	export let data: PageData;
-	const { form, errors, enhance, submitting, constraints } = superForm(data.form, {
+	const { form, errors, enhance  } = superForm(data.form, {
 		dataType: 'json'
 	});
 	const proxyDate = dateProxy(form, 'deliveryDate', { format: 'date' });

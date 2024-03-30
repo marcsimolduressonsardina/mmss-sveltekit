@@ -138,7 +138,9 @@ export function areaPricing(m2Price: number, d1: number, d2: number): number {
 
 export function fitAreaPricing(listPrice: ListPriceDto, d1: number, d2: number): number {
 	if (listPrice.areas.length === 0) {
-		throw new InvalidSizeError(`No se ha encontrado el precio para el tamaño ${d1}x${d2} - ${listPrice.description}`);
+		throw new InvalidSizeError(
+			`No se ha encontrado el precio para el tamaño ${d1}x${d2} - ${listPrice.description}`
+		);
 	}
 
 	const sortedAreas = sortByAreaAndPerimeter(listPrice.areas);

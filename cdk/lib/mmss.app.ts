@@ -1,23 +1,23 @@
-import { App } from 'aws-cdk-lib'
-import { MmSsStack } from './mmss.stack.js'
+import { App } from 'aws-cdk-lib';
+import { MmSsStack } from './mmss.stack.js';
 
 export class MmSsApp extends App {
-  constructor() {
-    super()
-    
-    const props = {
-      envName: MmSsApp.getFromEnv('CDK_ENV_NAME'),
-      allowedUploadOrigins: MmSsApp.getFromEnv('ALLOWED_UPLOAD_ORIGINS').split(',')
-    }
+	constructor() {
+		super();
 
-    new MmSsStack(this, `${props.envName}-mmss-stack`, props)
-  }
+		const props = {
+			envName: MmSsApp.getFromEnv('CDK_ENV_NAME'),
+			allowedUploadOrigins: MmSsApp.getFromEnv('ALLOWED_UPLOAD_ORIGINS').split(',')
+		};
 
-  private static getFromEnv(key: string): string {
-    if (process.env[key] !== undefined) {
-      return process.env[key]!
-    }
+		new MmSsStack(this, `${props.envName}-mmss-stack`, props);
+	}
 
-    throw Error(`Undefined env ${key}`)
-  }
+	private static getFromEnv(key: string): string {
+		if (process.env[key] !== undefined) {
+			return process.env[key]!;
+		}
+
+		throw Error(`Undefined env ${key}`);
+	}
 }

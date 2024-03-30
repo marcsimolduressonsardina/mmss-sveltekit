@@ -94,7 +94,7 @@ export class ItemService {
 			partsToCalculate: partsToCalculate,
 			deleted: false
 		};
-		
+
 		ItemService.verifyItem(item);
 		const calculatedItem = await this.calculatedItemService.createCalculatedItem(
 			item,
@@ -144,7 +144,10 @@ export class ItemService {
 				throw new InvalidDataError('Invalid item data');
 			}
 
-			if (part.type === PricingType.PP && (item.passePartoutWidth == null || item.passePartoutHeight == null)) {
+			if (
+				part.type === PricingType.PP &&
+				(item.passePartoutWidth == null || item.passePartoutHeight == null)
+			) {
 				throw new InvalidDataError('Invalid item PP data');
 			}
 		}

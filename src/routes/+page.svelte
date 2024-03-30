@@ -7,7 +7,7 @@
 </script>
 
 <div
-	class="flex w-full flex-col place-content-center items-center justify-center p-4 space-y-2 lg:flex-row lg:space-x-2 lg:space-y-0"
+	class="flex w-full flex-col place-content-center items-center justify-center space-y-2 p-4 lg:flex-row lg:space-x-2 lg:space-y-0"
 >
 	<div class="w-full space-y-2 lg:w-1/2">
 		<a href="/customers/new" class="variant-filled-warning btn btn-xl w-full shadow-sm"

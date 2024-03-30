@@ -32,10 +32,9 @@ export class OrderService {
 	}
 
 	async deleteOrder(order: Order) {
-		order.deleted = true
+		order.deleted = true;
 		await this.repository.setOrderDeleted(true, OrderService.toDto(order));
 	}
-
 
 	async getOrdersByCustomerId(customerId: string): Promise<Order[] | null> {
 		const customer = await this.customerService.getCustomerById(customerId);
@@ -67,7 +66,7 @@ export class OrderService {
 			storeId: this.storeId,
 			user: this.currentUser,
 			userName: authorName != null ? authorName : undefined,
-			deleted: false,
+			deleted: false
 		};
 
 		await this.repository.createOrder(OrderService.toDto(order));
@@ -82,7 +81,7 @@ export class OrderService {
 			storeId: dto.storeId,
 			user,
 			deleted: dto.deleted,
-			userName: dto.userName,
+			userName: dto.userName
 		};
 	}
 
@@ -94,7 +93,7 @@ export class OrderService {
 			storeId: order.storeId!,
 			userId: order.user.id,
 			deleted: order.deleted,
-			userName: order.userName,
+			userName: order.userName
 		};
 	}
 }

@@ -30,15 +30,15 @@
 				<span class="text-md text-gray-700">{new Date(order.createdAt).toLocaleString()}</span>
 				<span class="text-md text-gray-700">Creado por {order.userName}</span>
 				<div class="flex w-full flex-col space-y-1 md:flex-row md:space-x-1 md:space-y-0">
-					<button class="variant-filled-success  btn btn-sm md:w-1/3"
+					<button class="variant-filled-success btn btn-sm md:w-1/3"
 						><Icon class="mr-1" data={faPrint} />Imprimir pedido</button
 					>
 					<form class="w-full md:w-1/3" method="post" action="?/deleteOrder">
-						<button class="variant-filled-error w-full btn btn-sm "
+						<button class="variant-filled-error btn btn-sm w-full"
 							><Icon class="mr-1" data={trash} />Eliminar pedido</button
 						>
 					</form>
-					<a class="variant-filled-warning  btn btn-sm md:w-1/3" href="/orders/{order.id}/items/new"
+					<a class="variant-filled-warning btn btn-sm md:w-1/3" href="/orders/{order.id}/items/new"
 						><Icon class="mr-1" data={plus} />Nuevo ítem</a
 					>
 				</div>

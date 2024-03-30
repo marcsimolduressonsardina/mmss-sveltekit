@@ -6,4 +6,4 @@
 	export let order: Order;
 </script>
 
-<i class="font-bold"><Icon  data={faBox}/> {OrderUtilites.getOrderPublicId(order)}</i>
+<i class="font-bold"><Icon data={faBox} /> {OrderUtilites.getOrderPublicId(order)}</i>

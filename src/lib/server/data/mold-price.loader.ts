@@ -8,7 +8,6 @@ import {
 } from '$env/static/private';
 import { v4 as uuidv4 } from 'uuid';
 import { read } from 'xlsx';
-import { Readable } from 'node:stream';
 
 import type { ListPriceDto } from '../repository/dto/list-price.dto';
 import { ListPricingRepository } from '../repository/list-pricing.repository';
@@ -99,22 +98,27 @@ export class MoldPriceLoader {
 		};
 	}
 
-	private async getExcelFromS3(fileName: string): Promise<Buffer> {
+	private async getExcelFromS3(fileName: string): Promise<ArrayBuffer> {
 		const params = {
 			Bucket: MOLD_PRICES_BUCKET,
 			Key: fileName
 		};
 
-		const { Body } = await this.s3Client.send(new GetObjectCommand(params));
-		if (Body instanceof Readable) {
-			const chunks: Uint8Array[] = [];
-			// eslint-disable-next-line no-restricted-syntax
-			for await (const chunk of Body) {
-				chunks.push(chunk);
-			}
-			return Buffer.concat(chunks);
-		}
+		const url = await getSignedUrl(this.s3Client, new GetObjectCommand(params), {
+			expiresIn: 3600
+		});
 
-		throw new Error('Failed to retrieve file from S3.');
+		try {
+			// Using fetch instead of S3Client since it does not work on Cloudflare Pages
+			const response = await fetch(url);
+			if (!response.ok) {
+				throw new Error('Failed to retrieve file from S3.');
+			}
+
+			const arrayBuffer = await response.arrayBuffer();
+			return arrayBuffer;
+		} catch (error) {
+			throw new Error(`Failed to retrieve file from S3: ${error}`);
+		}
 	}
 }

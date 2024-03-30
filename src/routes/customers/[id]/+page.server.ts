@@ -14,7 +14,6 @@ export const load = (async ({ params, locals }) => {
 	return { customer };
 }) satisfies PageServerLoad;
 
-
 export const actions = {
 	async createOrder({ params, locals }) {
 		const session = await locals.auth();
@@ -23,7 +22,7 @@ export const actions = {
 
 		const { id } = params;
 		const orderService = new OrderService(appUser);
-		const order = await orderService.createOrder(id, session?.user?.name)
+		const order = await orderService.createOrder(id, session?.user?.name);
 		if (!order) {
 			return fail(500, { missing: true });
 		}

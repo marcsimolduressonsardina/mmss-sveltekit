@@ -10,11 +10,10 @@ export const load = (async ({ params, locals }) => {
 	if (!appUser) throw redirect(303, '/auth/signin');
 	const { id } = params;
 	const orderService = new OrderService(appUser);
-    const itemService = new ItemService(appUser, orderService);
+	const itemService = new ItemService(appUser, orderService);
 
 	return { order: orderService.getOrderById(id), items: itemService.getItemsByOrderId(id) };
 }) satisfies PageServerLoad;
-
 
 export const actions = {
 	async deleteItem({ params, locals, request }) {

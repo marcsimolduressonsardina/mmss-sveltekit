@@ -21,5 +21,5 @@
 			</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>
-	<div class="card m-1 p-2 bg-gray-100"><slot /></div>
+	<div class="card m-1 bg-gray-100 p-2"><slot /></div>
 </AppShell>

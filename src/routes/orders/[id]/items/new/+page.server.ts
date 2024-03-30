@@ -96,7 +96,7 @@ export const actions = {
 			(acc, obs) => `${acc}${obs}\n`,
 			form.data.observations === '' ? '' : `${form.data.observations}\n`
 		);
-		
+
 		try {
 			const itemData = await itemService.createItem(
 				id,

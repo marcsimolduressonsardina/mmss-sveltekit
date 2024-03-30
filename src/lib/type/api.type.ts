@@ -1,4 +1,4 @@
-import type { PricingType } from "./pricing.type";
+import type { PricingType } from './pricing.type';
 
 export type Customer = {
 	id: string;
@@ -24,13 +24,13 @@ export type PreCalculatedItemPart = {
 	type: PricingType;
 	id: string;
 	quantity: number;
-}
+};
 
 export type PreCalculatedItemPartRequest = {
 	partToCalculate: PreCalculatedItemPart;
 	width: number;
 	height: number;
-}
+};
 
 export type ItemResponse = {
 	itemInfo: Item;
@@ -69,5 +69,3 @@ export type CalculatedItem = {
 	parts: CalculatedItemPart[];
 	total: number;
 };
-
-

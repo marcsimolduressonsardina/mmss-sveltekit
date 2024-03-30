@@ -1,5 +1,11 @@
 import { Duration } from 'aws-cdk-lib';
-import { BlockPublicAccess, Bucket, type BucketProps, type CorsRule, HttpMethods } from 'aws-cdk-lib/aws-s3';
+import {
+	BlockPublicAccess,
+	Bucket,
+	type BucketProps,
+	type CorsRule,
+	HttpMethods
+} from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import type { BucketSet } from '../types.js';
 

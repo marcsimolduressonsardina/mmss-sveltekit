@@ -35,14 +35,14 @@ export const actions = {
 		}
 
 		const splits = form.data.id.split('/');
-        console.log(splits);
+		console.log(splits);
 		if (splits.length !== 3) {
 			return setError(form, 'id', 'Invalid ID format');
 		}
 
 		const customerService = new CustomerService(appUser);
 		const existingCustomer = await customerService.getCustomerByPhone(`+${splits[2]}`);
-        console.log(existingCustomer);
+		console.log(existingCustomer);
 		if (existingCustomer == null) {
 			return setError(form, 'id', 'Invalid ID format');
 		}
@@ -53,11 +53,13 @@ export const actions = {
 			return setError(form, 'id', 'Invalid ID format');
 		}
 
-		const filteredOrders = orders.filter((order) => OrderUtilites.getOrderPublicId(order) === form.data.id);
-        if (filteredOrders.length === 0) {
-            return setError(form, 'id', 'Order not found');
-        }
+		const filteredOrders = orders.filter(
+			(order) => OrderUtilites.getOrderPublicId(order) === form.data.id
+		);
+		if (filteredOrders.length === 0) {
+			return setError(form, 'id', 'Order not found');
+		}
 
-        return redirect(303, `/orders/${filteredOrders[0].id}`);
+		return redirect(303, `/orders/${filteredOrders[0].id}`);
 	}
 };
