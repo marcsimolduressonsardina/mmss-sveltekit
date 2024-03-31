@@ -126,6 +126,8 @@ export class CalculatedItemService {
 				return CalculatedItemService.getDefaultDescription(`Passepartout ${id}`, description);
 			case PricingType.FABRIC:
 				return `Estirar tela`;
+			case PricingType.OTHER:
+				return CalculatedItemService.getDefaultDescription(`${id}`, description);
 			default:
 				throw Error('Invalid type');
 		}

@@ -23,7 +23,7 @@
 
 	const toastStore = getToastStore();
 	export let data: PageData;
-	const { form, errors, enhance  } = superForm(data.form, {
+	const { form, errors, enhance } = superForm(data.form, {
 		dataType: 'json'
 	});
 	const proxyDate = dateProxy(form, 'deliveryDate', { format: 'date' });
@@ -147,6 +147,10 @@
 			type: pricingType
 		};
 
+		await processPartToCalculate(partToCalculate);
+	}
+
+	async function processPartToCalculate(partToCalculate: PreCalculatedItemPart) {
 		const part = await getPartToCalculate(partToCalculate);
 		if (!part) {
 			return;
@@ -200,7 +204,7 @@
 		return part;
 	}
 
-	function addPredefinedElement() {
+	async function addPredefinedElement() {
 		const inputElement = predefinedElementInput;
 		const value = inputElement ? inputElement.value : null;
 		const quantityElement = predefinedQuantityElementInput;
@@ -209,16 +213,13 @@
 		if (value && quantity) {
 			const selected = data.pricing.otherPrices.find((price) => price.id === value);
 			if (selected) {
-				const part = {
-					description: selected.description,
-					price: selected.price,
-					quantity
+				const partToCalculate = {
+					id: selected.id,
+					quantity: quantity,
+					type: selected.type
 				};
-				extraParts.push(part);
-				extraParts = [...extraParts];
-				$form.extraParts = extraParts;
-				updateTotal();
-				showAddedPartToast(part);
+
+				await processPartToCalculate(partToCalculate);
 			}
 		}
 
@@ -261,8 +262,9 @@
 	}
 
 	function showAddedPartToast(part: CalculatedItemPart) {
+		const price = part.price * part.quantity;
 		toastStore.trigger({
-			message: `${part.description} añadido a la lista. Precio: ${part.price.toFixed(2)} €.`,
+			message: `${part.description} añadido a la lista. Precio: ${price.toFixed(2)} €.`,
 			background: 'variant-filled'
 		});
 	}

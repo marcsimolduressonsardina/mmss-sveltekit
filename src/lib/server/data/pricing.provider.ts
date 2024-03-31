@@ -69,6 +69,7 @@ export class PricingProvider {
 				return getFabricPrice(d1, d2);
 			case PricingType.BACK:
 			case PricingType.GLASS:
+			case PricingType.OTHER:
 			case PricingType.PP:
 				return PricingProvider.getPriceByFormula(priceInfo, d1, d2);
 			default:
@@ -84,6 +85,8 @@ export class PricingProvider {
 				return fitAreaPricing(priceInfo, d1, d2);
 			case PricingFormula.FORMULA_AREA:
 				return areaPricing(priceInfo.price, d1, d2);
+			case PricingFormula.NONE:
+				return priceInfo.price;	
 			default:
 				throw Error('Formula not found');
 		}
@@ -96,6 +99,8 @@ export class PricingProvider {
 	}
 
 	private static checkMaxMinDimensions(d1w: number, d2w: number, pricing: ListPriceDto) {
+		if (pricing.formula === PricingFormula.NONE) return;
+
 		if (pricing.maxD1 != null && pricing.maxD2 != null) {
 			const { d1, d2 } = PricingProvider.cleanAndOrder(pricing.maxD1, pricing.maxD2);
 			if (d1w > d1 || d2w > d2)
