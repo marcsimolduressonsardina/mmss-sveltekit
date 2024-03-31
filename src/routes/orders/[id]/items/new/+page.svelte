@@ -28,7 +28,7 @@
 	});
 	const proxyDate = dateProxy(form, 'deliveryDate', { format: 'date' });
 	let total = 0.0;
-	let extraObservations: string[] = [];
+	let predefinedObservations: string[] = [];
 	let partsToCalculate: PreCalculatedItemPart[] = [];
 	let partsToCalulatePreview: { pre: PreCalculatedItemPart; post: CalculatedItemPart }[] = [];
 	let extraParts: CalculatedItemPart[] = [
@@ -45,7 +45,7 @@
 
 	$form.extraParts = extraParts;
 	$form.partsToCalculate = partsToCalculate;
-	$form.extraObservations = extraObservations;
+	$form.predefinedObservations = predefinedObservations;
 
 	async function handleDimensionsChangeEvent() {
 		if (partsToCalulatePreview.length > 0) {
@@ -94,15 +94,15 @@
 	}
 
 	function addObservation(observation: string) {
-		extraObservations.push(observation);
-		extraObservations = [...extraObservations];
-		$form.extraObservations = extraObservations;
+		predefinedObservations.push(observation);
+		predefinedObservations = [...predefinedObservations];
+		$form.predefinedObservations = predefinedObservations;
 	}
 
 	function removeObservation(observation: string) {
-		extraObservations = extraObservations.filter((o) => o !== observation);
-		extraObservations = [...extraObservations];
-		$form.extraObservations = extraObservations;
+		predefinedObservations = predefinedObservations.filter((o) => o !== observation);
+		predefinedObservations = [...predefinedObservations];
+		$form.predefinedObservations = predefinedObservations;
 	}
 
 	function getWorkingDimensions() {

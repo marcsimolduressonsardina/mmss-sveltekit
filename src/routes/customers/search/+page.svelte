@@ -5,7 +5,7 @@
 	import { superForm } from 'sveltekit-superforms';
 
 	export let data;
-	const { form, errors, constraints, enhance, submitting } = superForm(data.form);
+	const { form, errors, enhance, submitting } = superForm(data.form);
 </script>
 
 <div class="px-2 pt-1 text-xl font-semibold">Buscar Cliente</div>

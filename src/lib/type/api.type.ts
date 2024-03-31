@@ -55,6 +55,7 @@ export type Item = {
 	passePartoutWidth: number;
 	passePartoutHeight: number;
 	description: string;
+	predefinedObservations: string[];
 	observations: string;
 	quantity: number;
 	createdAt: Date;

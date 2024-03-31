@@ -41,7 +41,7 @@ const itemSchema = z.object({
 	discount: z.number().min(0).default(0),
 	extraParts: z.array(extraPartSchema),
 	partsToCalculate: z.array(partToCalculateSchema),
-	extraObservations: z.array(z.string()).default([])
+	predefinedObservations: z.array(z.string()).default([])
 });
 
 async function getPricing() {
@@ -92,11 +92,6 @@ export const actions = {
 			type: part.type as PricingType
 		}));
 
-		const observations = form.data.extraObservations.reduce(
-			(acc, obs) => `${acc}${obs}\n`,
-			form.data.observations === '' ? '' : `${form.data.observations}\n`
-		);
-
 		try {
 			const itemData = await itemService.createItem(
 				id,
@@ -105,7 +100,8 @@ export const actions = {
 				form.data.passePartoutWidth ?? 0,
 				form.data.passePartoutHeight ?? 0,
 				form.data.description,
-				observations,
+				form.data.predefinedObservations,
+				form.data.observations,
 				form.data.quantity,
 				form.data.deliveryDate,
 				partsToCalculate,

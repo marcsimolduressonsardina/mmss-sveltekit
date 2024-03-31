@@ -12,6 +12,7 @@ export type ItemDto = {
 	passePartoutWidth: number;
 	passePartoutHeight: number;
 	description: string;
+	predefinedObservations: string[];
 	observations: string;
 	quantity: number;
 	createdAt: number;
