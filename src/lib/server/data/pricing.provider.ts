@@ -86,7 +86,7 @@ export class PricingProvider {
 			case PricingFormula.FORMULA_AREA:
 				return areaPricing(priceInfo.price, d1, d2);
 			case PricingFormula.NONE:
-				return priceInfo.price;	
+				return priceInfo.price;
 			default:
 				throw Error('Formula not found');
 		}
