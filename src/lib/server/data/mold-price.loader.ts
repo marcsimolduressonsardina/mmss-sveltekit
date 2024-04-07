@@ -75,10 +75,21 @@ export class MoldPriceLoader {
 					const cleanPrice = price.v.toString().replace(' ', '').replace(',', '.');
 					if (!Number.isNaN(Number(cleanPrice))) {
 						const calcPrice = Math.ceil(Number(cleanPrice) * 100) / 100;
-						prices.set(id, MoldPriceLoader.createPricing(id, calcPrice));
+						prices.set(
+							id,
+							MoldPriceLoader.createPricing(id, calcPrice, externalId.v, internalId.v)
+						);
 					}
 				} else {
-					prices.set(id, MoldPriceLoader.createPricing(id, Math.ceil(Number(price.v) * 100) / 100));
+					prices.set(
+						id,
+						MoldPriceLoader.createPricing(
+							id,
+							Math.ceil(Number(price.v) * 100) / 100,
+							externalId.v,
+							internalId.v
+						)
+					);
 				}
 			}
 			count += 1;
@@ -87,12 +98,17 @@ export class MoldPriceLoader {
 		return prices;
 	}
 
-	private static createPricing(id: string, price: number): ListPrice {
+	private static createPricing(
+		id: string,
+		price: number,
+		externalId: string,
+		internalId: string
+	): ListPrice {
 		return {
 			id,
 			internalId: uuidv4(),
 			price,
-			description: 'Marco-Moldura',
+			description: `${internalId} Ref: ${externalId}`,
 			type: PricingType.MOLD,
 			formula: PricingFormula.NONE,
 			areas: []

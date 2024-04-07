@@ -24,7 +24,7 @@
 	let maxD2Value: number | undefined;
 	let priceValue: number | undefined;
 
-	let isAreaFit = false;
+	let isAreaFit = $form.formula === PricingFormula.FORMULA_FIT_AREA;
 	let areas: MaxArea[] = $form.areas;
 
 	function handleFormulaChange() {

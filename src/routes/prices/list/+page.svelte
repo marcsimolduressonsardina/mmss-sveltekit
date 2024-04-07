@@ -76,7 +76,13 @@
 		const pricing = $pricingData;
 		return {
 			head: ['ID', 'Precio'],
-			body: tableMapperValues(pricing.moldPrices, ['id', 'price']),
+			body: tableMapperValues(
+				pricing.moldPrices.map((p) => ({
+					description: p.description,
+					price: p.price.toFixed(2) + ' €'
+				})),
+				['description', 'price']
+			),
 			meta: tableMapperValues(pricing.moldPrices, ['internalId'])
 		};
 	}
