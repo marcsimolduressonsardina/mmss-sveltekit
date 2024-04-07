@@ -51,7 +51,7 @@
 					{:else}
 						{#each items as item, index}
 							<div
-								class="mt-1 flex w-full flex-col rounded-md bg-slate-50 p-3 text-gray-700 shadow-sm"
+								class="mt-1 flex w-full flex-col rounded-md bg-gray-300 p-3 text-gray-700 shadow-sm"
 							>
 								<span class="text-md flex font-semibold">
 									<Icon data={faImage} class="mr-2" /> Item {index + 1}/{items.length}

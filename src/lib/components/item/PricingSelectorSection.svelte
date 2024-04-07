@@ -1,19 +1,19 @@
 <script lang="ts">
-	import type { ListPriceDto } from '$lib/server/repository/dto/list-price.dto';
 	import type { PricingType } from '$lib/type/pricing.type';
 	import Icon from 'svelte-awesome';
 	import plus from 'svelte-awesome/icons/plus';
 	import Spacer from './Spacer.svelte';
+	import type { ListPrice } from '$lib/type/api.type';
 
 	export let sectionTitle: string;
 	export let label: string;
 	export let addValue: (pricingType: PricingType, value?: string) => void;
 	export let pricingType: PricingType;
-	export let prices: ListPriceDto[];
+	export let prices: ListPrice[];
 
 	let idElementInput: HTMLSelectElement;
 
-	function getSelectLabel(price: ListPriceDto) {
+	function getSelectLabel(price: ListPrice) {
 		if (price.description == null || price.description === '') {
 			return `${price.id}`;
 		}

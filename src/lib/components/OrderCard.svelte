@@ -8,7 +8,7 @@
 	export let order: Order;
 </script>
 
-<div class="w-full rounded-md bg-slate-50 p-5 shadow-sm">
+<div class="w-full rounded-md bg-gray-300 p-5 shadow-sm">
 	<OrderId {order} />
 	<p>{new Date(order.createdAt).toLocaleString()}</p>
 	<button class="variant-filled btn btn-sm mt-1" on:click={() => goto(`/orders/${order.id}`)}
