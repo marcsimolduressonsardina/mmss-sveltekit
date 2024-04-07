@@ -5,10 +5,10 @@ import { OrderService } from '$lib/server/service/order.service';
 import { z } from 'zod';
 import { zod } from 'sveltekit-superforms/adapters';
 import { superValidate, setError } from 'sveltekit-superforms';
-import { PricingProvider } from '../../../../../lib/server/data/pricing.provider';
 import { PricingType } from '$lib/type/pricing.type';
 import { ItemService } from '$lib/server/service/item.service';
 import { InvalidSizeError } from '$lib/server/error/invalid-size.error';
+import { PricingHelper } from '$lib/server/shared/pricing/pricing.helper';
 
 const extraPartSchema = z.object({
 	price: z.number().min(0).default(0),
@@ -44,23 +44,6 @@ const itemSchema = z.object({
 	predefinedObservations: z.array(z.string()).default([])
 });
 
-async function getPricing() {
-	const pricingProvider = new PricingProvider();
-	const moldPricesPromise = pricingProvider.getPricingList(PricingType.MOLD);
-	const glassPromise = pricingProvider.getPricingList(PricingType.GLASS);
-	const ppPricesPromise = pricingProvider.getPricingList(PricingType.PP);
-	const backPricesPromise = pricingProvider.getPricingList(PricingType.BACK);
-	const otherPricesPromise = pricingProvider.getPricingList(PricingType.OTHER);
-	const [moldPrices, glassPrices, ppPrices, backPrices, otherPrices] = await Promise.all([
-		moldPricesPromise,
-		glassPromise,
-		ppPricesPromise,
-		backPricesPromise,
-		otherPricesPromise
-	]);
-	return { moldPrices, glassPrices, ppPrices, backPrices, otherPrices };
-}
-
 export const load = (async ({ params, locals }) => {
 	const session = await locals.auth();
 	const appUser = AuthService.generateUserFromAuth(session?.user);
@@ -68,9 +51,9 @@ export const load = (async ({ params, locals }) => {
 	const { id } = params;
 	const orderService = new OrderService(appUser);
 	const form = await superValidate(zod(itemSchema));
-	const pricing = await getPricing();
+	const pricing = await PricingHelper.getPricing();
 
-	return { order: orderService.getOrderById(id), form, pricing, errorMessage: 'gg' };
+	return { order: orderService.getOrderById(id), form, pricing };
 }) satisfies PageServerLoad;
 
 export const actions = {

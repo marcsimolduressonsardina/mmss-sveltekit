@@ -1,4 +1,4 @@
-import type { PricingType } from './pricing.type';
+import type { PricingFormula, PricingType } from './pricing.type';
 
 export type Customer = {
 	id: string;
@@ -69,4 +69,22 @@ export type CalculatedItem = {
 	discount: number;
 	parts: CalculatedItemPart[];
 	total: number;
+};
+
+export type MaxArea = {
+	d1: number;
+	d2: number;
+	price: number;
+};
+
+export type ListPrice = {
+	id: string;
+	internalId: string,
+	price: number;
+	description: string;
+	type: PricingType;
+	formula: PricingFormula;
+	areas: MaxArea[];
+	maxD1?: number;
+	maxD2?: number;
 };

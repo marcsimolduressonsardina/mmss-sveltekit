@@ -1,5 +1,5 @@
+import type { ListPrice, MaxArea } from '$lib/type/api.type';
 import { InvalidSizeError } from '../error/invalid-size.error';
-import type { MaxArea, ListPriceDto } from '../repository/dto/list-price.dto';
 
 const moldMatrix: { [key: number]: number } = {
 	25: 1.07,
@@ -136,7 +136,7 @@ export function areaPricing(m2Price: number, d1: number, d2: number): number {
 	return Math.ceil(x * 100) / 100;
 }
 
-export function fitAreaPricing(listPrice: ListPriceDto, d1: number, d2: number): number {
+export function fitAreaPricing(listPrice: ListPrice, d1: number, d2: number): number {
 	if (listPrice.areas.length === 0) {
 		throw new InvalidSizeError(
 			`No se ha encontrado el precio para el tamaño ${d1}x${d2} - ${listPrice.description}`

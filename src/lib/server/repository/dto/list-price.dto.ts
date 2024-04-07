@@ -1,6 +1,4 @@
-import { PricingFormula, PricingType } from '../../../type/pricing.type';
-
-export type MaxArea = {
+export type MaxAreaDto = {
 	d1: number;
 	d2: number;
 	price: number;
@@ -8,11 +6,12 @@ export type MaxArea = {
 
 export type ListPriceDto = {
 	id: string;
+	uuid: string,
 	price: number;
 	description: string;
-	type: PricingType;
-	formula: PricingFormula;
-	areas: MaxArea[];
+	type: string;
+	formula: string;
+	areas: MaxAreaDto[];
 	maxD1?: number;
 	maxD2?: number;
 };

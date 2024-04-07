@@ -62,17 +62,19 @@ function createItemOrderTable(scope: Construct, envName: string): Table {
 }
 
 function createListPricingTable(scope: Construct, envName: string): Table {
-	return createTable(
-		scope,
-		`${envName}-list-pricing`,
-		{
-			name: 'type',
-			type: AttributeType.STRING
-		},
-		{
-			name: 'id',
-			type: AttributeType.STRING
-		}
+	return addUuidGsi(
+		createTable(
+			scope,
+			`${envName}-list-pricing`,
+			{
+				name: 'type',
+				type: AttributeType.STRING
+			},
+			{
+				name: 'id',
+				type: AttributeType.STRING
+			}
+		)
 	);
 }
 

@@ -1,4 +1,4 @@
-import { PricingProvider } from '../data/pricing.provider';
+import { PricingService } from './pricing.service';
 import { CalculatedItemRepository } from '../repository/calculated-item.repository';
 import type { CalculatedItemDto } from '../repository/dto/calculated-item.dto';
 import type {
@@ -12,11 +12,11 @@ import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 
 export class CalculatedItemService {
 	private calculatedItemRepository: CalculatedItemRepository;
-	private pricingProvider: PricingProvider;
+	private pricingProvider: PricingService;
 
 	constructor() {
 		this.calculatedItemRepository = new CalculatedItemRepository();
-		this.pricingProvider = new PricingProvider();
+		this.pricingProvider = new PricingService();
 	}
 
 	public async getCalculatedItem(itemId: string): Promise<CalculatedItem | null> {

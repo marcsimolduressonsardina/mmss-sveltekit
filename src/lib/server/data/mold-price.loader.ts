@@ -9,15 +9,15 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { read } from 'xlsx';
 
-import type { ListPriceDto } from '../repository/dto/list-price.dto';
-import { ListPricingRepository } from '../repository/list-pricing.repository';
-import { PricingFormula, PricingType } from '../../type/pricing.type';
+import { PricingFormula, PricingType } from '$lib/type/pricing.type';
+import { PricingService } from '../service/pricing.service';
+import type { ListPrice } from '$lib/type/api.type';
 
 export class MoldPriceLoader {
-	private repository: ListPricingRepository;
+	private service: PricingService;
 	private s3Client: S3Client;
 	constructor() {
-		this.repository = new ListPricingRepository();
+		this.service = new PricingService();
 		this.s3Client = new S3Client({
 			region: AWS_REGION,
 			credentials: {
@@ -36,24 +36,24 @@ export class MoldPriceLoader {
 		};
 
 		const url = await getSignedUrl(this.s3Client, new PutObjectCommand(params), {
-			expiresIn: 3600
+			expiresIn: 350
 		});
 		return { filename, url };
 	}
 
 	public async loadMoldPrices(fileName: string): Promise<void> {
 		const [currentPrices, newPrices] = await Promise.all([
-			this.repository.getAllPricesByType(PricingType.MOLD),
+			this.service.getPricingList(PricingType.MOLD),
 			this.getPricesFromExcel(fileName)
 		]);
 		const toDeleteIds = currentPrices.filter((p) => !newPrices.has(p.id)).map((p) => p.id);
 		await Promise.all([
-			this.repository.batchStoreListPrices(Array.from(newPrices.values())),
-			this.repository.deleteListPrices(PricingType.MOLD, toDeleteIds)
+			this.service.batchStoreListPrices(Array.from(newPrices.values())),
+			this.service.deleteListPrices(PricingType.MOLD, toDeleteIds)
 		]);
 	}
 
-	private async getPricesFromExcel(fileName: string): Promise<Map<string, ListPriceDto>> {
+	private async getPricesFromExcel(fileName: string): Promise<Map<string, ListPrice>> {
 		const buffer = await this.getExcelFromS3(fileName);
 		const file = read(buffer, { type: 'buffer' });
 		const sheet = file.Sheets['TODAS'];
@@ -63,7 +63,7 @@ export class MoldPriceLoader {
 		const maxrow = parseInt(end!.split(/([A-Z])/)[2]!, 10);
 
 		let count = 2;
-		const prices = new Map<string, ListPriceDto>();
+		const prices = new Map<string, ListPrice>();
 		while (count < maxrow) {
 			const internalId = sheet[`A${count}`];
 			const externalId = sheet[`B${count}`];
@@ -87,9 +87,10 @@ export class MoldPriceLoader {
 		return prices;
 	}
 
-	private static createPricing(id: string, price: number): ListPriceDto {
+	private static createPricing(id: string, price: number): ListPrice {
 		return {
 			id,
+			internalId: uuidv4(),
 			price,
 			description: '',
 			type: PricingType.MOLD,

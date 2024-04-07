@@ -14,6 +14,11 @@ export class ListPricingRepository extends DynamoRepository<ListPriceDto> {
 		return price;
 	}
 
+	public async getByInternalId(uuid: string): Promise<ListPriceDto | null> {
+		const price = await this.getByUuid(uuid);
+		return price;
+	}
+
 	public async storeListPrice(price: ListPriceDto): Promise<void> {
 		await this.put(price);
 	}

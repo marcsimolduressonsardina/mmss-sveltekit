@@ -58,6 +58,7 @@
 
 			if (!validExtensions.includes(fileExtension)) {
 				toastError('Por favor, seleccione un archivo Excel (.xls o .xlsx)');
+				cleanUpload();
 				return false;
 			}
 		}
