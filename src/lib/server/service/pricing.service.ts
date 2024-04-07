@@ -42,7 +42,9 @@ export class PricingService {
 	}
 
 	public async batchStoreListPrices(prices: ListPrice[]): Promise<void> {
-		await this.listPricingRepository.batchStoreListPrices(prices.map(PricingService.toDto));
+		await this.listPricingRepository.batchStoreListPrices(
+			prices.map((p) => PricingService.toDto(PricingService.cleanAndVerifyEntity(p)))
+		);
 	}
 
 	public async deleteListPrices(type: PricingType, ids: string[]): Promise<void> {
@@ -148,8 +150,9 @@ export class PricingService {
 
 		if (
 			listPrice.formula !== PricingFormula.FORMULA_FIT_AREA &&
-			(listPrice.price == null || listPrice.price <= 0)
+			(listPrice.price == null || (listPrice.price <= 0 && listPrice.type !== PricingType.MOLD))
 		) {
+			console.log(listPrice);
 			throw Error('No price provided for this formula');
 		}
 
@@ -157,6 +160,12 @@ export class PricingService {
 			listPrice.price = 0;
 		} else {
 			listPrice.areas = [];
+		}
+
+		if (listPrice.type === PricingType.MOLD) {
+			listPrice.maxD1 = 300;
+			listPrice.maxD2 = 265;
+			listPrice.formula = PricingFormula.NONE;
 		}
 
 		return listPrice;

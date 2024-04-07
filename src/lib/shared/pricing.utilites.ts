@@ -44,7 +44,7 @@ const areaSchema = z.object({
 	price: z.number().min(0)
 });
 
-export const listPriceSchema = z.object({
+const listPriceSchema = {
 	id: z
 		.string()
 		.regex(/^[^\s]*$/, 'id should not contain spaces')
@@ -61,4 +61,15 @@ export const listPriceSchema = z.object({
 	areas: z.array(areaSchema).default([]),
 	maxD1: z.number().optional(),
 	maxD2: z.number().optional()
+};
+
+export const listPriceSchemaNew = z.object({
+	...listPriceSchema,
+	type: z.enum([PricingType.GLASS, PricingType.PP, PricingType.BACK, PricingType.OTHER])
 });
+
+export const listPriceSchemaEdit = z.object({
+	...listPriceSchema,
+	type: z.enum([PricingType.GLASS, PricingType.PP, PricingType.BACK, PricingType.OTHER, PricingType.MOLD])
+});
+

@@ -4,7 +4,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 
 import { AuthService } from '$lib/server/service/auth.service';
 import { PricingService } from '$lib/server/service/pricing.service.js';
-import { listPriceSchema } from '$lib/shared/pricing.utilites';
+import { listPriceSchemaNew } from '$lib/shared/pricing.utilites';
 
 
 export const load = async ({ locals }) => {
@@ -12,7 +12,7 @@ export const load = async ({ locals }) => {
 	const appUser = AuthService.generateUserFromAuth(session?.user);
 	if (!appUser) throw redirect(303, '/auth/signin');
 
-	const form = await superValidate(zod(listPriceSchema));
+	const form = await superValidate(zod(listPriceSchemaNew));
 	return { form };
 };
 
@@ -22,7 +22,7 @@ export const actions = {
 		const appUser = AuthService.generateUserFromAuth(session?.user);
 		if (!appUser) throw redirect(303, '/auth/signin');
 
-		const form = await superValidate(request, zod(listPriceSchema));
+		const form = await superValidate(request, zod(listPriceSchemaNew));
 		if (!form.valid) {
 			return fail(400, { form });
 		}

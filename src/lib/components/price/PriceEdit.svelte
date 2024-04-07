@@ -7,7 +7,7 @@
 	import trash from 'svelte-awesome/icons/trash';
 	import plus from 'svelte-awesome/icons/plus';
 
-	import { PricingFormula } from '$lib/type/pricing.type';
+	import { PricingFormula, PricingType } from '$lib/type/pricing.type';
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import type { MaxArea } from '$lib/type/api.type';
@@ -106,7 +106,7 @@
 				id="id"
 				type="text"
 				name="id"
-                disabled={isNew ? false : true}
+				disabled={isNew ? false : true}
 				bind:value={$form.id}
 			/>
 		</label>
@@ -124,25 +124,39 @@
 
 		<label class="label">
 			<span>Tipo: </span>
-			<select class="select" name="type" bind:value={$form.type} disabled={isNew ? false : true}>
-				{#each Object.entries(pricingTypesMap) as [p, label]}
-					<option value={p}>{label}</option>
-				{/each}
-			</select>
+
+			{#if !isNew && $form.type === PricingType.MOLD}
+				<select class="select" name="type" disabled={true}>
+					<option>Marco/Moldura</option>
+				</select>
+			{:else}
+				<select class="select" name="type" bind:value={$form.type} disabled={!isNew}>
+					{#each Object.entries(pricingTypesMap) as [p, label]}
+						<option value={p}>{label}</option>
+					{/each}
+				</select>
+			{/if}
 		</label>
 
 		<label class="label">
 			<span>Cómo calcular: </span>
-			<select
-				class="select"
-				name="formula"
-				bind:value={$form.formula}
-				on:change={handleFormulaChange}
-			>
-				{#each Object.entries(formulasMap) as [p, label]}
-					<option value={p}>{label}</option>
-				{/each}
-			</select>
+			{#if !isNew && $form.type === PricingType.MOLD}
+				<select class="select" name="type" disabled={true}>
+					<option>Marco/Moldura</option>
+				</select>
+			{:else}
+				<select
+					class="select"
+					name="formula"
+					bind:value={$form.formula}
+					on:change={handleFormulaChange}
+					disabled={!isNew}
+				>
+					{#each Object.entries(formulasMap) as [p, label]}
+						<option value={p}>{label}</option>
+					{/each}
+				</select>
+			{/if}
 		</label>
 
 		<Spacer title={'Datos del precio'} />

@@ -30,6 +30,7 @@ export async function POST({ request, locals }) {
 	try {
 		await moldPriceLoader.loadMoldPrices(filename);
 	} catch (error: unknown) {
+		console.error(error);
 		return json({ error: 'Error loading the prices' }, { status: 500 });
 	}
 

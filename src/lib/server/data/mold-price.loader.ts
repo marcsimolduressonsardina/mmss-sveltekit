@@ -92,7 +92,7 @@ export class MoldPriceLoader {
 			id,
 			internalId: uuidv4(),
 			price,
-			description: '',
+			description: 'Marco-Moldura',
 			type: PricingType.MOLD,
 			formula: PricingFormula.NONE,
 			areas: []
