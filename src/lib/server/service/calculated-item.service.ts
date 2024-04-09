@@ -88,7 +88,7 @@ export class CalculatedItemService {
 			(total, part) => total + part.price * part.quantity,
 			0
 		);
-		const totalPrice = item.quantity * subtotal * (1 - calculatedItem.discount);
+		const totalPrice = item.quantity * subtotal * (1 - calculatedItem.discount / 100);
 		return Math.ceil(totalPrice * 100) / 100;
 	}
 

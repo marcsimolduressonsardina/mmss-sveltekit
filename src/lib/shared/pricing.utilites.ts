@@ -38,6 +38,13 @@ export const formulasMap: Record<PricingFormula, string> = {
 	[PricingFormula.FORMULA_LEFTOVER]: 'Precio con fórmula m2 * precio * IVA * 5 + 2'
 };
 
+export const formulasStringMap: Record<PricingFormula, string> = {
+	[PricingFormula.NONE]: '',
+	[PricingFormula.FORMULA_AREA]: ' / m2',
+	[PricingFormula.FORMULA_FIT_AREA]: '',
+	[PricingFormula.FORMULA_LEFTOVER]: ' * m2 * IVA * 5 + 2'
+};
+
 const areaSchema = z.object({
 	d1: z.number().min(1.0),
 	d2: z.number().min(1.0),
@@ -70,6 +77,22 @@ export const listPriceSchemaNew = z.object({
 
 export const listPriceSchemaEdit = z.object({
 	...listPriceSchema,
-	type: z.enum([PricingType.GLASS, PricingType.PP, PricingType.BACK, PricingType.OTHER, PricingType.MOLD])
+	type: z.enum([
+		PricingType.GLASS,
+		PricingType.PP,
+		PricingType.BACK,
+		PricingType.OTHER,
+		PricingType.MOLD
+	])
 });
 
+export function getPriceString(price: ListPrice): string {
+	if (price.formula !== PricingFormula.FORMULA_FIT_AREA) {
+		return `${price.price.toFixed(2)}€${formulasStringMap[price.formula]}`;
+	}
+
+	const prices = price.areas.map((a) => a.price);
+	const minPrice = Math.min(...prices);
+	const maxPrice = Math.max(...prices);
+	return `${minPrice.toFixed(2)}€ - ${maxPrice.toFixed(2)}€`;
+}

@@ -17,9 +17,12 @@
 	import { PricingType } from '$lib/type/pricing.type';
 	import CartItem from '$lib/components/item/CartItem.svelte';
 	import PricingSelectorSection from '$lib/components/item/PricingSelectorSection.svelte';
+	import AutocompleteSection from '$lib/components/item/AutocompleteSection.svelte';
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import ChipSet from '$lib/components/item/ChipSet.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
+
+	type TempParts = { pre: PreCalculatedItemPart; post: CalculatedItemPart }[];
 
 	const toastStore = getToastStore();
 	export let data: PageData;
@@ -27,13 +30,14 @@
 		dataType: 'json'
 	});
 	const proxyDate = dateProxy(form, 'deliveryDate', { format: 'date' });
+
+
 	let total = 0.0;
+	let totalPerUnit = 0.0;
 	let predefinedObservations: string[] = [];
 	let partsToCalculate: PreCalculatedItemPart[] = [];
-	let partsToCalulatePreview: { pre: PreCalculatedItemPart; post: CalculatedItemPart }[] = [];
-	let extraParts: CalculatedItemPart[] = [
-		{ description: 'Cantoneras y embalaje', price: 2, quantity: 1 }
-	];
+	let partsToCalulatePreview: TempParts = [];
+	let extraParts: CalculatedItemPart[] = [{ description: 'Cantoneras', price: 2.5, quantity: 1 }];
 
 	const defaultObservations = ['Sabe que puede ondular', 'No pegar', 'Muy delicado', 'No recortar'];
 
@@ -42,6 +46,11 @@
 	let otherNameElementInput: HTMLInputElement;
 	let otherPriceElementInput: HTMLInputElement;
 	let otherQuantityElementInput: HTMLSelectElement;
+
+	let addedPP = false;
+	let addedGlass = false;
+	let addedBack = false;
+	let addedMold = false;
 
 	$form.extraParts = extraParts;
 	$form.partsToCalculate = partsToCalculate;
@@ -64,7 +73,6 @@
 			partsToCalculate = validatedParts;
 			$form.partsToCalculate = partsToCalculate;
 			partsToCalulatePreview = parts;
-			updateTotal();
 			toastStore.trigger({
 				message: `Precios actualizados`,
 				background: 'variant-filled'
@@ -81,16 +89,6 @@
 		}
 
 		return { pre: partToCalculate, post: part };
-	}
-
-	function updateTotal() {
-		total = partsToCalulatePreview.reduce((acc, part) => {
-			return acc + part.post.price * part.post.quantity;
-		}, 0);
-
-		total += extraParts.reduce((acc, part) => {
-			return acc + part.price * part.quantity;
-		}, 0);
 	}
 
 	function addObservation(observation: string) {
@@ -126,14 +124,12 @@
 		partsToCalulatePreview = partsToCalulatePreview.filter((p) => p !== part);
 		partsToCalculate = partsToCalculate.filter((p) => p !== part.pre);
 		$form.partsToCalculate = partsToCalculate;
-		updateTotal();
 	}
 
 	function deleteExtraPart(part: CalculatedItemPart) {
 		extraParts = extraParts.filter((p) => p !== part);
 		extraParts = [...extraParts];
 		$form.extraParts = extraParts;
-		updateTotal();
 	}
 
 	async function addFromPricingSelector(pricingType: PricingType, value?: string) {
@@ -159,7 +155,6 @@
 		partsToCalulatePreview = [...partsToCalulatePreview, { pre: partToCalculate, post: part }];
 		partsToCalculate = [...partsToCalculate, partToCalculate];
 		$form.partsToCalculate = partsToCalculate;
-		updateTotal();
 		showAddedPartToast(part);
 	}
 
@@ -242,10 +237,8 @@
 				price,
 				quantity
 			};
-			extraParts.push(part);
-			extraParts = [...extraParts];
+			extraParts = [part, ...extraParts];
 			$form.extraParts = extraParts;
-			updateTotal();
 			showAddedPartToast(part);
 		}
 
@@ -269,7 +262,32 @@
 		});
 	}
 
-	updateTotal();
+	function updateTotal(
+		parts: TempParts,
+		eParts: CalculatedItemPart[],
+		discount: number,
+		quantity: number
+	) {
+		total = parts.reduce((acc, part) => {
+			return acc + part.post.price * part.post.quantity;
+		}, 0);
+
+		total += eParts.reduce((acc, part) => {
+			return acc + part.price * part.quantity;
+		}, 0);
+
+		total -= total * (discount / 100);
+		totalPerUnit = total;
+		total *= quantity;
+	}
+
+	$: {
+		updateTotal(partsToCalulatePreview, extraParts, $form.discount, $form.quantity);
+		addedMold = partsToCalulatePreview.some((p) => p.pre.type === PricingType.MOLD);
+		addedPP = partsToCalulatePreview.some((p) => p.pre.type === PricingType.PP);
+		addedGlass = partsToCalulatePreview.some((p) => p.pre.type === PricingType.GLASS);
+		addedBack = partsToCalulatePreview.some((p) => p.pre.type === PricingType.BACK);
+	}
 </script>
 
 <div class="px-2 pt-1 text-2xl font-semibold">Nuevo Ítem</div>
@@ -284,27 +302,6 @@
 			method="post"
 			class="flex w-full flex-col place-content-center space-y-2 px-2 lg:grid lg:grid-cols-2 lg:space-x-2"
 		>
-			<div class="w-full space-x-2 lg:col-span-2">
-				<span class="text-xl font-medium">Cantidad: {$form.quantity}</span>
-				<button
-					type="button"
-					class="variant-filled btn btn-xl"
-					on:click={() => {
-						$form.quantity += 1;
-					}}><Icon data={plus} /></button
-				>
-				<button
-					type="button"
-					class="variant-filled-warning btn btn-xl"
-					on:click={() => {
-						$form.quantity -= 1;
-					}}
-					disabled={$form.quantity <= 1}
-				>
-					<Icon data={minus} />
-				</button>
-			</div>
-
 			<Spacer title={'Datos de la obra'} />
 
 			<label class="label" for="height">
@@ -359,27 +356,13 @@
 				/>
 			</label>
 
-			<label class="label" for="deliveryDate">
-				<span>Fecha de entrega:</span>
-				<input
-					class="input {$errors.deliveryDate ? 'input-error' : ''}"
-					name="deliveryDate"
-					type="date"
-					bind:value={$proxyDate}
-				/>
-			</label>
-
-			<label class="label" for="discount">
-				<span>Descuento:</span>
-				<input
-					class="input {$errors.discount ? 'input-error' : ''}"
-					type="number"
-					step="0.01"
-					min="0"
-					max="100"
-					name="discount"
-					bind:value={$form.discount}
-				/>
+			<label class="label" for="description">
+				<span>Descripción:</span>
+				<textarea
+					class="textarea {$errors.description ? 'input-error' : ''}"
+					name="description"
+					bind:value={$form.description}
+				></textarea>
 			</label>
 
 			<label class="label" for="observations">
@@ -391,27 +374,19 @@
 				></textarea>
 			</label>
 
-			<label class="label" for="description">
-				<span>Descripción:</span>
-				<textarea
-					class="textarea {$errors.description ? 'input-error' : ''}"
-					name="description"
-					bind:value={$form.description}
-				></textarea>
-			</label>
-
 			<ChipSet
 				observations={defaultObservations}
 				addFunction={addObservation}
 				removeFunction={removeObservation}
 			/>
 
-			<PricingSelectorSection
+			<AutocompleteSection
 				sectionTitle={'Molduras'}
 				label={'Moldura/Marco'}
 				prices={data.pricing.moldPrices}
 				addValue={addFromPricingSelector}
 				pricingType={PricingType.MOLD}
+				added={addedMold}
 			/>
 
 			<PricingSelectorSection
@@ -420,6 +395,7 @@
 				prices={data.pricing.ppPrices}
 				addValue={addFromPricingSelector}
 				pricingType={PricingType.PP}
+				added={addedPP}
 			/>
 
 			<PricingSelectorSection
@@ -428,6 +404,7 @@
 				prices={data.pricing.backPrices}
 				addValue={addFromPricingSelector}
 				pricingType={PricingType.BACK}
+				added={addedBack}
 			/>
 
 			<PricingSelectorSection
@@ -436,6 +413,7 @@
 				prices={data.pricing.glassPrices}
 				addValue={addFromPricingSelector}
 				pricingType={PricingType.GLASS}
+				added={addedGlass}
 			/>
 
 			<Spacer title={'Estirar tela'} />
@@ -525,8 +503,53 @@
 				}}><Icon class="mr-2" data={plus} /> Añadir a la lista</button
 			>
 
-			<hr class="my-4 border-t border-gray-200 lg:col-span-2" />
-			<span class="text-xl font-medium lg:col-span-2">Elementos añadidos</span>
+			<Spacer title={'Otros datos'} />
+
+			<div class="w-full space-x-2 lg:col-span-2">
+				<span class="text-md font-medium">Cantidad: {$form.quantity}</span>
+				<button
+					type="button"
+					class="variant-filled btn btn-md"
+					on:click={() => {
+						$form.quantity += 1;
+					}}><Icon data={plus} /></button
+				>
+				<button
+					type="button"
+					class="variant-filled-warning btn btn-md"
+					on:click={() => {
+						$form.quantity -= 1;
+					}}
+					disabled={$form.quantity <= 1}
+				>
+					<Icon data={minus} />
+				</button>
+			</div>
+
+			<label class="label" for="deliveryDate">
+				<span>Fecha de entrega:</span>
+				<input
+					class="input {$errors.deliveryDate ? 'input-error' : ''}"
+					name="deliveryDate"
+					type="date"
+					bind:value={$proxyDate}
+				/>
+			</label>
+
+			<label class="label" for="discount">
+				<span>Descuento (%):</span>
+				<input
+					class="input {$errors.discount ? 'input-error' : ''}"
+					type="number"
+					step="0.01"
+					min="0"
+					max="100"
+					name="discount"
+					bind:value={$form.discount}
+				/>
+			</label>
+
+			<Spacer title={'Elementos añadidos'} />
 			<dl class="list-dl lg:col-span-2">
 				{#each partsToCalulatePreview as part}
 					<CartItem
@@ -540,7 +563,10 @@
 				{/each}
 			</dl>
 
-			<div class="lg:col-span-2">
+			<div class="grid grid-cols-1 lg:col-span-2">
+				{#if $form.quantity > 1}
+					<span class="text-md font-medium">Total por unidad: {totalPerUnit.toFixed(2)} €</span>
+				{/if}
 				<span class="text-xl font-medium">Total: {total.toFixed(2)} €</span>
 			</div>
 
