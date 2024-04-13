@@ -10,7 +10,6 @@ export interface MssStackProps extends StackProps {
 export type DynamoTableSet = {
 	customerTable: Table;
 	orderTable: Table;
-	itemOrderTable: Table;
 	calculatedItemOrderTable: Table;
 	listPricingTable: Table;
 };

@@ -13,6 +13,7 @@ import {
 	UpdateCommand
 } from '@aws-sdk/lib-dynamodb';
 import _ from 'lodash';
+import type { ItemDto } from './dto/item.dto';
 
 export abstract class DynamoRepository<T> {
 	protected readonly table: string;
@@ -160,9 +161,10 @@ export abstract class DynamoRepository<T> {
 		return [];
 	}
 
-	protected async setDeleted(
-		deleted: boolean,
+	protected async updateField(
 		partitionKeyValue: string,
+		fieldName: string,
+		value: string | number | ItemDto | boolean,
 		sortKeyValue?: string | number
 	) {
 		const key: { [x: string]: string | number } = {
@@ -180,19 +182,19 @@ export abstract class DynamoRepository<T> {
 		const params: UpdateCommandInput = {
 			TableName: this.table,
 			Key: key,
-			UpdateExpression: 'set #deleted = :deleted',
+			UpdateExpression: 'set #field = :value',
 			ExpressionAttributeNames: {
-				'#deleted': 'deleted'
+				'#field': fieldName
 			},
 			ExpressionAttributeValues: {
-				':deleted': deleted
+				':value': value
 			}
 		};
 
 		try {
 			await this.client.send(new UpdateCommand(params));
 		} catch (error: unknown) {
-			this.logError('setDeleted', error);
+			this.logError('updateField', error);
 			throw error;
 		}
 	}
@@ -229,9 +231,11 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
-	protected async batchDelete(values: { partitionKey: string; sortKey?: string }[]) {
+	protected async batchDelete(values: { partitionKey: string; sortKey?: string | number }[]) {
 		const deleteRequests = values.map((value) => {
-			const key = {
+			const key: {
+				[x: string]: string | number;
+			} = {
 				[this.partitionKey]: value.partitionKey
 			};
 
@@ -259,7 +263,7 @@ export abstract class DynamoRepository<T> {
 	private async batchWrite(
 		requests:
 			| { PutRequest: { Item: Record<string, AttributeValue> } }[]
-			| { DeleteRequest: { Key: { [x: string]: string } } }[]
+			| { DeleteRequest: { Key: { [x: string]: string | number } } }[]
 	) {
 		const params = {
 			RequestItems: {

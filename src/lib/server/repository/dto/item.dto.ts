@@ -5,8 +5,6 @@ export type PreCalculatedItemPartDto = {
 };
 
 export type ItemDto = {
-	itemUuid: string;
-	orderUuid: string;
 	width: number;
 	height: number;
 	passePartoutWidth: number;
@@ -18,5 +16,4 @@ export type ItemDto = {
 	createdAt: number;
 	deliveryDate: number;
 	partsToCalculate: PreCalculatedItemPartDto[];
-	deleted: boolean;
 };

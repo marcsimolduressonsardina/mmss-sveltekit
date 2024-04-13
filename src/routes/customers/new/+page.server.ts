@@ -1,15 +1,11 @@
 import { fail, error, redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { z } from 'zod';
 
 import { CustomerService } from '$lib/server/service/customer.service';
 import { AuthService } from '$lib/server/service/auth.service';
+import { customerSchema } from '$lib/shared/customer.utilities';
 
-const schema = z.object({
-	name: z.string().min(3).default(''),
-	phone: z.string().min(9).default('+34')
-});
 
 export const load = async ({ url, locals }) => {
 	const session = await locals.auth();
@@ -17,7 +13,7 @@ export const load = async ({ url, locals }) => {
 	if (!appUser) throw redirect(303, '/auth/signin');
 
 	const phone = url.searchParams.get('phone');
-	const form = await superValidate(zod(schema));
+	const form = await superValidate(zod(customerSchema));
 	if (phone) form.data.phone = phone;
 	return { form };
 };
@@ -28,10 +24,9 @@ export const actions = {
 		const appUser = AuthService.generateUserFromAuth(session?.user);
 		if (!appUser) throw redirect(303, '/auth/signin');
 
-		const form = await superValidate(request, zod(schema));
+		const form = await superValidate(request, zod(customerSchema));
 
 		if (!form.valid) {
-			// Again, return { form } and things will just work.
 			return fail(400, { form });
 		}
 

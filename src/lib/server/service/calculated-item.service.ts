@@ -5,6 +5,7 @@ import type {
 	CalculatedItem,
 	CalculatedItemPart,
 	Item,
+	Order,
 	PreCalculatedItemPart
 } from '../../type/api.type';
 import { PricingType } from '../../type/pricing.type';
@@ -25,12 +26,13 @@ export class CalculatedItemService {
 	}
 
 	public async createCalculatedItem(
+		order: Order,
 		item: Item,
 		discount: number,
 		extraParts: CalculatedItemPart[]
 	): Promise<CalculatedItem> {
 		const calculatedItem: CalculatedItem = {
-			itemId: item.id,
+			orderId: order.id,
 			discount,
 			parts: [],
 			total: 0
@@ -94,7 +96,7 @@ export class CalculatedItemService {
 
 	private static fromDto(dto: CalculatedItemDto): CalculatedItem {
 		return {
-			itemId: dto.itemUuid,
+			orderId: dto.orderUuid,
 			discount: dto.discount,
 			parts: dto.parts,
 			total: dto.total
@@ -103,7 +105,7 @@ export class CalculatedItemService {
 
 	private static toDto(calculatedItem: CalculatedItem): CalculatedItemDto {
 		return {
-			itemUuid: calculatedItem.itemId,
+			orderUuid: calculatedItem.orderId,
 			discount: calculatedItem.discount,
 			parts: calculatedItem.parts,
 			total: calculatedItem.total

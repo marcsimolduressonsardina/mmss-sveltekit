@@ -32,11 +32,6 @@ export type PreCalculatedItemPartRequest = {
 	height: number;
 };
 
-export type ItemResponse = {
-	itemInfo: Item;
-	calculatedItem: CalculatedItem;
-};
-
 export type Order = {
 	id: string;
 	customer: Customer;
@@ -45,11 +40,11 @@ export type Order = {
 	user: AppUser;
 	userName?: string;
 	deleted: boolean;
+	amountPayed: number;
+	item?: Item;
 };
 
 export type Item = {
-	id: string;
-	orderId: string;
 	width: number;
 	height: number;
 	passePartoutWidth: number;
@@ -61,11 +56,10 @@ export type Item = {
 	createdAt: Date;
 	deliveryDate: Date;
 	partsToCalculate: PreCalculatedItemPart[];
-	deleted: boolean;
 };
 
 export type CalculatedItem = {
-	itemId: string;
+	orderId: string;
 	discount: number;
 	parts: CalculatedItemPart[];
 	total: number;

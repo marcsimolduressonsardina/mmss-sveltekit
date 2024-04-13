@@ -6,7 +6,6 @@ export function createDynamoTables(scope: Construct, envName: string): DynamoTab
 	return {
 		customerTable: createCustomerTable(scope, envName),
 		orderTable: createOrderTable(scope, envName),
-		itemOrderTable: createItemOrderTable(scope, envName),
 		calculatedItemOrderTable: createCalculatedItemOrderTable(scope, envName),
 		listPricingTable: createListPricingTable(scope, envName)
 	};
@@ -46,21 +45,6 @@ function createOrderTable(scope: Construct, envName: string): Table {
 	);
 }
 
-function createItemOrderTable(scope: Construct, envName: string): Table {
-	return createTable(
-		scope,
-		`${envName}-item-order`,
-		{
-			name: 'orderUuid',
-			type: AttributeType.STRING
-		},
-		{
-			name: 'itemUuid',
-			type: AttributeType.STRING
-		}
-	);
-}
-
 function createListPricingTable(scope: Construct, envName: string): Table {
 	return addUuidGsi(
 		createTable(
@@ -80,7 +64,7 @@ function createListPricingTable(scope: Construct, envName: string): Table {
 
 function createCalculatedItemOrderTable(scope: Construct, envName: string): Table {
 	return createTable(scope, `${envName}-calculated-item-order`, {
-		name: 'itemUuid',
+		name: 'orderUuid',
 		type: AttributeType.STRING
 	});
 }

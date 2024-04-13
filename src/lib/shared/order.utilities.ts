@@ -1,4 +1,6 @@
 import type { Order } from '$lib/type/api.type';
+import { PricingType } from '$lib/type/pricing.type';
+import { z } from 'zod';
 
 export class OrderUtilites {
 	public static getOrderPublicId(order: Order): string {
@@ -15,3 +17,43 @@ export class OrderUtilites {
 		return `${date.getFullYear()}${monthString}${date.getDate()}/${date.getSeconds()}/${phoneWithoutPlus}`;
 	}
 }
+
+export const tempCustomerUuid = 'temp-customer';
+
+export function isOrderTemp(order: Order): boolean {
+	return order.customer.id === tempCustomerUuid;
+}
+
+const extraPartSchema = z.object({
+	price: z.number().min(0).default(0),
+	quantity: z.number().int().min(1).default(1),
+	description: z.string().default('')
+});
+
+const partToCalculateSchema = z.object({
+	id: z.string(),
+	quantity: z.number().int().min(1).default(1),
+	type: z.enum([
+		PricingType.MOLD,
+		PricingType.GLASS,
+		PricingType.PP,
+		PricingType.BACK,
+		PricingType.OTHER,
+		PricingType.FABRIC
+	])
+});
+
+export const itemSchema = z.object({
+	width: z.number().min(1.0),
+	height: z.number().min(1.0),
+	deliveryDate: z.date().min(new Date()),
+	description: z.string().default(''),
+	observations: z.string().default(''),
+	quantity: z.number().int().min(1).default(1),
+	passePartoutWidth: z.number().min(0).default(0).optional(),
+	passePartoutHeight: z.number().min(0).default(0).optional(),
+	discount: z.number().min(0).default(0),
+	extraParts: z.array(extraPartSchema),
+	partsToCalculate: z.array(partToCalculateSchema),
+	predefinedObservations: z.array(z.string()).default([])
+});

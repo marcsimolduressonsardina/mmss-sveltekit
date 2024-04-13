@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { dateProxy, superForm } from 'sveltekit-superforms';
+
 	import Icon from 'svelte-awesome';
 	import plus from 'svelte-awesome/icons/plus';
 	import minus from 'svelte-awesome/icons/minus';
@@ -12,7 +13,6 @@
 		PreCalculatedItemPartRequest
 	} from '$lib/type/api.type';
 
-	import type { PageData } from './$types';
 	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 	import { PricingType } from '$lib/type/pricing.type';
 	import CartItem from '$lib/components/item/CartItem.svelte';
@@ -21,16 +21,17 @@
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import ChipSet from '$lib/components/item/ChipSet.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
+	import type { AllPrices } from '$lib/shared/pricing.utilites';
+
+	export let data: {pricing: Promise<AllPrices>; form: any};
 
 	type TempParts = { pre: PreCalculatedItemPart; post: CalculatedItemPart }[];
 
 	const toastStore = getToastStore();
-	export let data: PageData;
 	const { form, errors, enhance, submitting } = superForm(data.form, {
 		dataType: 'json'
 	});
 	const proxyDate = dateProxy(form, 'deliveryDate', { format: 'date' });
-
 
 	let total = 0.0;
 	let totalPerUnit = 0.0;
@@ -206,7 +207,8 @@
 		const quantity = quantityElement ? Number(quantityElement.value) : null;
 
 		if (value && quantity) {
-			const selected = data.pricing.otherPrices.find((price) => price.id === value);
+			const pricing = await data.pricing;
+			const selected = pricing.otherPrices.find((price) => price.id === value);
 			if (selected) {
 				const partToCalculate = {
 					id: selected.id,
@@ -290,13 +292,13 @@
 	}
 </script>
 
-<div class="px-2 pt-1 text-2xl font-semibold">Nuevo Ítem</div>
+<div class="px-2 pt-1 text-2xl font-semibold">Nuevo Pedido</div>
 {#if $submitting}
 	<ProgressBar text={'Guardando...'} />
 {:else}
-	{#await data.order}
+	{#await data.pricing}
 		<ProgressBar />
-	{:then order}
+	{:then pricing}
 		<form
 			use:enhance
 			method="post"
@@ -383,7 +385,7 @@
 			<AutocompleteSection
 				sectionTitle={'Molduras'}
 				label={'Moldura/Marco'}
-				prices={data.pricing.moldPrices}
+				prices={pricing.moldPrices}
 				addValue={addFromPricingSelector}
 				pricingType={PricingType.MOLD}
 				added={addedMold}
@@ -392,7 +394,7 @@
 			<PricingSelectorSection
 				sectionTitle={'Passepartout'}
 				label={'Tipo de PP'}
-				prices={data.pricing.ppPrices}
+				prices={pricing.ppPrices}
 				addValue={addFromPricingSelector}
 				pricingType={PricingType.PP}
 				added={addedPP}
@@ -401,7 +403,7 @@
 			<PricingSelectorSection
 				sectionTitle={'Trasera'}
 				label={'Tipo de trasera'}
-				prices={data.pricing.backPrices}
+				prices={pricing.backPrices}
 				addValue={addFromPricingSelector}
 				pricingType={PricingType.BACK}
 				added={addedBack}
@@ -410,7 +412,7 @@
 			<PricingSelectorSection
 				sectionTitle={'Cristal'}
 				label={'Tipo de cristal'}
-				prices={data.pricing.glassPrices}
+				prices={pricing.glassPrices}
 				addValue={addFromPricingSelector}
 				pricingType={PricingType.GLASS}
 				added={addedGlass}
@@ -434,7 +436,7 @@
 					id="predefinedElements"
 					bind:this={predefinedElementInput}
 				>
-					{#each data.pricing.otherPrices as otherPrice}
+					{#each pricing.otherPrices as otherPrice}
 						<option value={otherPrice.id}
 							>{otherPrice.description} ({otherPrice.price.toFixed(2)} €)</option
 						>
@@ -571,7 +573,7 @@
 			</div>
 
 			<button class="variant-filled-warning btn lg:col-span-2" type="submit"
-				><Icon class="mr-2" data={check} /> Crear</button
+				><Icon class="mr-2" data={check} /> Crear pedido</button
 			>
 		</form>
 	{/await}

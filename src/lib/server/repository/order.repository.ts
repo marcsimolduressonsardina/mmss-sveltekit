@@ -31,6 +31,15 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 	}
 
 	public async setOrderDeleted(deleted: boolean, order: OrderDto) {
-		this.setDeleted(deleted, order.customerUuid, order.timestamp);
+		this.updateField(order.customerUuid, 'deleted', deleted, order.timestamp);
 	}
+
+	public async updateAmountPayed(order: OrderDto, amount: number) { 
+		this.updateField(order.customerUuid, 'amountPayed', amount, order.timestamp);
+	}
+
+	public async deleteOrder(customerUuid: string, timestamp: number) {
+		await this.batchDelete([{ partitionKey: customerUuid, sortKey: timestamp }]);
+	}
+
 }

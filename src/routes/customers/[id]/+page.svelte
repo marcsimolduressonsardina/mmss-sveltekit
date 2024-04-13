@@ -5,17 +5,9 @@
 	import plus from 'svelte-awesome/icons/plus';
 
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 
 	export let data: PageData;
-	export let form: ActionData;
-	let isLoading = false;
-	let formElement: HTMLFormElement;
-
-	async function handleSubmit() {
-		isLoading = true;
-		formElement.submit();
-	}
 </script>
 
 <div class="flex w-full flex-col place-content-center space-y-2 px-2 pt-3 text-center">
@@ -39,32 +31,19 @@
 			<div
 				class="flex w-full flex-col place-content-center space-y-2 pt-2 lg:flex-row lg:space-x-2 lg:space-y-0"
 			>
-				{#if isLoading}
-					<ProgressBar text={'Generando el pedido...'} />
-				{:else}
-					<form
-						class="lg:w-full"
-						on:submit|preventDefault={handleSubmit}
-						bind:this={formElement}
-						method="post"
-						action="?/createOrder"
-					>
-						<button class="variant-filled-warning btn btn-xl w-full shadow-sm lg:btn-md"
-							><Icon class="mr-2" data={plus} /> Crear pedido
-						</button>
-					</form>
-					<a
-						href="/customers/{customer.id}/orders"
-						class="variant-filled btn btn-xl shadow-sm lg:btn-md lg:w-full"
-						><Icon class="mr-2" data={faBox} /> Ver pedidos</a
-					>
-				{/if}
+				<a
+					class="variant-filled-warning btn btn-xl w-full shadow-sm lg:btn-md"
+					href="/customers/{customer.id}/orders/new"
+				>
+					<Icon class="mr-2" data={plus} /> Crear pedido
+				</a>
+				<a
+					href="/customers/{customer.id}/orders"
+					class="variant-filled btn btn-xl shadow-sm lg:btn-md lg:w-full"
+				>
+					<Icon class="mr-2" data={faBox} /> Ver pedidos
+				</a>
 			</div>
-			{#if form?.missing}
-				<p class="p-5 text-lg font-semibold text-red-700">
-					No se ha podido crear el pedido, inténtelo más tarde.
-				</p>
-			{/if}
 		{/if}
 	{/await}
 </div>

@@ -1,5 +1,5 @@
 export type CalculatedItemDto = {
-	itemUuid: string;
+	orderUuid: string;
 	discount: number;
 	parts: CalculatedItemPartDto[];
 	total: number;
