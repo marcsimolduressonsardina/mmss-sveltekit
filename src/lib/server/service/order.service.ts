@@ -16,6 +16,7 @@ import type { ItemDto } from '../repository/dto/item.dto';
 import { PricingType } from '$lib/type/pricing.type';
 import { InvalidDataError } from '../error/invalid-data.error';
 import { isOrderTemp, tempCustomerUuid } from '$lib/shared/order.utilities';
+import type { PPDimensions } from '../../type/api.type';
 
 export class OrderService {
 	private readonly storeId: string;
@@ -77,8 +78,7 @@ export class OrderService {
 		customerId: string,
 		width: number,
 		height: number,
-		passePartoutWidth: number = 0,
-		passePartoutHeight: number = 0,
+		pp: number = 0,
 		description: string = '',
 		predefinedObservations: string[] = [],
 		observations: string = '',
@@ -87,6 +87,7 @@ export class OrderService {
 		partsToCalculate: PreCalculatedItemPart[] = [],
 		extraParts: CalculatedItemPart[] = [],
 		discount: number = 0,
+		ppDimensions?: PPDimensions,
 		authorName?: string | null
 	): Promise<Order | null> {
 		const customer = await this.customerService.getCustomerById(customerId);
@@ -95,8 +96,7 @@ export class OrderService {
 			customer,
 			width,
 			height,
-			passePartoutWidth,
-			passePartoutHeight,
+			pp,
 			description,
 			predefinedObservations,
 			observations,
@@ -105,6 +105,7 @@ export class OrderService {
 			partsToCalculate,
 			extraParts,
 			discount,
+			ppDimensions,
 			authorName
 		);
 		return order;
@@ -113,8 +114,7 @@ export class OrderService {
 	async createTempOrder(
 		width: number,
 		height: number,
-		passePartoutWidth: number = 0,
-		passePartoutHeight: number = 0,
+		pp: number = 0,
 		description: string = '',
 		predefinedObservations: string[] = [],
 		observations: string = '',
@@ -123,6 +123,7 @@ export class OrderService {
 		partsToCalculate: PreCalculatedItemPart[] = [],
 		extraParts: CalculatedItemPart[] = [],
 		discount: number = 0,
+		ppDimensions?: PPDimensions,
 		authorName?: string | null
 	): Promise<Order> {
 		const customer = this.getTempCustomer();
@@ -130,8 +131,7 @@ export class OrderService {
 			customer,
 			width,
 			height,
-			passePartoutWidth,
-			passePartoutHeight,
+			pp,
 			description,
 			predefinedObservations,
 			observations,
@@ -140,6 +140,7 @@ export class OrderService {
 			partsToCalculate,
 			extraParts,
 			discount,
+			ppDimensions,
 			authorName
 		);
 		return order;
@@ -154,7 +155,6 @@ export class OrderService {
 		await this.repository.deleteOrder(tempCustomerUuid, OrderService.toDto(order).timestamp);
 		await this.repository.createOrder(OrderService.toDto(order));
 	}
-
 
 	async setOrderFullyPaid(order: Order) {
 		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
@@ -180,8 +180,7 @@ export class OrderService {
 		customer: Customer,
 		width: number,
 		height: number,
-		passePartoutWidth: number = 0,
-		passePartoutHeight: number = 0,
+		pp: number = 0,
 		description: string = '',
 		predefinedObservations: string[] = [],
 		observations: string = '',
@@ -190,6 +189,7 @@ export class OrderService {
 		partsToCalculate: PreCalculatedItemPart[] = [],
 		extraParts: CalculatedItemPart[] = [],
 		discount: number = 0,
+		ppDimensions?: PPDimensions,
 		authorName?: string | null
 	): Promise<Order> {
 		const order: Order = {
@@ -207,8 +207,8 @@ export class OrderService {
 		const item: Item = {
 			width,
 			height,
-			passePartoutWidth,
-			passePartoutHeight,
+			pp,
+			ppDimensions,
 			description,
 			predefinedObservations,
 			observations,
@@ -244,10 +244,7 @@ export class OrderService {
 				throw new InvalidDataError('Invalid item data');
 			}
 
-			if (
-				part.type === PricingType.PP &&
-				(item.passePartoutWidth == null || item.passePartoutHeight == null)
-			) {
+			if (part.type === PricingType.PP && (item.pp > 0 || item.ppDimensions !== null)) {
 				throw new InvalidDataError('Invalid item PP data');
 			}
 		}
@@ -285,8 +282,8 @@ export class OrderService {
 		return {
 			width: item.width,
 			height: item.height,
-			passePartoutWidth: item.passePartoutWidth,
-			passePartoutHeight: item.passePartoutHeight,
+			pp: item.pp,
+			ppDimensions: item.ppDimensions,
 			description: item.description,
 			predefinedObservations: item.predefinedObservations,
 			observations: item.observations,
@@ -305,8 +302,8 @@ export class OrderService {
 		return {
 			width: dto.width,
 			height: dto.height,
-			passePartoutWidth: dto.passePartoutWidth,
-			passePartoutHeight: dto.passePartoutHeight,
+			pp: dto.pp,
+			ppDimensions: dto.ppDimensions,
 			description: dto.description,
 			predefinedObservations: dto.predefinedObservations,
 			observations: dto.observations,

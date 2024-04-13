@@ -4,11 +4,18 @@ export type PreCalculatedItemPartDto = {
 	quantity: number;
 };
 
+export type PPDimensionsDto = {
+	up: number;
+	down: number;
+	left: number;
+	right: number;
+};
+
 export type ItemDto = {
 	width: number;
 	height: number;
-	passePartoutWidth: number;
-	passePartoutHeight: number;
+	pp: number;
+	ppDimensions?: PPDimensionsDto;
 	description: string;
 	predefinedObservations: string[];
 	observations: string;

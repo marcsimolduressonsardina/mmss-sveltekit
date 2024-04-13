@@ -54,9 +54,7 @@ export const actions = {
 
 		const customerService = new CustomerService(appUser);
 		const existingCustomer = await customerService.getCustomerByPhone(form.data.phone);
-		if (existingCustomer) {
-			orderService.
-		}
+
 
 		const customer = await customerService.createCustomer(form.data.name, form.data.phone);
 		if (customer == null) {

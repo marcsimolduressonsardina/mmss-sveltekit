@@ -43,8 +43,7 @@ export const actions = {
 				id,
 				form.data.width,
 				form.data.height,
-				form.data.passePartoutWidth ?? 0,
-				form.data.passePartoutHeight ?? 0,
+				form.data.pp ?? 0,
 				form.data.description,
 				form.data.predefinedObservations,
 				form.data.observations,
@@ -53,6 +52,7 @@ export const actions = {
 				partsToCalculate,
 				form.data.extraParts,
 				form.data.discount,
+				form.data.ppDimensions,
 				session?.user?.name
 			);
 

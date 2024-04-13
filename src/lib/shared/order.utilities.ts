@@ -43,6 +43,13 @@ const partToCalculateSchema = z.object({
 	])
 });
 
+const ppDimensionsSchema = z.object({
+	up: z.number().min(0),
+	down: z.number().min(0),
+	left: z.number().min(0),
+	right: z.number().min(0)
+});
+
 export const itemSchema = z.object({
 	width: z.number().min(1.0),
 	height: z.number().min(1.0),
@@ -50,8 +57,8 @@ export const itemSchema = z.object({
 	description: z.string().default(''),
 	observations: z.string().default(''),
 	quantity: z.number().int().min(1).default(1),
-	passePartoutWidth: z.number().min(0).default(0).optional(),
-	passePartoutHeight: z.number().min(0).default(0).optional(),
+	pp: z.number().min(0).default(0).optional(),
+	ppDimensions: ppDimensionsSchema.optional(),
 	discount: z.number().min(0).default(0),
 	extraParts: z.array(extraPartSchema),
 	partsToCalculate: z.array(partToCalculateSchema),

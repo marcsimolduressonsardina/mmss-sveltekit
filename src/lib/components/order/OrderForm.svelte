@@ -23,7 +23,7 @@
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import type { AllPrices } from '$lib/shared/pricing.utilites';
 
-	export let data: {pricing: Promise<AllPrices>; form: any};
+	export let data: { pricing: Promise<AllPrices>; form: any };
 
 	type TempParts = { pre: PreCalculatedItemPart; post: CalculatedItemPart }[];
 
@@ -35,10 +35,19 @@
 
 	let total = 0.0;
 	let totalPerUnit = 0.0;
+	let totalDiscount = 0.0;
+	let totalWithoutDiscount = 0.0;
 	let predefinedObservations: string[] = [];
 	let partsToCalculate: PreCalculatedItemPart[] = [];
 	let partsToCalulatePreview: TempParts = [];
 	let extraParts: CalculatedItemPart[] = [{ description: 'Cantoneras', price: 2.5, quantity: 1 }];
+
+	// PP vars
+	let asymetricPP = false;
+	let upPP = 0;
+	let downPP = 0;
+	let leftPP = 0;
+	let rightPP = 0;
 
 	const defaultObservations = ['Sabe que puede ondular', 'No pegar', 'Muy delicado', 'No recortar'];
 
@@ -107,15 +116,22 @@
 	function getWorkingDimensions() {
 		const width = $form.width;
 		const height = $form.height;
-		const passePartoutWidth = $form.passePartoutWidth;
-		const passePartoutHeight = $form.passePartoutHeight;
 
-		return CalculatedItemUtilities.getWorkingDimensions(
-			width,
-			height,
-			passePartoutWidth ?? 0,
-			passePartoutHeight ?? 0
-		);
+		if (!asymetricPP) {
+			return CalculatedItemUtilities.getWorkingDimensions(width, height, $form.pp);
+		} else {
+			return CalculatedItemUtilities.getWorkingDimensions(
+				width,
+				height,
+				0,
+				{
+					up: upPP,
+					down: downPP,
+					left: leftPP,
+					right: rightPP
+				}
+			);
+		}
 	}
 
 	function deletePrecalculatedPreview(part: {
@@ -278,9 +294,32 @@
 			return acc + part.price * part.quantity;
 		}, 0);
 
+		totalWithoutDiscount = total;
 		total -= total * (discount / 100);
 		totalPerUnit = total;
 		total *= quantity;
+		totalWithoutDiscount *= quantity;
+		totalDiscount = totalWithoutDiscount - total;
+	}
+
+	function updatePP(aPP: boolean) {
+		if (aPP) {
+			$form.pp = 0;
+			$form.ppDimensions = {
+				up: upPP,
+				down: downPP,
+				left: leftPP,
+				right: rightPP
+			}
+		} else {
+			$form.ppDimensions = undefined;
+			upPP = 0;
+			downPP = 0;
+			leftPP = 0;
+			rightPP = 0;
+		}
+
+		handleDimensionsChangeEvent();
 	}
 
 	$: {
@@ -289,6 +328,7 @@
 		addedPP = partsToCalulatePreview.some((p) => p.pre.type === PricingType.PP);
 		addedGlass = partsToCalulatePreview.some((p) => p.pre.type === PricingType.GLASS);
 		addedBack = partsToCalulatePreview.some((p) => p.pre.type === PricingType.BACK);
+		updatePP(asymetricPP);
 	}
 </script>
 
@@ -332,31 +372,82 @@
 				/>
 			</label>
 
-			<label class="label" for="passePartoutWidth"
-				><span>Ancho PP:</span>
+			<label class="label" for="pp"
+				><span>Medida PP:</span>
 				<input
-					class="input {$errors.passePartoutWidth ? 'input-error' : ''}"
+					class="input {$errors.pp ? 'input-error' : ''}"
 					type="number"
 					step="0.01"
 					min="0.00"
-					name="passePartoutWidth"
+					name="pp"
 					on:change={() => handleDimensionsChangeEvent()}
-					bind:value={$form.passePartoutWidth}
+					bind:value={$form.pp}
+					disabled={asymetricPP}
 				/>
 			</label>
 
-			<label class="label" for="passePartoutHeight"
-				><span>Alto PP:</span>
-				<input
-					class="input {$errors.passePartoutHeight ? 'input-error' : ''}"
-					type="number"
-					step="0.01"
-					min="0.00"
-					name="passePartoutHeight"
-					on:change={() => handleDimensionsChangeEvent()}
-					bind:value={$form.passePartoutHeight}
-				/>
+			<label class="label flex items-center space-x-2" for="ppAsymetric">
+				<input class="checkbox" type="checkbox" bind:checked={asymetricPP} />
+				<p>PP Asimétrico</p>
 			</label>
+
+			{#if asymetricPP}
+				<Spacer title={'Medidas PP'} />
+
+				<label class="label" for="upPP">
+					<span>Arriba:</span>
+					<input
+						class="input"
+						id="upPP"
+						type="number"
+						step="0.01"
+						name="upPP"
+						on:change={() => handleDimensionsChangeEvent()}
+						bind:value={upPP}
+					/>
+				</label>
+
+				<label class="label" for="downPP">
+					<span>Abajo:</span>
+					<input
+						class="input"
+						id="downPP"
+						type="number"
+						step="0.01"
+						name="downPP"
+						on:change={() => handleDimensionsChangeEvent()}
+						bind:value={downPP}
+					/>
+				</label>
+
+				<label class="label" for="leftPP">
+					<span>Izquierda:</span>
+					<input
+						class="input"
+						id="leftPP"
+						type="number"
+						step="0.01"
+						name="leftPP"
+						on:change={() => handleDimensionsChangeEvent()}
+						bind:value={leftPP}
+					/>
+				</label>
+
+				<label class="label" for="rightPP">
+					<span>Derecha:</span>
+					<input
+						class="input"
+						id="rightPP"
+						type="number"
+						step="0.01"
+						name="rightPP"
+						on:change={() => handleDimensionsChangeEvent()}
+						bind:value={rightPP}
+					/>
+				</label>
+			{/if}
+
+			<Spacer title={'Descripción de la obra'} />
 
 			<label class="label" for="description">
 				<span>Descripción:</span>
@@ -569,7 +660,11 @@
 				{#if $form.quantity > 1}
 					<span class="text-md font-medium">Total por unidad: {totalPerUnit.toFixed(2)} €</span>
 				{/if}
-				<span class="text-xl font-medium">Total: {total.toFixed(2)} €</span>
+				<span class="text-xl font-medium"
+					>Total: {totalWithoutDiscount.toFixed(2)} € {#if $form.discount > 0}
+						- {totalDiscount.toFixed(2)} € Dto = {total.toFixed(2)} €
+					{/if}
+				</span>
 			</div>
 
 			<button class="variant-filled-warning btn lg:col-span-2" type="submit"

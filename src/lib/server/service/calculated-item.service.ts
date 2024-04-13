@@ -41,8 +41,8 @@ export class CalculatedItemService {
 		const { workingWidth, workingHeight } = CalculatedItemUtilities.getWorkingDimensions(
 			item.width,
 			item.height,
-			item.passePartoutWidth,
-			item.passePartoutHeight
+			item.pp,
+			item.ppDimensions
 		);
 
 		const partPromises: Promise<CalculatedItemPart>[] = item.partsToCalculate.map((p) =>

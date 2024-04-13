@@ -37,12 +37,13 @@ export const actions = {
 			type: part.type as PricingType
 		}));
 
+		let orderId = '';
+
 		try {
 			const order = await orderService.createTempOrder(
 				form.data.width,
 				form.data.height,
-				form.data.passePartoutWidth ?? 0,
-				form.data.passePartoutHeight ?? 0,
+				form.data.pp ?? 0,
 				form.data.description,
 				form.data.predefinedObservations,
 				form.data.observations,
@@ -51,14 +52,17 @@ export const actions = {
 				partsToCalculate,
 				form.data.extraParts,
 				form.data.discount,
+				form.data.ppDimensions,
 				session?.user?.name
 			);
 
-			if (!order) {
+
+			if (order === null) {
+				console.log('Error creating order 1');
 				return setError(form, '', 'Error creando el pedido. Intente de nuevo.');
 			}
 
-			return redirect(302, `/orders/${order.id}`);
+			orderId = order.id;
 		} catch (error: unknown) {
 			console.log(error);
 			if (error instanceof InvalidSizeError) {
@@ -67,5 +71,7 @@ export const actions = {
 
 			return setError(form, '', 'Error creando el pedido. Intente de nuevo.');
 		}
+
+		return redirect(302, `/orders/${orderId}`);
 	}
 };

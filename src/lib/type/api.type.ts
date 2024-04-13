@@ -44,11 +44,18 @@ export type Order = {
 	item?: Item;
 };
 
+export type PPDimensions = {
+	up: number;
+	down: number;
+	left: number;
+	right: number;
+}
+
 export type Item = {
 	width: number;
 	height: number;
-	passePartoutWidth: number;
-	passePartoutHeight: number;
+	pp: number;
+	ppDimensions?: PPDimensions;
 	description: string;
 	predefinedObservations: string[];
 	observations: string;
