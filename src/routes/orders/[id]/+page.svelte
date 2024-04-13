@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import { goto } from '$app/navigation';
 	import { Icon } from 'svelte-awesome';
 	import { faImage } from '@fortawesome/free-solid-svg-icons/faImage';
 	import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint';
@@ -21,8 +22,7 @@
 		{#if order == null}
 			<span class="p-5 text-2xl text-red-700">Cliente o pedido no encontrado</span>
 		{:else if isOrderTemp(order)}
-			<span class="p-5 text-xl">Rellene los datos del cliente por favor</span>
-			
+			{ goto(`/orders/${order.id}/link`) }
 		{:else}
 			<div class="flex w-full flex-col">
 				<span class="text-xl text-gray-700">{order.customer.name}</span>

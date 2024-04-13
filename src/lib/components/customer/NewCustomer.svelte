@@ -6,6 +6,7 @@
 
 	export let data;
     export let title = 'Crear Cliente';
+	export let buttonText = 'Crear';
 	const { form, errors, enhance, submitting } = superForm(data.form);
 </script>
 
@@ -36,7 +37,7 @@
 				/>
 			</label>
 			<button class="variant-filled-warning btn w-full" type="submit"
-				><Icon class="mr-2" data={plus} /> Crear</button
+				><Icon class="mr-2" data={plus} /> {buttonText}</button
 			>
 		</form>
 	{/if}

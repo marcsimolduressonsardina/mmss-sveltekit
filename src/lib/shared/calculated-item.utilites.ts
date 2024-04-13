@@ -6,22 +6,32 @@ export class CalculatedItemUtilities {
 		pp: number,
 		ppDimensions?: PPDimensions
 	): { workingWidth: number; workingHeight: number } {
+		const { totalWidth, totalHeight } = CalculatedItemUtilities.getTotalDimensions(
+			width,
+			height,
+			pp,
+			ppDimensions
+		);
+
+		const workingWidth = CalculatedItemUtilities.roundUpToNearestGreaterFiveOrTen(totalWidth);
+		const workingHeight = CalculatedItemUtilities.roundUpToNearestGreaterFiveOrTen(totalHeight);
+		return { workingWidth, workingHeight };
+	}
+
+	public static getTotalDimensions(
+		width: number,
+		height: number,
+		pp: number,
+		ppDimensions?: PPDimensions
+	): { totalWidth: number; totalHeight: number } {
 		if (ppDimensions !== undefined) {
-			const workingWidth = CalculatedItemUtilities.roundUpToNearestGreaterFiveOrTen(
-				width + ppDimensions.left + ppDimensions.right
-			);
-			const workingHeight = CalculatedItemUtilities.roundUpToNearestGreaterFiveOrTen(
-				height + ppDimensions.up + ppDimensions.down
-			);
-			return { workingWidth, workingHeight };
+			const totalWidth = width + ppDimensions.left + ppDimensions.right;
+			const totalHeight = height + ppDimensions.up + ppDimensions.down;
+			return { totalWidth, totalHeight };
 		} else {
-			const workingHeight = CalculatedItemUtilities.roundUpToNearestGreaterFiveOrTen(
-				width + 2 * pp
-			);
-			const workingWidth = CalculatedItemUtilities.roundUpToNearestGreaterFiveOrTen(
-				height + 2 * pp
-			);
-			return { workingWidth, workingHeight };
+			const totalWidth = width + 2 * pp;
+			const totalHeight = height + 2 * pp;
+			return { totalWidth, totalHeight };
 		}
 	}
 

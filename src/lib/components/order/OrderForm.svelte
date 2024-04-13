@@ -9,6 +9,7 @@
 
 	import type {
 		CalculatedItemPart,
+		PPDimensions,
 		PreCalculatedItemPart,
 		PreCalculatedItemPartRequest
 	} from '$lib/type/api.type';
@@ -48,6 +49,11 @@
 	let downPP = 0;
 	let leftPP = 0;
 	let rightPP = 0;
+	$form.ppDimensions = undefined;
+
+	// Size vars
+	let totalHeightBox = 0;
+	let totalWidthBox = 0;
 
 	const defaultObservations = ['Sabe que puede ondular', 'No pegar', 'Muy delicado', 'No recortar'];
 
@@ -120,17 +126,12 @@
 		if (!asymetricPP) {
 			return CalculatedItemUtilities.getWorkingDimensions(width, height, $form.pp);
 		} else {
-			return CalculatedItemUtilities.getWorkingDimensions(
-				width,
-				height,
-				0,
-				{
-					up: upPP,
-					down: downPP,
-					left: leftPP,
-					right: rightPP
-				}
-			);
+			return CalculatedItemUtilities.getWorkingDimensions(width, height, 0, {
+				up: upPP,
+				down: downPP,
+				left: leftPP,
+				right: rightPP
+			});
 		}
 	}
 
@@ -302,15 +303,15 @@
 		totalDiscount = totalWithoutDiscount - total;
 	}
 
-	function updatePP(aPP: boolean) {
+	function updatePP(aPP: boolean, up: number, down: number, left: number, right: number) {
 		if (aPP) {
 			$form.pp = 0;
 			$form.ppDimensions = {
-				up: upPP,
-				down: downPP,
-				left: leftPP,
-				right: rightPP
-			}
+				up,
+				down,
+				left,
+				right
+			};
 		} else {
 			$form.ppDimensions = undefined;
 			upPP = 0;
@@ -322,13 +323,31 @@
 		handleDimensionsChangeEvent();
 	}
 
+	function updateTotalSizes(
+		width: number,
+		height: number,
+		pp: number,
+		ppDimensions?: PPDimensions
+	) {
+		const { totalWidth, totalHeight } = CalculatedItemUtilities.getTotalDimensions(
+			width,
+			height,
+			pp,
+			ppDimensions
+		);
+
+		totalHeightBox = totalHeight;
+		totalWidthBox = totalWidth;
+	}
+
 	$: {
 		updateTotal(partsToCalulatePreview, extraParts, $form.discount, $form.quantity);
 		addedMold = partsToCalulatePreview.some((p) => p.pre.type === PricingType.MOLD);
 		addedPP = partsToCalulatePreview.some((p) => p.pre.type === PricingType.PP);
 		addedGlass = partsToCalulatePreview.some((p) => p.pre.type === PricingType.GLASS);
 		addedBack = partsToCalulatePreview.some((p) => p.pre.type === PricingType.BACK);
-		updatePP(asymetricPP);
+		updatePP(asymetricPP, upPP, downPP, leftPP, rightPP);
+		updateTotalSizes($form.width, $form.height, $form.pp, $form.ppDimensions);
 	}
 </script>
 
@@ -447,6 +466,25 @@
 				</label>
 			{/if}
 
+			<PricingSelectorSection
+				sectionTitle={'Passepartout'}
+				label={'Tipo de PP'}
+				prices={pricing.ppPrices}
+				addValue={addFromPricingSelector}
+				pricingType={PricingType.PP}
+				added={addedPP}
+			/>
+
+			<Spacer title={'Medidas totales de la obra'} />
+
+			<div class="grid grid-cols-1 lg:col-span-2">
+				<div class="rounded-md border-2 border-gray-300 p-4">
+					<p class="text-center text-xl  text-gray-600">
+						Alto: {totalHeightBox}cm | Ancho: {totalWidthBox}cm
+					</p>
+				</div>
+			</div>
+
 			<Spacer title={'Descripción de la obra'} />
 
 			<label class="label" for="description">
@@ -480,15 +518,6 @@
 				addValue={addFromPricingSelector}
 				pricingType={PricingType.MOLD}
 				added={addedMold}
-			/>
-
-			<PricingSelectorSection
-				sectionTitle={'Passepartout'}
-				label={'Tipo de PP'}
-				prices={pricing.ppPrices}
-				addValue={addFromPricingSelector}
-				pricingType={PricingType.PP}
-				added={addedPP}
 			/>
 
 			<PricingSelectorSection

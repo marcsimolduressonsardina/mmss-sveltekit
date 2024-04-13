@@ -72,6 +72,6 @@ export const actions = {
 			return setError(form, '', 'Error creando el pedido. Intente de nuevo.');
 		}
 
-		return redirect(302, `/orders/${orderId}`);
+		return redirect(302, `/orders/${orderId}/link`);
 	}
 };

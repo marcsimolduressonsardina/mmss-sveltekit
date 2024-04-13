@@ -6,6 +6,7 @@
 	import { Icon } from 'svelte-awesome';
 	import home from 'svelte-awesome/icons/home';
 	import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons/faRightFromBracket';
+	import { faCalculator } from '@fortawesome/free-solid-svg-icons/faCalculator';
 	initializeStores();
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 </script>
@@ -19,6 +20,7 @@
 			</svelte:fragment>
 			MMSS
 			<svelte:fragment slot="trail">
+				<a href="/prices"><Icon data={faCalculator} /></a>
 				<a href="/auth/signout"><Icon data={faRightFromBracket} /></a>
 			</svelte:fragment>
 		</AppBar>
