@@ -7,6 +7,7 @@ export type AllPrices = {
 	glassPrices: ListPrice[];
 	ppPrices: ListPrice[];
 	backPrices: ListPrice[];
+	labourPrices: ListPrice[];
 	otherPrices: ListPrice[];
 };
 
@@ -15,20 +16,23 @@ export const emptyPricing: AllPrices = {
 	glassPrices: [],
 	ppPrices: [],
 	backPrices: [],
-	otherPrices: []
+	otherPrices: [],
+	labourPrices: []
 };
 
 export type EditablePricingTypes =
 	| PricingType.BACK
 	| PricingType.GLASS
 	| PricingType.PP
+	| PricingType.LABOUR
 	| PricingType.OTHER;
 
 export const pricingTypesMap: Record<EditablePricingTypes, string> = {
 	[PricingType.GLASS]: 'Cristal',
 	[PricingType.PP]: 'PP',
 	[PricingType.OTHER]: 'Otro',
-	[PricingType.BACK]: 'Trasera'
+	[PricingType.BACK]: 'Trasera',
+	[PricingType.LABOUR]: 'Montajes'
 };
 
 export const formulasMap: Record<PricingFormula, string> = {
@@ -58,7 +62,13 @@ const listPriceSchema = {
 		.min(1),
 	price: z.number().min(0),
 	description: z.string().min(1),
-	type: z.enum([PricingType.GLASS, PricingType.PP, PricingType.BACK, PricingType.OTHER]),
+	type: z.enum([
+		PricingType.GLASS,
+		PricingType.PP,
+		PricingType.BACK,
+		PricingType.OTHER,
+		PricingType.LABOUR
+	]),
 	formula: z.enum([
 		PricingFormula.FORMULA_LEFTOVER,
 		PricingFormula.FORMULA_FIT_AREA,
@@ -72,7 +82,13 @@ const listPriceSchema = {
 
 export const listPriceSchemaNew = z.object({
 	...listPriceSchema,
-	type: z.enum([PricingType.GLASS, PricingType.PP, PricingType.BACK, PricingType.OTHER])
+	type: z.enum([
+		PricingType.GLASS,
+		PricingType.PP,
+		PricingType.BACK,
+		PricingType.OTHER,
+		PricingType.LABOUR
+	])
 });
 
 export const listPriceSchemaEdit = z.object({
@@ -82,6 +98,7 @@ export const listPriceSchemaEdit = z.object({
 		PricingType.PP,
 		PricingType.BACK,
 		PricingType.OTHER,
+		PricingType.LABOUR,
 		PricingType.MOLD
 	])
 });

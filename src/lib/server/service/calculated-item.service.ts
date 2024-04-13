@@ -126,6 +126,8 @@ export class CalculatedItemService {
 				return CalculatedItemService.getDefaultDescription(`Trasera ${id}`, description);
 			case PricingType.PP:
 				return CalculatedItemService.getDefaultDescription(`Passepartout ${id}`, description);
+			case PricingType.LABOUR:
+				return CalculatedItemService.getDefaultDescription(`Montaje ${id}`, description);
 			case PricingType.FABRIC:
 				return `Estirar tela`;
 			case PricingType.OTHER:

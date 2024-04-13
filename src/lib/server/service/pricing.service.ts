@@ -121,6 +121,7 @@ export class PricingService {
 			case PricingType.BACK:
 			case PricingType.GLASS:
 			case PricingType.OTHER:
+			case PricingType.LABOUR:
 			case PricingType.PP:
 				return PricingService.getPriceByFormula(priceInfo, d1, d2);
 			default:

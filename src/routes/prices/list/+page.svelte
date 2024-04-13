@@ -45,6 +45,8 @@
 				return pricing.ppPrices;
 			case PricingType.OTHER:
 				return pricing.otherPrices;
+			case PricingType.LABOUR:
+				return pricing.labourPrices;
 			default:
 				return [];
 		}
@@ -110,6 +112,7 @@
 				>Cristal</RadioItem
 			>
 			<RadioItem bind:group={selectedType} name="justify" value={PricingType.PP}>PP</RadioItem>
+			<RadioItem bind:group={selectedType} name="justify" value={PricingType.LABOUR}>Montajes</RadioItem>
 		</RadioGroup>
 
 		<Table interactive={true} source={tableSource} on:selected={handleSelected} />

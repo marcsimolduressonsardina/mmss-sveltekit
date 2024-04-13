@@ -4,6 +4,7 @@ export enum PricingType {
 	BACK = 'back',
 	PP = 'pp',
 	FABRIC = 'fabric',
+	LABOUR = 'labour',
 	OTHER = 'other'
 }
 

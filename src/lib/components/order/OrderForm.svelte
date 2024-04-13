@@ -55,7 +55,13 @@
 	let totalHeightBox = 0;
 	let totalWidthBox = 0;
 
-	const defaultObservations = ['Sabe que puede ondular', 'No pegar', 'Muy delicado', 'No recortar'];
+	const defaultObservations = [
+		'Sabe que puede ondular',
+		'No pegar',
+		'Muy delicado',
+		'No recortar',
+		'La obra puede ser dañada'
+	];
 
 	let predefinedElementInput: HTMLSelectElement;
 	let predefinedQuantityElementInput: HTMLSelectElement;
@@ -66,6 +72,7 @@
 	let addedPP = false;
 	let addedGlass = false;
 	let addedBack = false;
+	let addedLabour = false;
 	let addedMold = false;
 
 	$form.extraParts = extraParts;
@@ -319,8 +326,6 @@
 			leftPP = 0;
 			rightPP = 0;
 		}
-
-		handleDimensionsChangeEvent();
 	}
 
 	function updateTotalSizes(
@@ -406,7 +411,7 @@
 			</label>
 
 			<label class="label flex items-center space-x-2" for="ppAsymetric">
-				<input class="checkbox" type="checkbox" bind:checked={asymetricPP} />
+				<input class="checkbox" type="checkbox" bind:checked={asymetricPP} on:change={() => handleDimensionsChangeEvent()} />
 				<p>PP Asimétrico</p>
 			</label>
 
@@ -479,7 +484,7 @@
 
 			<div class="grid grid-cols-1 lg:col-span-2">
 				<div class="rounded-md border-2 border-gray-300 p-4">
-					<p class="text-center text-xl  text-gray-600">
+					<p class="text-center text-xl text-gray-600">
 						Alto: {totalHeightBox}cm | Ancho: {totalWidthBox}cm
 					</p>
 				</div>
@@ -530,6 +535,15 @@
 			/>
 
 			<PricingSelectorSection
+				sectionTitle={'Montajes'}
+				label={'Tipo de montaje'}
+				prices={pricing.labourPrices}
+				addValue={addFromPricingSelector}
+				pricingType={PricingType.LABOUR}
+				added={addedLabour}
+			/>
+
+			<PricingSelectorSection
 				sectionTitle={'Cristal'}
 				label={'Tipo de cristal'}
 				prices={pricing.glassPrices}
@@ -543,6 +557,7 @@
 			<button
 				class="variant-filled btn lg:col-span-2"
 				type="button"
+				disabled={!addedMold}
 				on:click={() => addFromPricingSelector(PricingType.FABRIC, 'fabric')}
 				><Icon class="mr-2" data={plus} /> Añadir estirar tela</button
 			>
