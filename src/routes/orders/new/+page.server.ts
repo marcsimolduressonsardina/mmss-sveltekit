@@ -26,6 +26,8 @@ export const actions = {
 		if (!appUser) throw redirect(303, '/auth/signin');
 
 		const form = await superValidate(request, zod(itemSchema));
+		console.log(form.errors);
+
 		if (!form.valid) {
 			return fail(400, { form });
 		}
@@ -51,11 +53,10 @@ export const actions = {
 				form.data.deliveryDate,
 				partsToCalculate,
 				form.data.extraParts,
-				form.data.discount,
+				form.data.discount ?? 0,
 				form.data.ppDimensions,
 				session?.user?.name
 			);
-
 
 			if (order === null) {
 				console.log('Error creating order 1');

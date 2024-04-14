@@ -365,6 +365,14 @@
 		totalWidthBox = totalWidth;
 	}
 
+	function cleanFabric(addedMold: boolean) {
+		if (!addedMold) {
+			partsToCalulatePreview = partsToCalulatePreview.filter((p) => p.pre.type !== PricingType.FABRIC);
+			partsToCalculate = partsToCalculate.filter((p) => p.type !== PricingType.FABRIC);
+			$form.partsToCalculate = partsToCalculate;
+		}
+	}
+
 	$: {
 		updateTotal(partsToCalulatePreview, extraParts, $form.discount, $form.quantity);
 		addedMold = partsToCalulatePreview.some((p) => p.pre.type === PricingType.MOLD);
@@ -373,6 +381,7 @@
 		addedBack = partsToCalulatePreview.some((p) => p.pre.type === PricingType.BACK);
 		updatePP(asymetricPP, upPP, downPP, leftPP, rightPP);
 		updateTotalSizes($form.width, $form.height, $form.pp, $form.ppDimensions);
+		cleanFabric(addedMold);
 	}
 </script>
 
@@ -400,6 +409,7 @@
 					name="height"
 					on:change={() => handleDimensionsChangeEvent()}
 					bind:value={$form.height}
+					class:input-success={$form.height > 10}
 				/>
 			</label>
 
@@ -413,6 +423,7 @@
 					name="width"
 					on:change={() => handleDimensionsChangeEvent()}
 					bind:value={$form.width}
+					class:input-success={$form.width > 10}
 				/>
 			</label>
 
@@ -427,6 +438,7 @@
 					on:change={() => handleDimensionsChangeEvent()}
 					bind:value={$form.pp}
 					disabled={asymetricPP}
+					class:input-success={$form.pp > 0}
 				/>
 			</label>
 
@@ -453,6 +465,7 @@
 						name="upPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={upPP}
+						class:input-success={upPP > 0}
 					/>
 				</label>
 
@@ -466,6 +479,7 @@
 						name="downPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={downPP}
+						class:input-success={downPP > 0}
 					/>
 				</label>
 
@@ -479,6 +493,7 @@
 						name="leftPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={leftPP}
+						class:input-success={leftPP > 0}
 					/>
 				</label>
 
@@ -492,6 +507,7 @@
 						name="rightPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={rightPP}
+						class:input-success={rightPP > 0}
 					/>
 				</label>
 			{/if}
