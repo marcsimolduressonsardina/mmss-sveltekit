@@ -2,6 +2,7 @@
 	import type { PageData } from './$types';
 	import { DateTime } from 'luxon';
 	import { goto } from '$app/navigation';
+	import { enhance } from '$app/forms';
 	import { Icon } from 'svelte-awesome';
 	import { faMessage } from '@fortawesome/free-solid-svg-icons/faMessage';
 	import { faMoneyBill } from '@fortawesome/free-solid-svg-icons/faMoneyBill';
@@ -40,6 +41,13 @@
 						class="w-full"
 						method="post"
 						action="?/deleteOrder"
+						use:enhance={() => {
+							formLoading = true;
+							return async ({ update }) => {
+								formLoading = false;
+								update();
+							};
+						}}
 					>
 						<button class="variant-filled-error btn btn-sm w-full" disabled={formLoading}
 							><Icon class="mr-1" data={trash} />Eliminar pedido</button
@@ -59,6 +67,13 @@
 							class="w-full"
 							method="post"
 							action="?/unpayOrder"
+							use:enhance={() => {
+								formLoading = true;
+								return async ({ update }) => {
+									formLoading = false;
+									update();
+								};
+							}}
 						>
 							<button class="variant-filled-secondary btn btn-sm w-full" disabled={formLoading}
 								><Icon class="mr-1" data={faMoneyBill} />Marcar como no pagado</button
@@ -69,6 +84,13 @@
 							class="w-full"
 							method="post"
 							action="?/payOrderFull"
+							use:enhance={() => {
+								formLoading = true;
+								return async ({ update }) => {
+									formLoading = false;
+									update();
+								};
+							}}
 						>
 							<button class="variant-filled-secondary btn btn-sm w-full" disabled={formLoading}
 								><Icon class="mr-1" data={faMoneyBill} />Marcar como pagado</button
