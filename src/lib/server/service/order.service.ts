@@ -160,7 +160,7 @@ export class OrderService {
 		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
 		if (calculatedItem == null) return;
 		order.amountPayed = calculatedItem.total;
-		this.setOrderPartiallyPaid(order, calculatedItem.total);
+		await this.setOrderPartiallyPaid(order, calculatedItem.total);
 	}
 
 	async setOrderPartiallyPaid(order: Order, amount: number) {
@@ -176,7 +176,7 @@ export class OrderService {
 			order.amountPayed = amount;
 		}
 
-		this.repository.updateAmountPayed(OrderService.toDto(order), order.amountPayed);
+		await this.repository.updateAmountPayed(OrderService.toDto(order), order.amountPayed);
 	}
 
 	async incrementOrderPayment(order: Order, amount: number) {
@@ -194,7 +194,7 @@ export class OrderService {
 			order.amountPayed = total;
 		}
 
-		this.repository.updateAmountPayed(OrderService.toDto(order), order.amountPayed);
+		await this.repository.updateAmountPayed(OrderService.toDto(order), order.amountPayed);
 	}
 
 	private getTempCustomer(): Customer {
