@@ -24,6 +24,7 @@ export type PreCalculatedItemPart = {
 	type: PricingType;
 	id: string;
 	quantity: number;
+	moldId?: string; // For fabric
 };
 
 export type PreCalculatedItemPartRequest = {
@@ -49,7 +50,7 @@ export type PPDimensions = {
 	down: number;
 	left: number;
 	right: number;
-}
+};
 
 export type Item = {
 	width: number;
@@ -80,7 +81,7 @@ export type MaxArea = {
 
 export type ListPrice = {
 	id: string;
-	internalId: string,
+	internalId: string;
 	price: number;
 	description: string;
 	type: PricingType;

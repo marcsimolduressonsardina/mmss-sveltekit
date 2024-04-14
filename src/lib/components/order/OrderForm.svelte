@@ -22,7 +22,7 @@
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import ChipSet from '$lib/components/item/ChipSet.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import type { AllPrices } from '$lib/shared/pricing.utilites';
+	import { fabricIds, type AllPrices } from '$lib/shared/pricing.utilites';
 
 	export let data: { pricing: Promise<AllPrices>; form: any };
 
@@ -166,6 +166,26 @@
 			id: value,
 			quantity: 1,
 			type: pricingType
+		};
+
+		await processPartToCalculate(partToCalculate);
+	}
+
+	async function addFromFabric(fabricId: string) {
+		const mold = partsToCalulatePreview.find((p) => p.pre.type === PricingType.MOLD);
+		if (mold == null) {
+			toastStore.trigger({
+				message: 'Por favor, añada una moldura antes de añadir la tela.',
+				background: 'variant-filled-error'
+			});
+			return;
+		}
+
+		const partToCalculate = {
+			id: fabricId,
+			quantity: 1,
+			type: PricingType.FABRIC,
+			moldId: mold.pre.id
 		};
 
 		await processPartToCalculate(partToCalculate);
@@ -411,7 +431,12 @@
 			</label>
 
 			<label class="label flex items-center space-x-2" for="ppAsymetric">
-				<input class="checkbox" type="checkbox" bind:checked={asymetricPP} on:change={() => handleDimensionsChangeEvent()} />
+				<input
+					class="checkbox"
+					type="checkbox"
+					bind:checked={asymetricPP}
+					on:change={() => handleDimensionsChangeEvent()}
+				/>
 				<p>PP Asimétrico</p>
 			</label>
 
@@ -558,8 +583,24 @@
 				class="variant-filled btn lg:col-span-2"
 				type="button"
 				disabled={!addedMold}
-				on:click={() => addFromPricingSelector(PricingType.FABRIC, 'fabric')}
+				on:click={() => addFromPricingSelector(PricingType.FABRIC, fabricIds.labour)}
 				><Icon class="mr-2" data={plus} /> Añadir estirar tela</button
+			>
+
+			<button
+				class="variant-filled btn "
+				type="button"
+				disabled={!addedMold}
+				on:click={() => addFromFabric(fabricIds.long)}
+				><Icon class="mr-2" data={plus} /> Añadir travesaño largo ({Math.max($form.width, $form.height)} cm)</button
+			>
+
+			<button
+				class="variant-filled btn"
+				type="button"
+				disabled={!addedMold}
+				on:click={() => addFromFabric(fabricIds.short)}
+				><Icon class="mr-2" data={plus} /> Añadir travesaño corto ({Math.min($form.width, $form.height)} cm)</button
 			>
 
 			<Spacer title={'Otros elementos'} />

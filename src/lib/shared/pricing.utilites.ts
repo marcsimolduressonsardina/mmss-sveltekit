@@ -2,6 +2,12 @@ import type { ListPrice } from '$lib/type/api.type';
 import { PricingFormula, PricingType } from '$lib/type/pricing.type';
 import { z } from 'zod';
 
+export const fabricIds = {
+	labour: 'fabric',
+	short: 'fabric_short',
+	long: 'fabric_long'
+}
+
 export type AllPrices = {
 	moldPrices: ListPrice[];
 	glassPrices: ListPrice[];

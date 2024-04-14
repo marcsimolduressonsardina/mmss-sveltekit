@@ -4,28 +4,18 @@ import {
 	fitAreaPricing,
 	getFabricPrice,
 	getMoldPrice,
-	areaPricing
+	areaPricing,
+	getCrossbarPrice
 } from '../data/static-pricing';
 import type { ListPriceDto } from '../repository/dto/list-price.dto';
 import { ListPricingRepository } from '../repository/list-pricing.repository';
 import { PricingFormula, PricingType } from '../../type/pricing.type';
 import { InvalidSizeError } from '../error/invalid-size.error';
 import type { ListPrice, MaxArea } from '../../type/api.type';
+import { fabricIds } from '$lib/shared/pricing.utilites';
 
 export class PricingService {
 	private listPricingRepository: ListPricingRepository;
-
-	private readonly fabricPricing: ListPrice = {
-		id: 'fabric',
-		internalId: '',
-		price: 0,
-		description: 'Estirar tela',
-		type: PricingType.FABRIC,
-		formula: PricingFormula.NONE,
-		areas: [],
-		maxD1: 300,
-		maxD2: 250
-	};
 
 	constructor() {
 		this.listPricingRepository = new ListPricingRepository();
@@ -88,15 +78,14 @@ export class PricingService {
 		pricingType: PricingType,
 		d1d: number,
 		d2d: number,
-		id?: string
+		id: string,
+		moldFabricId?: string
 	): Promise<{ price: number; description: string }> {
 		const { d1, d2 } = PricingService.cleanAndOrder(d1d, d2d);
-		if (id == null && pricingType !== PricingType.FABRIC) throw Error('Id is required');
-
 		const pricing =
 			pricingType === PricingType.FABRIC
-				? this.fabricPricing
-				: await this.getPriceFromListById(pricingType, id!);
+				? await this.getFabricPriceList(id, d1, d2, moldFabricId)
+				: await this.getPriceFromListById(pricingType, id);
 
 		PricingService.checkMaxMinDimensions(d1, d2, pricing);
 		const price = PricingService.getPriceByType(d1, d2, pricing);
@@ -112,12 +101,45 @@ export class PricingService {
 		return PricingService.fromDto(priceDto);
 	}
 
+	private async getFabricPriceList(id: string, d1: number, d2: number, moldFabricId?: string): Promise<ListPrice> {
+		if (id === fabricIds.labour) {
+			return {
+				id,
+				internalId: '',
+				price: 0,
+				description: 'Estirar tela',
+				type: PricingType.FABRIC,
+				formula: PricingFormula.NONE,
+				areas: [],
+				maxD1: 300,
+				maxD2: 250
+			};
+		}
+
+		if (moldFabricId == null) {
+			throw Error('Mold fabric id is required');
+		}
+
+		const moldPrice = await this.getPriceFromListById(PricingType.MOLD, moldFabricId);
+		return {
+			id,
+			internalId: '',
+			price: moldPrice.price,
+			description: `Travesaño (${PricingService.getFabricDimension(id, d1, d2)} cm)` ,
+			type: PricingType.FABRIC,
+			formula: PricingFormula.NONE,
+			areas: [],
+			maxD1: 300,
+			maxD2: 250
+		};
+	}
+
 	private static getPriceByType(d1: number, d2: number, priceInfo: ListPrice): number {
 		switch (priceInfo.type) {
 			case PricingType.MOLD:
 				return getMoldPrice(priceInfo.price, d1, d2);
 			case PricingType.FABRIC:
-				return getFabricPrice(d1, d2);
+				return PricingService.getFabricPrice(priceInfo, d1, d2);
 			case PricingType.BACK:
 			case PricingType.GLASS:
 			case PricingType.OTHER:
@@ -126,6 +148,21 @@ export class PricingService {
 				return PricingService.getPriceByFormula(priceInfo, d1, d2);
 			default:
 				throw Error('Pricing type not supported');
+		}
+	}
+
+	private static getFabricDimension(id: string, d1:number , d2:number): number {
+		return id === fabricIds.long ? Math.max(d1, d2) : Math.min(d1, d2);
+	}
+
+	private static getFabricPrice(priceInfo: ListPrice, d1: number, d2: number): number {
+		if (priceInfo.id === fabricIds.labour) {
+			return getFabricPrice(d1, d2);
+		} else {
+			return getCrossbarPrice(
+				priceInfo.price,
+				PricingService.getFabricDimension(priceInfo.id, d1, d2)
+			);
 		}
 	}
 

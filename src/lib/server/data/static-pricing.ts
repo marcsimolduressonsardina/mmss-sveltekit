@@ -15,6 +15,11 @@ export function getFabricPrice(d1: number, d2: number): number {
 	return Math.ceil((0.0308 * x + 1.95) * 10) / 10;
 }
 
+export function getCrossbarPrice(mPrice: number, d1: number): number {
+	const x = (d1 / 100) * mPrice + 1;
+	return Math.ceil(x * 100) / 100;
+}
+
 export function leftoverPricing(m2Price: number, d1: number, d2: number): number {
 	const x = (d1 / 100) * (d2 / 100) * m2Price * defaultTax * 5 + 2;
 	return Math.ceil(x * 10) / 10;

@@ -65,7 +65,8 @@ export class CalculatedItemService {
 			partToCalculate.type,
 			width,
 			height,
-			partToCalculate.id
+			partToCalculate.id,
+			partToCalculate.moldId
 		);
 
 		return {
@@ -129,7 +130,7 @@ export class CalculatedItemService {
 			case PricingType.LABOUR:
 				return CalculatedItemService.getDefaultDescription(`Montaje ${id}`, description);
 			case PricingType.FABRIC:
-				return `Estirar tela`;
+				return CalculatedItemService.getDefaultDescription(`Estirar tela ${id}`, description);
 			case PricingType.OTHER:
 				return CalculatedItemService.getDefaultDescription(`${id}`, description);
 			default:
