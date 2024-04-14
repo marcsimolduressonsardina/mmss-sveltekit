@@ -9,5 +9,5 @@ export type OrderDto = {
 	userName?: string;
 	deleted: boolean;
 	amountPayed: number;
-	item?: ItemDto;
+	item: ItemDto;
 };

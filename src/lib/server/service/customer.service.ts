@@ -1,4 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
+import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
+
+import {
+	AWS_REGION,
+	AWS_ACCESS_KEY_ID,
+	AWS_SECRET_ACCESS_KEY
+} from '$env/static/private';
+
 import { InvalidDataError } from '../error/invalid-data.error';
 import { CustomerRepository } from '../repository/customer.repository';
 import type { CustomerDto } from '../repository/dto/customer.dto';
@@ -7,6 +15,7 @@ import type { Customer, AppUser } from '../../type/api.type';
 export class CustomerService {
 	private readonly storeId: string;
 	private repository: CustomerRepository;
+	private snsClient?: SNSClient;
 
 	constructor(user: AppUser) {
 		this.storeId = user.storeId;
@@ -38,6 +47,30 @@ export class CustomerService {
 		CustomerService.validate(customer);
 		await this.repository.createCustomer(CustomerService.toDto(customer));
 		return customer;
+	}
+
+	public async sendSmsToCustomer(customer: Customer, message: string): Promise<void> {
+		const params = {
+			Message: message, 
+			PhoneNumber: customer.phone
+		};
+
+		// Create a command to send the SMS
+		const command = new PublishCommand(params);
+		await this.getSnsClient().send(command);
+	}
+
+	private getSnsClient(): SNSClient {
+		if (!this.snsClient) {
+			this.snsClient = new SNSClient({
+				region: AWS_REGION,
+				credentials: {
+					accessKeyId: AWS_ACCESS_KEY_ID,
+					secretAccessKey: AWS_SECRET_ACCESS_KEY
+				}
+			});
+		}
+		return this.snsClient;
 	}
 
 	private static validate(customer: Customer) {

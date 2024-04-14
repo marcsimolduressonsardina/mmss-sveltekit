@@ -159,12 +159,42 @@ export class OrderService {
 	async setOrderFullyPaid(order: Order) {
 		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
 		if (calculatedItem == null) return;
+		order.amountPayed = calculatedItem.total;
 		this.setOrderPartiallyPaid(order, calculatedItem.total);
 	}
 
 	async setOrderPartiallyPaid(order: Order, amount: number) {
-		order.amountPayed = amount;
-		this.repository.updateAmountPayed(OrderService.toDto(order), amount);
+		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
+		if (calculatedItem == null) return;
+		if (amount < 0) {
+			throw new InvalidDataError('Invalid amount');
+		}
+
+		if (amount > calculatedItem.total) {
+			order.amountPayed = calculatedItem.total;
+		} else {
+			order.amountPayed = amount;
+		}
+
+		this.repository.updateAmountPayed(OrderService.toDto(order), order.amountPayed);
+	}
+
+	async incrementOrderPayment(order: Order, amount: number) {
+		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
+		if (calculatedItem == null) return;
+		if (amount < 0) {
+			throw new InvalidDataError('Invalid amount');
+		}
+
+		const total = order.amountPayed + amount;
+
+		if (total > calculatedItem.total) {
+			order.amountPayed = calculatedItem.total;
+		} else {
+			order.amountPayed = total;
+		}
+
+		this.repository.updateAmountPayed(OrderService.toDto(order), order.amountPayed);
 	}
 
 	private getTempCustomer(): Customer {
@@ -201,28 +231,24 @@ export class OrderService {
 			userName: authorName != null ? authorName : undefined,
 			deleted: false,
 			amountPayed: 0,
-			item: undefined
+			item: {
+				width,
+				height,
+				pp,
+				ppDimensions,
+				description,
+				predefinedObservations,
+				observations,
+				quantity,
+				createdAt: new Date(),
+				deliveryDate,
+				partsToCalculate: partsToCalculate
+			}
 		};
 
-		const item: Item = {
-			width,
-			height,
-			pp,
-			ppDimensions,
-			description,
-			predefinedObservations,
-			observations,
-			quantity,
-			createdAt: new Date(),
-			deliveryDate,
-			partsToCalculate: partsToCalculate
-		};
-
-		OrderService.verifyItem(item);
-		order.item = item;
+		OrderService.verifyItem(order.item);
 		const calculatedItem = await this.calculatedItemService.createCalculatedItem(
 			order,
-			item,
 			discount,
 			extraParts
 		);
@@ -260,7 +286,7 @@ export class OrderService {
 			deleted: dto.deleted,
 			userName: dto.userName,
 			amountPayed: dto.amountPayed,
-			item: dto.item ? OrderService.fromDtoItem(dto.item) : undefined
+			item: OrderService.fromDtoItem(dto.item)
 		};
 	}
 
@@ -274,7 +300,7 @@ export class OrderService {
 			deleted: order.deleted,
 			userName: order.userName,
 			amountPayed: order.amountPayed,
-			item: order.item ? OrderService.toDtoItem(order.item) : undefined
+			item: OrderService.toDtoItem(order.item)
 		};
 	}
 

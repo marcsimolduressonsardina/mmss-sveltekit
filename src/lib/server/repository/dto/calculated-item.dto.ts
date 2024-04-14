@@ -3,6 +3,7 @@ export type CalculatedItemDto = {
 	discount: number;
 	parts: CalculatedItemPartDto[];
 	total: number;
+	quantity: number;
 };
 
 export type CalculatedItemPartDto = {

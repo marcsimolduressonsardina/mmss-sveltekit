@@ -51,8 +51,14 @@ const ppDimensionsSchema = z.object({
 });
 
 export const itemSchema = z.object({
-	width: z.number().min(1.0),
-	height: z.number().min(1.0),
+	width: z
+		.number()
+		.min(1.0)
+		.default('' as unknown as number),
+	height: z
+		.number()
+		.min(1.0)
+		.default('' as unknown as number),
 	deliveryDate: z.date().min(new Date()),
 	description: z.string().default(''),
 	observations: z.string().default(''),
@@ -64,3 +70,8 @@ export const itemSchema = z.object({
 	partsToCalculate: z.array(partToCalculateSchema),
 	predefinedObservations: z.array(z.string()).default([])
 });
+
+export const smsTemplates = {
+	orderCreated: 'Su pedido #param1# ha sido creado correctamente. Puede consultarlo en #param2#',
+	orderFinished: 'Su pedido #param1# ha sido finalizado. Puede pasar a recogerlo.'
+};

@@ -42,7 +42,7 @@ export type Order = {
 	userName?: string;
 	deleted: boolean;
 	amountPayed: number;
-	item?: Item;
+	item: Item;
 };
 
 export type PPDimensions = {
@@ -71,6 +71,7 @@ export type CalculatedItem = {
 	discount: number;
 	parts: CalculatedItemPart[];
 	total: number;
+	quantity: number;
 };
 
 export type MaxArea = {

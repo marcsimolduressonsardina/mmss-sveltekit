@@ -5,11 +5,11 @@ import { DynamoRepository } from './dynamo.repository';
 
 export class CalculatedItemRepository extends DynamoRepository<CalculatedItemDto> {
 	constructor() {
-		super(CALCULATED_ITEM_ORDER_TABLE, 'itemUuid');
+		super(CALCULATED_ITEM_ORDER_TABLE, 'orderUuid');
 	}
 
-	public async getCalculatedItemById(itemUuid: string): Promise<CalculatedItemDto | null> {
-		const dto = await this.get(itemUuid);
+	public async getCalculatedItemById(orderUuid: string): Promise<CalculatedItemDto | null> {
+		const dto = await this.get(orderUuid);
 		return dto;
 	}
 

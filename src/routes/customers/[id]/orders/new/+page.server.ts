@@ -38,6 +38,8 @@ export const actions = {
 			type: part.type as PricingType
 		}));
 
+		let orderId = '';
+
 		try {
 			const order = await orderService.createOrderForCustomer(
 				id,
@@ -60,7 +62,7 @@ export const actions = {
 				return setError(form, '', 'Error creando el pedido. Intente de nuevo.');
 			}
 
-			return redirect(302, `/orders/${order.id}`);
+			orderId = order.id;
 		} catch (error: unknown) {
 			console.log(error);
 			if (error instanceof InvalidSizeError) {
@@ -69,5 +71,7 @@ export const actions = {
 
 			return setError(form, '', 'Error creando el pedido. Intente de nuevo.');
 		}
+
+		return redirect(302, `/orders/${orderId}`);
 	}
 };

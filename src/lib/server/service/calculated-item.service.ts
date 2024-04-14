@@ -4,7 +4,6 @@ import type { CalculatedItemDto } from '../repository/dto/calculated-item.dto';
 import type {
 	CalculatedItem,
 	CalculatedItemPart,
-	Item,
 	Order,
 	PreCalculatedItemPart
 } from '../../type/api.type';
@@ -20,22 +19,23 @@ export class CalculatedItemService {
 		this.pricingProvider = new PricingService();
 	}
 
-	public async getCalculatedItem(itemId: string): Promise<CalculatedItem | null> {
-		const dto = await this.calculatedItemRepository.getCalculatedItemById(itemId);
+	public async getCalculatedItem(orderId: string): Promise<CalculatedItem | null> {
+		const dto = await this.calculatedItemRepository.getCalculatedItemById(orderId);
 		return dto ? CalculatedItemService.fromDto(dto) : null;
 	}
 
 	public async createCalculatedItem(
 		order: Order,
-		item: Item,
 		discount: number,
 		extraParts: CalculatedItemPart[]
 	): Promise<CalculatedItem> {
+		const item = order.item;
 		const calculatedItem: CalculatedItem = {
 			orderId: order.id,
 			discount,
 			parts: [],
-			total: 0
+			total: 0,
+			quantity: item.quantity
 		};
 
 		const { workingWidth, workingHeight } = CalculatedItemUtilities.getWorkingDimensions(
@@ -52,7 +52,7 @@ export class CalculatedItemService {
 		const parts = await Promise.all(partPromises);
 		calculatedItem.parts.push(...parts);
 		calculatedItem.parts.push(...extraParts);
-		calculatedItem.total = CalculatedItemService.getTotalPrice(calculatedItem, item);
+		calculatedItem.total = CalculatedItemService.getTotalPrice(calculatedItem);
 		return calculatedItem;
 	}
 
@@ -86,12 +86,12 @@ export class CalculatedItemService {
 		);
 	}
 
-	private static getTotalPrice(calculatedItem: CalculatedItem, item: Item): number {
+	private static getTotalPrice(calculatedItem: CalculatedItem): number {
 		const subtotal = calculatedItem.parts.reduce(
 			(total, part) => total + part.price * part.quantity,
 			0
 		);
-		const totalPrice = item.quantity * subtotal * (1 - calculatedItem.discount / 100);
+		const totalPrice = calculatedItem.quantity * subtotal * (1 - calculatedItem.discount / 100);
 		return Math.ceil(totalPrice * 100) / 100;
 	}
 
@@ -100,7 +100,8 @@ export class CalculatedItemService {
 			orderId: dto.orderUuid,
 			discount: dto.discount,
 			parts: dto.parts,
-			total: dto.total
+			total: dto.total,
+			quantity: dto.quantity
 		};
 	}
 
@@ -109,7 +110,8 @@ export class CalculatedItemService {
 			orderUuid: calculatedItem.orderId,
 			discount: calculatedItem.discount,
 			parts: calculatedItem.parts,
-			total: calculatedItem.total
+			total: calculatedItem.total,
+			quantity: calculatedItem.quantity
 		};
 	}
 
@@ -149,6 +151,6 @@ export class CalculatedItemService {
 	private static getMoldDescription(moldId: string): string {
 		const before_ = moldId.split('_')[0];
 		const after_ = moldId.split('_')[1];
-		return `Ubi: ${before_} - Moldura: ${after_}`;
+		return `Referencia ${after_} - Ubicación: ${before_}`;
 	}
 }
