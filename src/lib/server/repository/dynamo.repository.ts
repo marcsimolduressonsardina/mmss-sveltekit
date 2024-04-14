@@ -1,8 +1,8 @@
 import { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } from '$env/static/private';
-import { AttributeValue, DynamoDBClient, type KeysAndAttributes } from '@aws-sdk/client-dynamodb';
+import { type AttributeValue, DynamoDBClient, type KeysAndAttributes } from '@aws-sdk/client-dynamodb';
 import {
 	DynamoDBDocument,
-	DynamoDBDocumentClient,
+	type DynamoDBDocumentClient,
 	QueryCommand,
 	GetCommand,
 	PutCommand,

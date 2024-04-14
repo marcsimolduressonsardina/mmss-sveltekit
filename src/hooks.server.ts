@@ -29,4 +29,5 @@ const config: SvelteKitAuthConfig = {
 	}
 };
 
+
 export const handle = SvelteKitAuth(config).handle satisfies Handle;
