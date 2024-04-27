@@ -16,7 +16,7 @@ import { CalculatedItemService } from './calculated-item.service';
 import type { ItemDto } from '../repository/dto/item.dto';
 import { PricingType } from '$lib/type/pricing.type';
 import { InvalidDataError } from '../error/invalid-data.error';
-import { isOrderTemp, tempCustomerUuid } from '$lib/shared/order.utilities';
+import { OrderUtilites, isOrderTemp, tempCustomerUuid } from '$lib/shared/order.utilities';
 import { OrderStatus } from '$lib/type/order.type';
 
 export class OrderService {
@@ -198,6 +198,19 @@ export class OrderService {
 		}
 
 		await this.repository.updateAmountPayed(OrderService.toDto(order));
+	}
+
+	static getOrderPublicParam(order: Order): string {
+		const data = {
+			storeId: order.storeId,
+			publicId: OrderUtilites.getOrderPublicId(order)
+		};
+
+		return Buffer.from(JSON.stringify(data)).toString('base64');
+	}
+
+	static restoreOrderPublicParam(param: string): Record<string, string> {
+		return JSON.parse(Buffer.from(param, 'base64').toString('ascii'));
 	}
 
 	private getTempCustomer(): Customer {

@@ -6,6 +6,7 @@
 	import { Icon } from 'svelte-awesome';
 	import { faMessage } from '@fortawesome/free-solid-svg-icons/faMessage';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+	import { faCommentSms } from '@fortawesome/free-solid-svg-icons/faCommentSms';
 	import { faMoneyBill } from '@fortawesome/free-solid-svg-icons/faMoneyBill';
 	import { faTruckPickup } from '@fortawesome/free-solid-svg-icons/faTruckPickup';
 	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
@@ -17,8 +18,6 @@
 	import OrderId from '$lib/components/OrderId.svelte';
 	import { OrderUtilites, isOrderTemp, orderStatusMap } from '$lib/shared/order.utilities';
 	import Spacer from '$lib/components/item/Spacer.svelte';
-	import type { Item } from '$lib/type/api.type';
-	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 	import { OrderStatus } from '$lib/type/order.type';
 
 	let formLoading = false;
@@ -40,10 +39,22 @@
 				class="flex w-full flex-col place-content-center items-center justify-center gap-1 md:grid md:grid-cols-2 lg:grid-cols-3"
 			>
 				<a
-					class="variant-filled-success btn btn-sm w-full"
+					class="variant-ghost-warning btn btn-sm w-full"
 					target="_blank"
 					href={`/orders/${data?.order?.id}/print`}
-					><Icon class="mr-1" data={faPrint} /> Imprimir pedido
+					><Icon class="mr-1" data={faPrint} /> Imprimir resguardo para taller
+				</a>
+				<a
+					class="variant-ghost-secondary btn btn-sm w-full"
+					target="_blank"
+					href={`/service?order=${data.orderPublicParam}`}
+					><Icon class="mr-1" data={faPrint} /> Imprimir resguardo para cliente
+				</a>
+				<a
+					class="variant-ringed-secondary btn btn-sm w-full"
+					target="_blank"
+					href={`/orders/${data?.order?.id}/print`}
+					><Icon class="mr-1" data={faCommentSms} /> Enviar resguardo a cliente (SMS)
 				</a>
 				<form
 					class="w-full"
@@ -179,7 +190,7 @@
 							style="height: 32px;"
 						>
 							<div class="input-group-shim">€</div>
-							<input type="number" class="pt-1" name="amount" placeholder="Cantidad" step="0.1" />
+							<input type="number" class="pt-1" name="amount" placeholder="Cantidad" step="0.01" />
 						</div>
 						<button class="variant-filled-secondary btn btn-sm"
 							><Icon class="mr-1" data={faMoneyBill} />Añadir pago a cuenta</button

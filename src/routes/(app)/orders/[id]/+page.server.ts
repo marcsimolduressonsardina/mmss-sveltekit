@@ -34,9 +34,11 @@ export const load = (async ({ params, locals }) => {
 	const { id } = params;
 	const orderService = new OrderService(appUser);
 	const calculatedItemService = new CalculatedItemService();
+	const order = await orderService.getOrderById(id);
 
 	return {
-		order: await orderService.getOrderById(id),
+		order,
+		orderPublicParam: order ? OrderService.getOrderPublicParam(order) : '',
 		calculatedItem: await calculatedItemService.getCalculatedItem(id)
 	};
 }) satisfies PageServerLoad;
