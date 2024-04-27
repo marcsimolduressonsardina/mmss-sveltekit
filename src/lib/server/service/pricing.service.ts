@@ -101,7 +101,12 @@ export class PricingService {
 		return PricingService.fromDto(priceDto);
 	}
 
-	private async getFabricPriceList(id: string, d1: number, d2: number, moldFabricId?: string): Promise<ListPrice> {
+	private async getFabricPriceList(
+		id: string,
+		d1: number,
+		d2: number,
+		moldFabricId?: string
+	): Promise<ListPrice> {
 		if (id === fabricIds.labour) {
 			return {
 				id,
@@ -125,7 +130,7 @@ export class PricingService {
 			id,
 			internalId: '',
 			price: moldPrice.price,
-			description: `Travesaño (${PricingService.getFabricDimension(id, d1, d2)} cm)` ,
+			description: `Travesaño (${PricingService.getFabricDimension(id, d1, d2)} cm)`,
 			type: PricingType.FABRIC,
 			formula: PricingFormula.NONE,
 			areas: [],
@@ -151,7 +156,7 @@ export class PricingService {
 		}
 	}
 
-	private static getFabricDimension(id: string, d1:number , d2:number): number {
+	private static getFabricDimension(id: string, d1: number, d2: number): number {
 		return id === fabricIds.long ? Math.max(d1, d2) : Math.min(d1, d2);
 	}
 

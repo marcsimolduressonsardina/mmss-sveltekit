@@ -9,10 +9,10 @@ export const load = (async ({ params, locals }) => {
 	if (!appUser) throw redirect(303, '/auth/signin');
 	const { id } = params;
 	const orderService = new OrderService(appUser);
-    const order = await orderService.getOrderById(id);
-    if (order == null) {
-        throw redirect(303, '/');
-    }
+	const order = await orderService.getOrderById(id);
+	if (order == null) {
+		throw redirect(303, '/');
+	}
 
 	return { orders: orderService.getOrdersOnSameDay(order) };
 }) satisfies PageServerLoad;

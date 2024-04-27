@@ -2,7 +2,7 @@ import type { CalculatedItem, Order } from '$lib/type/api.type';
 import { OrderStatus } from '$lib/type/order.type';
 import { PricingType } from '$lib/type/pricing.type';
 import { z } from 'zod';
-import { CalculatedItemUtilities } from './calculated-item.utilites';
+import { CalculatedItemUtilities, otherExtraId } from './calculated-item.utilites';
 
 export class OrderUtilites {
 	public static getOrderPublicId(order: Order): string {
@@ -25,14 +25,32 @@ export class OrderUtilites {
 			.map((p) => CalculatedItemUtilities.getMoldDescription(p.id));
 	}
 
-	public static getOrderPP(order: Order, calculatedItem: CalculatedItem): string[] {
-		const ppIds = order.item.partsToCalculate
-			.filter((p) => p.type === PricingType.PP)
-			.map((p) => p.id);
+	public static getOrderElementByPricingType(
+		order: Order,
+		calculatedItem: CalculatedItem,
+		pricingType: PricingType
+	): string[] {
+		const ids = order.item.partsToCalculate.filter((p) => p.type === pricingType).map((p) => p.id);
 
 		return calculatedItem.parts
-			.filter((p) => ppIds.indexOf(p.priceId) > -1)
+			.filter((p) => ids.indexOf(p.priceId) > -1)
 			.map((p) => p.description);
+	}
+
+	public static getExtras(calculatedItem: CalculatedItem): string[] {
+		return calculatedItem.parts.filter((p) => p.priceId === otherExtraId).map((p) => p.description);
+	}
+
+	public static getWorkingDimensions(order: Order): string {
+		const item = order.item;
+		const { totalWidth, totalHeight } = CalculatedItemUtilities.getTotalDimensions(
+			item.width,
+			item.height,
+			item.pp,
+			item.ppDimensions
+		);
+
+		return `${totalHeight}x${totalWidth} cm`;
 	}
 }
 
@@ -50,7 +68,7 @@ export const orderStatusMap: Record<OrderStatus, string> = {
 };
 
 const extraPartSchema = z.object({
-	priceId: z.string().default('extra'),
+	priceId: z.string().default(otherExtraId),
 	price: z.number().min(0).default(0),
 	quantity: z.number().int().min(1).default(1),
 	description: z.string().default('')

@@ -6,7 +6,6 @@ import { CustomerService } from '$lib/server/service/customer.service';
 import { AuthService } from '$lib/server/service/auth.service';
 import { customerSchema } from '$lib/shared/customer.utilities';
 
-
 export const load = async ({ url, locals }) => {
 	const session = await locals.auth();
 	const appUser = AuthService.generateUserFromAuth(session?.user);

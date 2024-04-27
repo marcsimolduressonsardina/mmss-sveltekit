@@ -14,7 +14,11 @@
 		PreCalculatedItemPartRequest
 	} from '$lib/type/api.type';
 
-	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
+	import {
+		CalculatedItemUtilities,
+		cornersId,
+		otherExtraId
+	} from '$lib/shared/calculated-item.utilites';
 	import { PricingType } from '$lib/type/pricing.type';
 	import CartItem from '$lib/components/item/CartItem.svelte';
 	import PricingSelectorSection from '$lib/components/item/PricingSelectorSection.svelte';
@@ -44,7 +48,7 @@
 	let partsToCalculate: PreCalculatedItemPart[] = [];
 	let partsToCalulatePreview: TempParts = [];
 	let extraParts: CalculatedItemPart[] = [
-		{ description: 'Cantoneras', price: 2.5, quantity: 1, priceId: 'extra' }
+		{ description: 'Cantoneras', price: 2.5, quantity: 1, priceId: cornersId }
 	];
 
 	// PP vars
@@ -286,7 +290,7 @@
 				description: name,
 				price,
 				quantity,
-				priceId: 'extra'
+				priceId: otherExtraId
 			};
 			extraParts = [part, ...extraParts];
 			$form.extraParts = extraParts;

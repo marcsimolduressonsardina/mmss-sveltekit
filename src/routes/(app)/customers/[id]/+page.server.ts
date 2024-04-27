@@ -12,5 +12,3 @@ export const load = (async ({ params, locals }) => {
 	const customer = customerService.getCustomerById(id);
 	return { customer };
 }) satisfies PageServerLoad;
-
-

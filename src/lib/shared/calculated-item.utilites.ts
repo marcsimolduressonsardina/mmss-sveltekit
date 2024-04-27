@@ -1,4 +1,8 @@
 import type { PPDimensions } from '../type/api.type';
+
+export const cornersId = 'cantoneras_extra';
+export const otherExtraId = 'other_extra';
+
 export class CalculatedItemUtilities {
 	public static getWorkingDimensions(
 		width: number,
@@ -38,7 +42,7 @@ export class CalculatedItemUtilities {
 	public static getMoldDescription(moldId: string): string {
 		const before_ = moldId.split('_')[0];
 		const after_ = moldId.split('_')[1];
-		return `Referencia ${after_} - Ubicación: ${before_}`;
+		return `${after_} - UBI: ${before_}`;
 	}
 
 	private static roundUpToNearestGreaterFiveOrTen(value: number): number {

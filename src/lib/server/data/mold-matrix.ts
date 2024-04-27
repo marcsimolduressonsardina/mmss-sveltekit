@@ -3119,4 +3119,4 @@ export const moldMatrix: Record<number, Record<number, number>> = {
 		'295': 15.36,
 		'300': 15.5
 	}
-}; 
+};

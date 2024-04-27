@@ -15,7 +15,7 @@
 
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import OrderId from '$lib/components/OrderId.svelte';
-	import { isOrderTemp, orderStatusMap } from '$lib/shared/order.utilities';
+	import { OrderUtilites, isOrderTemp, orderStatusMap } from '$lib/shared/order.utilities';
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import type { Item } from '$lib/type/api.type';
 	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
@@ -24,17 +24,6 @@
 	let formLoading = false;
 
 	export let data: PageData;
-
-	function getWorkingDimensions(item: Item): string {
-		const { totalWidth, totalHeight } = CalculatedItemUtilities.getTotalDimensions(
-			item.width,
-			item.height,
-			item.pp,
-			item.ppDimensions
-		);
-
-		return `${totalHeight}x${totalWidth} cm`;
-	}
 </script>
 
 <div class="space flex w-full flex-col p-3">
@@ -52,6 +41,7 @@
 			>
 				<a
 					class="variant-filled-success btn btn-sm w-full"
+					target="_blank"
 					href={`/orders/${data?.order?.id}/print`}
 					><Icon class="mr-1" data={faPrint} /> Imprimir pedido
 				</a>
@@ -221,24 +211,20 @@
 				>Unidades: <span class="variant-ghost badge">{data.order.item.quantity}</span></span
 			>
 			<span class="text-md text-gray-700">Dependiente: {data.order.userName}</span>
-			<span class="text-md text-gray-700"
-				>Fecha y hora: {DateTime.fromJSDate(data.order.createdAt).toFormat(
-					'dd/MM/yyyy HH:mm'
-				)}</span
-			>
-			<span class="text-md text-gray-700"
-				>Fecha de entrega: {DateTime.fromJSDate(data.order.item.deliveryDate).toFormat(
-					'dd/MM/yyyy'
-				)}</span
-			>
-			<span class="text-md text-gray-700"
-				>Medidas de la obra: {`${data.order.item.height}x${data.order.item.width} cm`}</span
-			>
-			<span class="text-md text-gray-700"
-				>Medidas de trabajo: {getWorkingDimensions(data.order.item)}</span
-			>
-			<span class="text-md text-gray-700">Descripción: {data.order.item.description}</span>
-			<span class="text-md text-gray-700">Observaciones: {data.order.item.observations}</span>
+			<span class="text-md text-gray-700">
+				Fecha y hora: {DateTime.fromJSDate(data.order.createdAt).toFormat('dd/MM/yyyy HH:mm')}
+			</span>
+			<span class="text-md text-gray-700">
+				Fecha de entrega: {DateTime.fromJSDate(data.order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+			</span>
+			<span class="text-md text-gray-700">
+				Medidas de la obra: {`${data.order.item.height}x${data.order.item.width} cm`}
+			</span>
+			<span class="text-md text-gray-700">
+				Medidas de trabajo: {OrderUtilites.getWorkingDimensions(data.order)}
+			</span>
+			<span class="text-md text-gray-700"> Descripción: {data.order.item.description} </span>
+			<span class="text-md text-gray-700"> Observaciones: {data.order.item.observations} </span>
 			{#each data.order.item.predefinedObservations as obv}
 				<span class="text-md text-gray-700">- {obv}</span>
 			{/each}

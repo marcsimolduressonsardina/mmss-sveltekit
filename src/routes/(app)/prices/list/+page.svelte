@@ -112,7 +112,9 @@
 				>Cristal</RadioItem
 			>
 			<RadioItem bind:group={selectedType} name="justify" value={PricingType.PP}>PP</RadioItem>
-			<RadioItem bind:group={selectedType} name="justify" value={PricingType.LABOUR}>Montajes</RadioItem>
+			<RadioItem bind:group={selectedType} name="justify" value={PricingType.LABOUR}
+				>Montajes</RadioItem
+			>
 		</RadioGroup>
 
 		<Table interactive={true} source={tableSource} on:selected={handleSelected} />

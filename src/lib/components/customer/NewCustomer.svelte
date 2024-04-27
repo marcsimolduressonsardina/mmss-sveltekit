@@ -5,7 +5,7 @@
 	import { superForm } from 'sveltekit-superforms';
 
 	export let data;
-    export let title = 'Crear Cliente';
+	export let title = 'Crear Cliente';
 	export let buttonText = 'Crear';
 	const { form, errors, enhance, submitting } = superForm(data.form);
 </script>

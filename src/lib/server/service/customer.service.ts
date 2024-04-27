@@ -1,11 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 
-import {
-	AWS_REGION,
-	AWS_ACCESS_KEY_ID,
-	AWS_SECRET_ACCESS_KEY
-} from '$env/static/private';
+import { AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } from '$env/static/private';
 
 import { InvalidDataError } from '../error/invalid-data.error';
 import { CustomerRepository } from '../repository/customer.repository';
@@ -51,7 +47,7 @@ export class CustomerService {
 
 	public async sendSmsToCustomer(customer: Customer, message: string): Promise<void> {
 		const params = {
-			Message: message, 
+			Message: message,
 			PhoneNumber: customer.phone
 		};
 

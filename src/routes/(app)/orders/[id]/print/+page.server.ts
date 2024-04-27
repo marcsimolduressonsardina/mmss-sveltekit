@@ -1,3 +1,4 @@
+import { QR_HOST } from '$env/static/private';
 import { AuthService } from '$lib/server/service/auth.service';
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
@@ -14,6 +15,7 @@ export const load = (async ({ params, locals }) => {
 
 	return {
 		order: await orderService.getOrderById(id),
-		calculatedItem: await calculatedItemService.getCalculatedItem(id)
+		calculatedItem: await calculatedItemService.getCalculatedItem(id),
+		qrHost: QR_HOST
 	};
 }) satisfies PageServerLoad;

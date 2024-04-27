@@ -6,7 +6,7 @@ export type MaxAreaDto = {
 
 export type ListPriceDto = {
 	id: string;
-	uuid: string,
+	uuid: string;
 	price: number;
 	description: string;
 	type: string;

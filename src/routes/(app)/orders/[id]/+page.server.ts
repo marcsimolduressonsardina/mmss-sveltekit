@@ -60,7 +60,6 @@ export const actions = {
 		}
 
 		await orderService.setOrderFullyPaid(order);
-		
 	},
 
 	async unpayOrder({ params, locals }) {

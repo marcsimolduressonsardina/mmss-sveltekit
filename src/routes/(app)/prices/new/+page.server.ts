@@ -6,7 +6,6 @@ import { AuthService } from '$lib/server/service/auth.service';
 import { PricingService } from '$lib/server/service/pricing.service.js';
 import { listPriceSchemaNew } from '$lib/shared/pricing.utilites';
 
-
 export const load = async ({ locals }) => {
 	const session = await locals.auth();
 	const appUser = AuthService.generateUserFromAuth(session?.user);

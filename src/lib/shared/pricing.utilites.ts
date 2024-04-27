@@ -6,7 +6,7 @@ export const fabricIds = {
 	labour: 'fabric',
 	short: 'fabric_short',
 	long: 'fabric_long'
-}
+};
 
 export type AllPrices = {
 	moldPrices: ListPrice[];
