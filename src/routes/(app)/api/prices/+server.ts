@@ -1,6 +1,6 @@
 import type { PreCalculatedItemPartRequest } from '$lib/type/api.type';
 import { json } from '@sveltejs/kit';
-import { CalculatedItemService } from '../../../lib/server/service/calculated-item.service';
+import { CalculatedItemService } from '$lib/server/service/calculated-item.service';
 import { AuthService } from '$lib/server/service/auth.service';
 import { InvalidSizeError } from '$lib/server/error/invalid-size.error';
 

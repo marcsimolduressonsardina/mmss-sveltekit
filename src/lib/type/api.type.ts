@@ -15,6 +15,7 @@ export type AppUser = {
 };
 
 export type CalculatedItemPart = {
+	priceId: string;
 	price: number;
 	quantity: number;
 	description: string;

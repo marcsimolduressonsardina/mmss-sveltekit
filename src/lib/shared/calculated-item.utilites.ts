@@ -35,6 +35,12 @@ export class CalculatedItemUtilities {
 		}
 	}
 
+	public static getMoldDescription(moldId: string): string {
+		const before_ = moldId.split('_')[0];
+		const after_ = moldId.split('_')[1];
+		return `Referencia ${after_} - Ubicación: ${before_}`;
+	}
+
 	private static roundUpToNearestGreaterFiveOrTen(value: number): number {
 		if (value % 5 === 0) {
 			return value;

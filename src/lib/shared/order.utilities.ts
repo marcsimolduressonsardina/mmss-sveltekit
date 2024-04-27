@@ -1,7 +1,8 @@
-import type { Order } from '$lib/type/api.type';
+import type { CalculatedItem, Order } from '$lib/type/api.type';
 import { OrderStatus } from '$lib/type/order.type';
 import { PricingType } from '$lib/type/pricing.type';
 import { z } from 'zod';
+import { CalculatedItemUtilities } from './calculated-item.utilites';
 
 export class OrderUtilites {
 	public static getOrderPublicId(order: Order): string {
@@ -16,6 +17,22 @@ export class OrderUtilites {
 
 		const phoneWithoutPlus = order.customer.phone.replace('+', '');
 		return `${date.getFullYear()}${monthString}${date.getDate()}/${date.getSeconds()}/${phoneWithoutPlus}`;
+	}
+
+	public static getOrderMolds(order: Order): string[] {
+		return order.item.partsToCalculate
+			.filter((p) => p.type === PricingType.MOLD)
+			.map((p) => CalculatedItemUtilities.getMoldDescription(p.id));
+	}
+
+	public static getOrderPP(order: Order, calculatedItem: CalculatedItem): string[] {
+		const ppIds = order.item.partsToCalculate
+			.filter((p) => p.type === PricingType.PP)
+			.map((p) => p.id);
+
+		return calculatedItem.parts
+			.filter((p) => ppIds.indexOf(p.priceId) > -1)
+			.map((p) => p.description);
 	}
 }
 
@@ -33,6 +50,7 @@ export const orderStatusMap: Record<OrderStatus, string> = {
 };
 
 const extraPartSchema = z.object({
+	priceId: z.string().default('extra'),
 	price: z.number().min(0).default(0),
 	quantity: z.number().int().min(1).default(1),
 	description: z.string().default('')

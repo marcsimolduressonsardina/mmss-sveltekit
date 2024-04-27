@@ -7,6 +7,7 @@ export type CalculatedItemDto = {
 };
 
 export type CalculatedItemPartDto = {
+	priceId: string;
 	price: number;
 	quantity: number;
 	description: string;

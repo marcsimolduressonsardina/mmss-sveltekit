@@ -70,6 +70,7 @@ export class CalculatedItemService {
 		);
 
 		return {
+			priceId: partToCalculate.id,
 			price: pricingResult.price,
 			quantity: partToCalculate.quantity,
 			description: CalculatedItemService.getDefaultDescriptionByType(
@@ -122,7 +123,7 @@ export class CalculatedItemService {
 	): string {
 		switch (type) {
 			case PricingType.MOLD:
-				return CalculatedItemService.getMoldDescription(id);
+				return CalculatedItemUtilities.getMoldDescription(id);
 			case PricingType.GLASS:
 				return CalculatedItemService.getDefaultDescription(`Cristal ${id}`, description);
 			case PricingType.BACK:
@@ -146,11 +147,5 @@ export class CalculatedItemService {
 		}
 
 		return description;
-	}
-
-	private static getMoldDescription(moldId: string): string {
-		const before_ = moldId.split('_')[0];
-		const after_ = moldId.split('_')[1];
-		return `Referencia ${after_} - Ubicación: ${before_}`;
 	}
 }

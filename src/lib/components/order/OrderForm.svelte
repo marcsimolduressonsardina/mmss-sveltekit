@@ -43,7 +43,9 @@
 	let predefinedObservations: string[] = [];
 	let partsToCalculate: PreCalculatedItemPart[] = [];
 	let partsToCalulatePreview: TempParts = [];
-	let extraParts: CalculatedItemPart[] = [{ description: 'Cantoneras', price: 2.5, quantity: 1 }];
+	let extraParts: CalculatedItemPart[] = [
+		{ description: 'Cantoneras', price: 2.5, quantity: 1, priceId: 'extra' }
+	];
 
 	// PP vars
 	let asymetricPP = false;
@@ -283,7 +285,8 @@
 			const part = {
 				description: name,
 				price,
-				quantity
+				quantity,
+				priceId: 'extra'
 			};
 			extraParts = [part, ...extraParts];
 			$form.extraParts = extraParts;
@@ -325,7 +328,7 @@
 		}, 0);
 
 		totalPerUnitWithoutDiscount = compTotal;
-		totalPerUnit = totalPerUnitWithoutDiscount * (discount / 100);
+		totalPerUnit = totalPerUnitWithoutDiscount * (1 - discount / 100);
 		totalPerUnitDiscount = totalPerUnitWithoutDiscount - totalPerUnit;
 
 		totalWithoutDiscount = totalPerUnitWithoutDiscount * quantity;

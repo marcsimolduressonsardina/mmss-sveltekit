@@ -50,9 +50,11 @@
 			<div
 				class="flex w-full flex-col place-content-center items-center justify-center gap-1 md:grid md:grid-cols-2 lg:grid-cols-3"
 			>
-				<button class="variant-filled-success btn btn-sm w-full"
-					><Icon class="mr-1" data={faPrint} />Imprimir pedido</button
-				>
+				<a
+					class="variant-filled-success btn btn-sm w-full"
+					href={`/orders/${data?.order?.id}/print`}
+					><Icon class="mr-1" data={faPrint} /> Imprimir pedido
+				</a>
 				<form
 					class="w-full"
 					method="post"

@@ -283,7 +283,6 @@ export class OrderService {
 	}
 
 	private static verifyItem(item: Item) {
-		// Method that check that all fields are not null and not undefined
 		if (!item.width || !item.height || !item.quantity || !item.createdAt) {
 			console.log(item);
 			throw new InvalidDataError('Invalid item data');
@@ -294,7 +293,8 @@ export class OrderService {
 				throw new InvalidDataError('Invalid item data');
 			}
 
-			if (part.type === PricingType.PP && (item.pp > 0 || item.ppDimensions !== null)) {
+			if (part.type === PricingType.PP && (item.pp <= 0 || item.ppDimensions == null)) {
+				console.log(JSON.stringify(item))
 				throw new InvalidDataError('Invalid item PP data');
 			}
 		}

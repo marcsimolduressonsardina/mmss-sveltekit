@@ -2,7 +2,7 @@
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { Toast, storePopup, initializeStores } from '@skeletonlabs/skeleton';
 	import { AppBar, AppShell } from '@skeletonlabs/skeleton';
-	import '../app.pcss';
+	import '../../app.pcss';
 	import { Icon } from 'svelte-awesome';
 	import home from 'svelte-awesome/icons/home';
 	import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons/faRightFromBracket';
