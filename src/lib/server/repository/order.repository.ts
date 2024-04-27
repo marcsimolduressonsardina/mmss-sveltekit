@@ -22,6 +22,15 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 		return dtos.filter((dto) => dto.status !== 'deleted');
 	}
 
+	public async getOrdersBetweenTs(
+		customerUuid: string,
+		startTs: number,
+		endTs: number
+	): Promise<OrderDto[]> {
+		const dtos = await this.getBySortingKeyBetween(customerUuid, startTs, endTs);
+		return dtos.filter((dto) => dto.status !== 'deleted');
+	}
+
 	public async createOrder(order: OrderDto) {
 		if (!order.uuid || !order.customerUuid || !order.timestamp || !order.storeId) {
 			throw new Error('Invalid order data');
@@ -31,7 +40,12 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 	}
 
 	public async setOrderStatus(order: OrderDto) {
-		const updateStatus = this.updateField(order.customerUuid, 'status', order.status, order.timestamp);
+		const updateStatus = this.updateField(
+			order.customerUuid,
+			'status',
+			order.status,
+			order.timestamp
+		);
 		const updateTs = this.updateField(
 			order.customerUuid,
 			'statusTimestamp',

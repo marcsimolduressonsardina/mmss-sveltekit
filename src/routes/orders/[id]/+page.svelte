@@ -50,7 +50,7 @@
 			<div
 				class="flex w-full flex-col place-content-center items-center justify-center gap-1 md:grid md:grid-cols-2 lg:grid-cols-3"
 			>
-				<button class="variant-filled-success btn btn-sm w-full" disabled={formLoading}
+				<button class="variant-filled-success btn btn-sm w-full"
 					><Icon class="mr-1" data={faPrint} />Imprimir pedido</button
 				>
 				<form
@@ -65,7 +65,7 @@
 						};
 					}}
 				>
-					<button class="variant-filled-error btn btn-sm w-full" disabled={formLoading}
+					<button class="variant-filled-error btn btn-sm w-full"
 						><Icon class="mr-1" data={trash} />Eliminar pedido</button
 					>
 				</form>
@@ -82,7 +82,7 @@
 							};
 						}}
 					>
-						<button class="variant-ghost-primary btn btn-sm w-full" disabled={formLoading}
+						<button class="variant-ghost-primary btn btn-sm w-full"
 							><Icon class="mr-1" data={faCheck} />Marcar como finalizado</button
 						>
 					</form>
@@ -100,7 +100,7 @@
 							};
 						}}
 					>
-						<button class="variant-ghost btn btn-sm w-full" disabled={formLoading}
+						<button class="variant-ghost btn btn-sm w-full"
 							><Icon class="mr-1" data={faClockRotateLeft} />Marcar como pendiente</button
 						>
 					</form>
@@ -118,7 +118,7 @@
 							};
 						}}
 					>
-						<button class="variant-ghost-tertiary btn btn-sm w-full" disabled={formLoading}
+						<button class="variant-ghost-tertiary btn btn-sm w-full"
 							><Icon class="mr-1" data={faTruckPickup} />Marcar como recogido</button
 						>
 					</form>
@@ -128,8 +128,12 @@
 					href="/customers/{data.order.customer.id}/orders/new"
 					><Icon class="mr-1" data={plus} />Nuevo pedido para cliente</a
 				>
-				<button disabled={formLoading} class="variant-filled btn btn-sm w-full"
-					><Icon class="mr-1" data={faMessage} /> Enviar SMS terminado
+				<button
+					class="variant-filled btn btn-sm w-full"
+					on:click={() => {
+						goto(`/orders/${data?.order?.id}/day`);
+					}}
+					><Icon class="mr-1" data={faMessage} /> Notificar pedidos finalizados
 				</button>
 
 				{#if data.order.amountPayed === data.calculatedItem?.total}
@@ -162,7 +166,7 @@
 							};
 						}}
 					>
-						<button class="variant-filled-secondary btn btn-sm w-full" disabled={formLoading}
+						<button class="variant-filled-secondary btn btn-sm w-full"
 							><Icon class="mr-1" data={faMoneyBill} />Marcar como pagado</button
 						>
 					</form>
@@ -212,7 +216,7 @@
 				</span>
 			</span>
 			<span class="text-md text-gray-700"
-				>Unidades: <span class="badge variant-ghost">{data.order.item.quantity}</span></span
+				>Unidades: <span class="variant-ghost badge">{data.order.item.quantity}</span></span
 			>
 			<span class="text-md text-gray-700">Dependiente: {data.order.userName}</span>
 			<span class="text-md text-gray-700"

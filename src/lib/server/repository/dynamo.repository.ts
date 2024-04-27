@@ -1,5 +1,9 @@
 import { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } from '$env/static/private';
-import { type AttributeValue, DynamoDBClient, type KeysAndAttributes } from '@aws-sdk/client-dynamodb';
+import {
+	type AttributeValue,
+	DynamoDBClient,
+	type KeysAndAttributes
+} from '@aws-sdk/client-dynamodb';
 import {
 	DynamoDBDocument,
 	type DynamoDBDocumentClient,
@@ -109,6 +113,43 @@ export abstract class DynamoRepository<T> {
 		}
 
 		return null;
+	}
+
+	protected async getBySortingKeyBetween(
+		partitionKeyValue: string,
+		sortKeyStartValue: string | number,
+		sorKeyEndValue: string | number
+	): Promise<T[]> {
+		if (this.sortKey == null) {
+			return [];
+		}
+
+		const params = {
+			TableName: this.table,
+			KeyConditionExpression: '#pk = :pkv AND #sk BETWEEN :sksv AND :skev',
+			ExpressionAttributeNames: {
+				'#pk': this.partitionKey,
+				'#sk': this.sortKey
+			},
+			ExpressionAttributeValues: {
+				':pkv': partitionKeyValue,
+				':sksv': sortKeyStartValue,
+				':skev': sorKeyEndValue
+			}
+		};
+
+		try {
+			const command = new QueryCommand(params);
+			const response = await this.client.send(command);
+			if (response.Items) {
+				return response.Items as T[];
+			}
+		} catch (error: unknown) {
+			this.logError('getBySortingKeyBetween', error);
+			throw error;
+		}
+
+		return [];
 	}
 
 	protected async getByPartitionKey(partitionKeyValue: string): Promise<T[]> {

@@ -53,21 +53,22 @@ export class OrderService {
 	async getOrdersByCustomerId(customerId: string): Promise<Order[] | null> {
 		const customer = await this.customerService.getCustomerById(customerId);
 		if (customer === null) return null;
-		const orderDtos = await this.repository.getOrdersByCustomerId(customerId);
-		const filteredOrderDtos = orderDtos.filter((dto) => dto.storeId === this.storeId);
-		if (filteredOrderDtos.length > 0) {
-			const users = AuthService.generateUsersFromIds(
-				new Set(filteredOrderDtos.map((dto) => dto.userId))
-			);
-			const orders = filteredOrderDtos.map((dto) =>
-				OrderService.fromDto(dto, customer, users.get(dto.userId)!)
-			);
-			return orders.sort(
-				(a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-			);
-		}
 
-		return [];
+		const orderDtos = await this.repository.getOrdersByCustomerId(customerId);
+		return await this.processDtosFromRepository(orderDtos, customer);
+	}
+
+	async getOrdersOnSameDay(order: Order): Promise<Order[]> {
+		const firstSecond = new Date(order.createdAt);
+		firstSecond.setHours(0, 0, 0, 0);
+		const startTs = firstSecond.getTime();
+
+		const lastSecond = new Date(order.createdAt);
+		lastSecond.setHours(23, 59, 59, 999);
+		const endTs = lastSecond.getTime();
+
+		const orderDtos = await this.repository.getOrdersBetweenTs(order.customer.id, startTs, endTs);
+		return await this.processDtosFromRepository(orderDtos, order.customer);
 	}
 
 	async createOrderForCustomer(
@@ -206,6 +207,26 @@ export class OrderService {
 			storeId: this.storeId,
 			phone: '+34612345678'
 		};
+	}
+
+	private async processDtosFromRepository(
+		orderDtos: OrderDto[],
+		customer: Customer
+	): Promise<Order[]> {
+		const filteredOrderDtos = orderDtos.filter((dto) => dto.storeId === this.storeId);
+		if (filteredOrderDtos.length > 0) {
+			const users = AuthService.generateUsersFromIds(
+				new Set(filteredOrderDtos.map((dto) => dto.userId))
+			);
+			const orders = filteredOrderDtos.map((dto) =>
+				OrderService.fromDto(dto, customer, users.get(dto.userId)!)
+			);
+			return orders.sort(
+				(a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+			);
+		}
+
+		return [];
 	}
 
 	private async createOrder(
