@@ -4,8 +4,13 @@ import type { PageServerLoad, RouteParams } from './$types';
 import { OrderService } from '$lib/server/service/order.service';
 import { CalculatedItemService } from '$lib/server/service/calculated-item.service';
 import { OrderStatus } from '$lib/type/order.type';
+import type { Order } from '$lib/type/api.type';
 
-async function setOrderStatus(status: OrderStatus, params: RouteParams, locals: App.Locals) {
+async function setOrderStatus(
+	status: OrderStatus,
+	params: RouteParams,
+	locals: App.Locals
+): Promise<Order> {
 	const session = await locals.auth();
 	const appUser = AuthService.generateUserFromAuth(session?.user);
 	if (!appUser) throw redirect(303, '/auth/signin');
@@ -19,7 +24,7 @@ async function setOrderStatus(status: OrderStatus, params: RouteParams, locals: 
 	}
 
 	await orderService.setOrderStatus(order, status);
-	redirect(303, `/orders/${id}/`);
+	return order;
 }
 
 export const load = (async ({ params, locals }) => {
@@ -31,14 +36,15 @@ export const load = (async ({ params, locals }) => {
 	const calculatedItemService = new CalculatedItemService();
 
 	return {
-		order: orderService.getOrderById(id),
+		order: await orderService.getOrderById(id),
 		calculatedItem: await calculatedItemService.getCalculatedItem(id)
 	};
 }) satisfies PageServerLoad;
 
 export const actions = {
 	async deleteOrder({ params, locals }) {
-		await setOrderStatus(OrderStatus.DELETED, params, locals)
+		await setOrderStatus(OrderStatus.DELETED, params, locals);
+		redirect(303, `/`);
 	},
 
 	async payOrderFull({ params, locals }) {
@@ -54,7 +60,7 @@ export const actions = {
 		}
 
 		await orderService.setOrderFullyPaid(order);
-		redirect(303, `/orders/${id}/`);
+		
 	},
 
 	async unpayOrder({ params, locals }) {
@@ -70,7 +76,6 @@ export const actions = {
 		}
 
 		await orderService.setOrderPartiallyPaid(order, 0);
-		redirect(303, `/orders/${id}/`);
 	},
 
 	async payOrderPartially({ params, locals, request }) {
@@ -98,7 +103,6 @@ export const actions = {
 		}
 
 		await orderService.incrementOrderPayment(order, amountNumber);
-		redirect(303, `/orders/${id}/`);
 	},
 	async setOrderFinished({ params, locals }) {
 		await setOrderStatus(OrderStatus.FINISHED, params, locals);
@@ -106,7 +110,7 @@ export const actions = {
 	async setOrderPending({ params, locals }) {
 		await setOrderStatus(OrderStatus.PENDING, params, locals);
 	},
-	async setOrderPickedUp({ params, locals }) {
-		await setOrderStatus(OrderStatus.PICKED_UP, params, locals)
-	},
+	async setOrderPickedUp({ params, locals }): Promise<Order> {
+		return await setOrderStatus(OrderStatus.PICKED_UP, params, locals);
+	}
 };
