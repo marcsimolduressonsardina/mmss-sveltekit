@@ -35,7 +35,8 @@ export const actions = {
 		const partsToCalculate = form.data.partsToCalculate.map((part) => ({
 			id: part.id,
 			quantity: part.quantity,
-			type: part.type as PricingType
+			type: part.type as PricingType,
+			moldId: part.moldId
 		}));
 
 		let orderId = '';

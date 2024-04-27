@@ -45,10 +45,12 @@ const partToCalculateSchema = z.object({
 		PricingType.MOLD,
 		PricingType.GLASS,
 		PricingType.PP,
+		PricingType.LABOUR,
 		PricingType.BACK,
 		PricingType.OTHER,
 		PricingType.FABRIC
-	])
+	]),
+	moldId: z.string().optional()
 });
 
 const ppDimensionsSchema = z.object({
