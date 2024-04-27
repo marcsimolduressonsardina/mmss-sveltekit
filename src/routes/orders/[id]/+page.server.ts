@@ -1,8 +1,26 @@
 import { AuthService } from '$lib/server/service/auth.service';
 import { fail, redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
+import type { PageServerLoad, RouteParams } from './$types';
 import { OrderService } from '$lib/server/service/order.service';
 import { CalculatedItemService } from '$lib/server/service/calculated-item.service';
+import { OrderStatus } from '$lib/type/order.type';
+
+async function setOrderStatus(status: OrderStatus, params: RouteParams, locals: App.Locals) {
+	const session = await locals.auth();
+	const appUser = AuthService.generateUserFromAuth(session?.user);
+	if (!appUser) throw redirect(303, '/auth/signin');
+	const { id } = params;
+
+	const orderService = new OrderService(appUser);
+
+	const order = await orderService.getOrderById(id);
+	if (!order) {
+		throw fail(500, { missing: true });
+	}
+
+	await orderService.setOrderStatus(order, status);
+	redirect(303, `/orders/${id}/`);
+}
 
 export const load = (async ({ params, locals }) => {
 	const session = await locals.auth();
@@ -20,19 +38,7 @@ export const load = (async ({ params, locals }) => {
 
 export const actions = {
 	async deleteOrder({ params, locals }) {
-		const session = await locals.auth();
-		const appUser = AuthService.generateUserFromAuth(session?.user);
-		if (!appUser) throw redirect(303, '/auth/signin');
-		const { id } = params;
-		const orderService = new OrderService(appUser);
-
-		const order = await orderService.getOrderById(id);
-		if (!order) {
-			return fail(500, { missing: true });
-		}
-
-		await orderService.deleteOrder(order);
-		redirect(303, `/customers/${order.customer.id}/`);
+		await setOrderStatus(OrderStatus.DELETED, params, locals)
 	},
 
 	async payOrderFull({ params, locals }) {
@@ -93,5 +99,14 @@ export const actions = {
 
 		await orderService.incrementOrderPayment(order, amountNumber);
 		redirect(303, `/orders/${id}/`);
-	}
+	},
+	async setOrderFinished({ params, locals }) {
+		await setOrderStatus(OrderStatus.FINISHED, params, locals);
+	},
+	async setOrderPending({ params, locals }) {
+		await setOrderStatus(OrderStatus.PENDING, params, locals);
+	},
+	async setOrderPickedUp({ params, locals }) {
+		await setOrderStatus(OrderStatus.PICKED_UP, params, locals)
+	},
 };

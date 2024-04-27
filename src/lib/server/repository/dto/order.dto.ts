@@ -1,4 +1,4 @@
-import type { ItemDto } from "./item.dto";
+import type { ItemDto } from './item.dto';
 
 export type OrderDto = {
 	uuid: string;
@@ -7,7 +7,8 @@ export type OrderDto = {
 	storeId: string;
 	userId: string;
 	userName?: string;
-	deleted: boolean;
 	amountPayed: number;
 	item: ItemDto;
+	status: string;
+	statusTimestamp: number;
 };

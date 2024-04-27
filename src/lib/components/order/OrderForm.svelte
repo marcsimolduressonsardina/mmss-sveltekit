@@ -36,6 +36,8 @@
 
 	let total = 0.0;
 	let totalPerUnit = 0.0;
+	let totalPerUnitWithoutDiscount = 0.0;
+	let totalPerUnitDiscount = 0.0;
 	let totalDiscount = 0.0;
 	let totalWithoutDiscount = 0.0;
 	let predefinedObservations: string[] = [];
@@ -314,20 +316,21 @@
 		discount: number,
 		quantity: number
 	) {
-		total = parts.reduce((acc, part) => {
+		let compTotal = parts.reduce((acc, part) => {
 			return acc + part.post.price * part.post.quantity;
 		}, 0);
 
-		total += eParts.reduce((acc, part) => {
+		compTotal += eParts.reduce((acc, part) => {
 			return acc + part.price * part.quantity;
 		}, 0);
 
-		totalWithoutDiscount = total;
-		total -= total * (discount / 100);
-		totalPerUnit = total;
-		total *= quantity;
-		totalWithoutDiscount *= quantity;
-		totalDiscount = totalWithoutDiscount - total;
+		totalPerUnitWithoutDiscount = compTotal;
+		totalPerUnit = totalPerUnitWithoutDiscount * (discount / 100);
+		totalPerUnitDiscount = totalPerUnitWithoutDiscount - totalPerUnit;
+
+		totalWithoutDiscount = totalPerUnitWithoutDiscount * quantity;
+		total = totalPerUnit * quantity;
+		totalDiscount = totalPerUnitDiscount * quantity;
 	}
 
 	function updatePP(aPP: boolean, up: number, down: number, left: number, right: number) {
@@ -367,7 +370,9 @@
 
 	function cleanFabric(addedMold: boolean) {
 		if (!addedMold) {
-			partsToCalulatePreview = partsToCalulatePreview.filter((p) => p.pre.type !== PricingType.FABRIC);
+			partsToCalulatePreview = partsToCalulatePreview.filter(
+				(p) => p.pre.type !== PricingType.FABRIC
+			);
 			partsToCalculate = partsToCalculate.filter((p) => p.type !== PricingType.FABRIC);
 			$form.partsToCalculate = partsToCalculate;
 		}
@@ -604,11 +609,14 @@
 			>
 
 			<button
-				class="variant-filled btn "
+				class="variant-filled btn"
 				type="button"
 				disabled={!addedMold}
 				on:click={() => addFromFabric(fabricIds.long)}
-				><Icon class="mr-2" data={plus} /> Añadir travesaño largo ({Math.max($form.width, $form.height)} cm)</button
+				><Icon class="mr-2" data={plus} /> Añadir travesaño largo ({Math.max(
+					$form.width,
+					$form.height
+				)} cm)</button
 			>
 
 			<button
@@ -616,7 +624,10 @@
 				type="button"
 				disabled={!addedMold}
 				on:click={() => addFromFabric(fabricIds.short)}
-				><Icon class="mr-2" data={plus} /> Añadir travesaño corto ({Math.min($form.width, $form.height)} cm)</button
+				><Icon class="mr-2" data={plus} /> Añadir travesaño corto ({Math.min(
+					$form.width,
+					$form.height
+				)} cm)</button
 			>
 
 			<Spacer title={'Otros elementos'} />
@@ -759,7 +770,11 @@
 
 			<div class="grid grid-cols-1 lg:col-span-2">
 				{#if $form.quantity > 1}
-					<span class="text-md font-medium">Total por unidad: {totalPerUnit.toFixed(2)} €</span>
+					<span class="text-md font-medium"
+						>Total por unidad: {totalPerUnitWithoutDiscount.toFixed(2)} € {#if $form.discount > 0}
+							- {totalPerUnitDiscount.toFixed(2)} € Dto = {totalPerUnit.toFixed(2)} €
+						{/if}
+					</span>
 				{/if}
 				<span class="text-xl font-medium"
 					>Total: {totalWithoutDiscount.toFixed(2)} € {#if $form.discount > 0}

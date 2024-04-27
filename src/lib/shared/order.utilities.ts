@@ -1,4 +1,5 @@
 import type { Order } from '$lib/type/api.type';
+import { OrderStatus } from '$lib/type/order.type';
 import { PricingType } from '$lib/type/pricing.type';
 import { z } from 'zod';
 
@@ -23,6 +24,13 @@ export const tempCustomerUuid = 'temp-customer';
 export function isOrderTemp(order: Order): boolean {
 	return order.customer.id === tempCustomerUuid;
 }
+
+export const orderStatusMap: Record<OrderStatus, string> = {
+	[OrderStatus.FINISHED]: 'Finalizado',
+	[OrderStatus.PICKED_UP]: 'Recogido',
+	[OrderStatus.PENDING]: 'Pendiente',
+	[OrderStatus.DELETED]: 'Eliminado'
+};
 
 const extraPartSchema = z.object({
 	price: z.number().min(0).default(0),

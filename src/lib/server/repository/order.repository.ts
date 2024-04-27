@@ -10,7 +10,7 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 
 	public async getOrderById(orderId: string): Promise<OrderDto | null> {
 		const dto = await this.getByUuid(orderId);
-		if (dto && !dto.deleted) {
+		if (dto && dto.status !== 'deleted') {
 			return dto;
 		}
 
@@ -19,7 +19,7 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 
 	public async getOrdersByCustomerId(customerUuid: string): Promise<OrderDto[]> {
 		const dtos = await this.getByPartitionKey(customerUuid);
-		return dtos.filter((dto) => !dto.deleted);
+		return dtos.filter((dto) => dto.status !== 'deleted');
 	}
 
 	public async createOrder(order: OrderDto) {
@@ -30,16 +30,22 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 		await this.put(order);
 	}
 
-	public async setOrderDeleted(deleted: boolean, order: OrderDto) {
-		this.updateField(order.customerUuid, 'deleted', deleted, order.timestamp);
+	public async setOrderStatus(order: OrderDto) {
+		const updateStatus = this.updateField(order.customerUuid, 'status', order.status, order.timestamp);
+		const updateTs = this.updateField(
+			order.customerUuid,
+			'statusTimestamp',
+			order.statusTimestamp,
+			order.timestamp
+		);
+		await Promise.all([updateStatus, updateTs]);
 	}
 
-	public async updateAmountPayed(order: OrderDto, amount: number) { 
-		this.updateField(order.customerUuid, 'amountPayed', amount, order.timestamp);
+	public async updateAmountPayed(order: OrderDto) {
+		this.updateField(order.customerUuid, 'amountPayed', order.amountPayed, order.timestamp);
 	}
 
 	public async deleteOrder(customerUuid: string, timestamp: number) {
 		await this.batchDelete([{ partitionKey: customerUuid, sortKey: timestamp }]);
 	}
-
 }

@@ -12,12 +12,27 @@
 
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import OrderId from '$lib/components/OrderId.svelte';
-	import { isOrderTemp } from '$lib/shared/order.utilities';
+	import { isOrderTemp, orderStatusMap } from '$lib/shared/order.utilities';
 	import Spacer from '$lib/components/item/Spacer.svelte';
+	import type { Item } from '$lib/type/api.type';
+	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
+	import { OrderStatus } from '$lib/type/order.type';
+	import OrderCard from '$lib/components/OrderCard.svelte';
 
 	let formLoading = false;
 
 	export let data: PageData;
+
+	function getWorkingDimensions(item: Item): string {
+		const { totalWidth, totalHeight } = CalculatedItemUtilities.getTotalDimensions(
+			item.width,
+			item.height,
+			item.pp,
+			item.ppDimensions
+		);
+
+		return `${totalHeight}x${totalWidth} cm`;
+	}
 </script>
 
 <div class="space flex w-full flex-col p-3">
@@ -51,6 +66,54 @@
 					>
 						<button class="variant-filled-error btn btn-sm w-full" disabled={formLoading}
 							><Icon class="mr-1" data={trash} />Eliminar pedido</button
+						>
+					</form>
+					<form
+						class="w-full"
+						method="post"
+						action="?/setOrderFinished"
+						use:enhance={() => {
+							formLoading = true;
+							return async ({ update }) => {
+								formLoading = false;
+								update();
+							};
+						}}
+					>
+						<button class="variant-filled-error btn btn-sm w-full" disabled={formLoading}
+							><Icon class="mr-1" data={trash} />Marcar como finalizado</button
+						>
+					</form>
+					<form
+						class="w-full"
+						method="post"
+						action="?/setOrderPending"
+						use:enhance={() => {
+							formLoading = true;
+							return async ({ update }) => {
+								formLoading = false;
+								update();
+							};
+						}}
+					>
+						<button class="variant-filled-error btn btn-sm w-full" disabled={formLoading}
+							><Icon class="mr-1" data={trash} />Marcar como pendiente</button
+						>
+					</form>
+					<form
+						class="w-full"
+						method="post"
+						action="?/setOrderPickedUp"
+						use:enhance={() => {
+							formLoading = true;
+							return async ({ update }) => {
+								formLoading = false;
+								update();
+							};
+						}}
+					>
+						<button class="variant-filled-error btn btn-sm w-full" disabled={formLoading}
+							><Icon class="mr-1" data={trash} />Marcar como recogido</button
 						>
 					</form>
 					<a
@@ -119,7 +182,19 @@
 			<Spacer title={'Datos del pedido'} />
 			<div class="flex w-full flex-col space-y-1">
 				<span class="text-md text-gray-700"
-					>Unidades: <span class="variant-ghost badge">{order.item.quantity}</span></span
+					>Estado: <span
+						class="badge"
+						class:variant-ghost={OrderStatus.PENDING === order.status}
+						class:variant-ghost-warning={OrderStatus.FINISHED === order.status}
+						class:variant-ghost-tertiary={OrderStatus.PICKED_UP === order.status}
+					>
+						{orderStatusMap[order.status] +
+							' ' +
+							DateTime.fromJSDate(order.statusUpdated).toFormat('dd/MM/yyyy HH:mm')}
+					</span>
+				</span>
+				<span class="text-md text-gray-700"
+					>Unidades: <span class="badge">{order.item.quantity}</span></span
 				>
 				<span class="text-md text-gray-700">Dependiente: {order.userName}</span>
 				<span class="text-md text-gray-700"
@@ -134,11 +209,7 @@
 					>Medidas de la obra: {`${order.item.height}x${order.item.width} cm`}</span
 				>
 				<span class="text-md text-gray-700"
-					>Medidas PP: {#if order.item.ppDimensions}
-						{`Arriba: ${order.item.ppDimensions.up} cm, Abajo: ${order.item.ppDimensions.down} cm, Izquierda: ${order.item.ppDimensions.left} cm, Derecha: ${order.item.ppDimensions.right} cm`}
-					{:else}
-						{`${order.item.pp} cm`}
-					{/if}</span
+					>Medidas de trabajo: {getWorkingDimensions(order.item)}</span
 				>
 				<span class="text-md text-gray-700">Descripción: {order.item.description}</span>
 				<span class="text-md text-gray-700">Observaciones: {order.item.observations}</span>

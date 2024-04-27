@@ -9,14 +9,15 @@ import type {
 	AppUser,
 	PreCalculatedItemPart,
 	CalculatedItemPart,
-	Item
-} from '../../type/api.type';
+	Item,
+	PPDimensions
+} from '$lib/type/api.type';
 import { CalculatedItemService } from './calculated-item.service';
 import type { ItemDto } from '../repository/dto/item.dto';
 import { PricingType } from '$lib/type/pricing.type';
 import { InvalidDataError } from '../error/invalid-data.error';
 import { isOrderTemp, tempCustomerUuid } from '$lib/shared/order.utilities';
-import type { PPDimensions } from '../../type/api.type';
+import { OrderStatus } from '$lib/type/order.type';
 
 export class OrderService {
 	private readonly storeId: string;
@@ -47,11 +48,6 @@ export class OrderService {
 		}
 
 		return null;
-	}
-
-	async deleteOrder(order: Order) {
-		order.deleted = true;
-		await this.repository.setOrderDeleted(true, OrderService.toDto(order));
 	}
 
 	async getOrdersByCustomerId(customerId: string): Promise<Order[] | null> {
@@ -176,7 +172,13 @@ export class OrderService {
 			order.amountPayed = amount;
 		}
 
-		await this.repository.updateAmountPayed(OrderService.toDto(order), order.amountPayed);
+		await this.repository.updateAmountPayed(OrderService.toDto(order));
+	}
+
+	async setOrderStatus(order: Order, status: OrderStatus) {
+		order.status = status;
+		order.statusUpdated = new Date();
+		this.repository.setOrderStatus(OrderService.toDto(order));
 	}
 
 	async incrementOrderPayment(order: Order, amount: number) {
@@ -194,7 +196,7 @@ export class OrderService {
 			order.amountPayed = total;
 		}
 
-		await this.repository.updateAmountPayed(OrderService.toDto(order), order.amountPayed);
+		await this.repository.updateAmountPayed(OrderService.toDto(order));
 	}
 
 	private getTempCustomer(): Customer {
@@ -229,8 +231,9 @@ export class OrderService {
 			storeId: this.storeId,
 			user: this.currentUser,
 			userName: authorName != null ? authorName : undefined,
-			deleted: false,
 			amountPayed: 0,
+			status: OrderStatus.PENDING,
+			statusUpdated: new Date(),
 			item: {
 				width,
 				height,
@@ -283,10 +286,11 @@ export class OrderService {
 			createdAt: new Date(dto.timestamp),
 			storeId: dto.storeId,
 			user,
-			deleted: dto.deleted,
 			userName: dto.userName,
 			amountPayed: dto.amountPayed,
-			item: OrderService.fromDtoItem(dto.item)
+			item: OrderService.fromDtoItem(dto.item),
+			status: dto.status as OrderStatus,
+			statusUpdated: new Date(dto.statusTimestamp)
 		};
 	}
 
@@ -297,10 +301,11 @@ export class OrderService {
 			timestamp: Date.parse(order.createdAt.toISOString()),
 			storeId: order.storeId!,
 			userId: order.user.id,
-			deleted: order.deleted,
 			userName: order.userName,
 			amountPayed: order.amountPayed,
-			item: OrderService.toDtoItem(order.item)
+			item: OrderService.toDtoItem(order.item),
+			status: order.status,
+			statusTimestamp: Date.parse(order.statusUpdated.toISOString())
 		};
 	}
 

@@ -1,3 +1,4 @@
+import type { OrderStatus } from './order.type';
 import type { PricingFormula, PricingType } from './pricing.type';
 
 export type Customer = {
@@ -40,9 +41,10 @@ export type Order = {
 	createdAt: Date;
 	user: AppUser;
 	userName?: string;
-	deleted: boolean;
 	amountPayed: number;
 	item: Item;
+	status: OrderStatus;
+	statusUpdated: Date;
 };
 
 export type PPDimensions = {
