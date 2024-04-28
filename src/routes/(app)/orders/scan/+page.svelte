@@ -20,16 +20,14 @@
 
 <div class="px-2 pt-1 text-xl font-semibold">Escanear pedido</div>
 <div class="flex w-full flex-col place-content-center items-center gap-5">
-	<div class="barcode-scanner">
-		<ScanQRCode
-			bind:scanResult={result}
-			enableQRCodeReaderButton={false}
-			options={{
-				onPermissionError: () => _onPermissionError(),
-				onResulted: () => _onResulted()
-			}}
-		/>
-	</div>
+	<ScanQRCode
+		bind:scanResult={result}
+		enableQRCodeReaderButton={false}
+		options={{
+			onPermissionError: () => _onPermissionError(),
+			onResulted: () => _onResulted()
+		}}
+	/>
 	<button
 		class="variant-filled-warning btn w-full"
 		on:click={() => {
@@ -39,11 +37,3 @@
 		<Icon class="mr-2" data={search} /> Introducir manualmente
 	</button>
 </div>
-
-<style>
-	.barcode-scanner {
-		width: 100%;
-		max-width: 384px;
-		aspect-ratio: 1;
-	}
-</style>
