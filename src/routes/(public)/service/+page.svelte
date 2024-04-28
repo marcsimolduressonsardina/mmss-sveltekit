@@ -6,4 +6,4 @@
 	const calculatedItem = data.calculatedItem!;
 </script>
 
-<OrderPrint {order} {calculatedItem} qrHost={data.qrHost} isForCustomer={true}></OrderPrint>
+<OrderPrint {order} {calculatedItem} isForCustomer={true}></OrderPrint>

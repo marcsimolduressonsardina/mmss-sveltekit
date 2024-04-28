@@ -6,14 +6,10 @@
 	import mmlogo from '$lib/assets/mmlogo.png';
 	import type { CalculatedItem, Order } from '$lib/type/api.type';
 	import { OrderStatus } from '$lib/type/order.type';
-	import OrderId from '../OrderId.svelte';
 
 	export let order: Order;
 	export let calculatedItem: CalculatedItem;
-	export let qrHost: string;
 	export let isForCustomer: boolean;
-
-	const qrUrl = qrHost + '/orders/' + order.id;
 
 	const others = [
 		...OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.FABRIC),
@@ -57,7 +53,7 @@
 	<table border="1" cellpadding="4" style="">
 		<tr>
 			<td colspan="1" class="center-text">
-				<Qr size={85} {qrUrl}></Qr><br />
+				<Qr size={85} qrData={order.id}></Qr><br />
 			</td>
 			<td colspan="3" class="center-text">
 				{#if isForCustomer}

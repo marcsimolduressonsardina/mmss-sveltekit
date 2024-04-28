@@ -26,9 +26,9 @@
 					bind:value={$form.id}
 				/>
 			</label>
-			<button class="variant-filled-warning btn w-full" type="submit"
-				><Icon class="mr-2" data={search} /> Buscar</button
-			>
+			<button class="variant-filled-warning btn w-full" type="submit">
+				<Icon class="mr-2" data={search} /> Buscar
+			</button>
 		</form>
 	{/if}
 </div>

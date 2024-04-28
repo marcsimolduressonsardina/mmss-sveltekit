@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
-
+	import { faQrcode } from '@fortawesome/free-solid-svg-icons/faQrcode';
 	import { faImage } from '@fortawesome/free-solid-svg-icons/faImage';
 	import Icon from 'svelte-awesome';
 	import plus from 'svelte-awesome/icons/plus';
@@ -19,8 +18,8 @@
 		>
 	</div>
 	<div class="w-full space-y-2 lg:w-1/2">
-		<a href="/orders/search" class="variant-filled btn btn-xl w-full shadow-sm"
-			><Icon class="mr-2" data={faBox} /> Consultar Pedido</a
+		<a href="/orders/scan" class="variant-filled btn btn-xl w-full shadow-sm"
+			><Icon class="mr-2" data={faQrcode} /> Escanear Pedido</a
 		>
 		<a href="/orders/new" class="variant-filled-primary btn btn-xl w-full shadow-sm"
 			><Icon class="mr-2" data={faImage} /> Crear presupuesto</a
