@@ -1,22 +1,16 @@
 import type { CalculatedItem, Order } from '$lib/type/api.type';
 import { OrderStatus } from '$lib/type/order.type';
 import { PricingType } from '$lib/type/pricing.type';
+import { DateTime } from 'luxon';
 import { z } from 'zod';
 import { CalculatedItemUtilities, otherExtraId } from './calculated-item.utilites';
 
 export class OrderUtilites {
 	public static getOrderPublicId(order: Order): string {
-		const date = new Date(order.createdAt);
-		const month = date.getMonth() + 1;
-		let monthString = '';
-		if (month < 10) {
-			monthString = `0${month}`;
-		} else {
-			monthString = `${month}`;
-		}
-
+		const date = DateTime.fromJSDate(order.createdAt);
+		const dateStr = date.toFormat('yyyyMMdd');
 		const phoneWithoutPlus = order.customer.phone.replace('+', '');
-		return `${date.getFullYear()}${monthString}${date.getDate()}/${date.getSeconds()}/${phoneWithoutPlus}`;
+		return `${dateStr}/${date.second}/${phoneWithoutPlus}`;
 	}
 
 	public static getOrderMolds(order: Order): string[] {

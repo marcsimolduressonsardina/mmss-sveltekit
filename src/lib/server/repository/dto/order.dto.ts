@@ -2,6 +2,7 @@ import type { ItemDto } from './item.dto';
 
 export type OrderDto = {
 	uuid: string;
+	shortId: string;
 	customerUuid: string;
 	timestamp: number;
 	storeId: string;

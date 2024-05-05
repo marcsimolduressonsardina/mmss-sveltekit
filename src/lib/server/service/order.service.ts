@@ -16,7 +16,7 @@ import { CalculatedItemService } from './calculated-item.service';
 import type { ItemDto } from '../repository/dto/item.dto';
 import { PricingType } from '$lib/type/pricing.type';
 import { InvalidDataError } from '../error/invalid-data.error';
-import { OrderUtilites, isOrderTemp, tempCustomerUuid } from '$lib/shared/order.utilities';
+import { isOrderTemp, tempCustomerUuid } from '$lib/shared/order.utilities';
 import { OrderStatus } from '$lib/type/order.type';
 
 export class OrderService {
@@ -40,7 +40,7 @@ export class OrderService {
 			const user = AuthService.generateUserFromId(orderDto.userId);
 			const customer =
 				orderDto.customerUuid === tempCustomerUuid
-					? this.getTempCustomer()
+					? OrderService.getTempCustomer(this.storeId)
 					: await this.customerService.getCustomerById(orderDto.customerUuid);
 			if (customer && user) {
 				return OrderService.fromDto(orderDto, customer, user);
@@ -123,7 +123,7 @@ export class OrderService {
 		ppDimensions?: PPDimensions,
 		authorName?: string | null
 	): Promise<Order> {
-		const customer = this.getTempCustomer();
+		const customer = OrderService.getTempCustomer(this.storeId);
 		const order = await this.createOrder(
 			customer,
 			width,
@@ -200,24 +200,25 @@ export class OrderService {
 		await this.repository.updateAmountPayed(OrderService.toDto(order));
 	}
 
-	static getOrderPublicParam(order: Order): string {
-		const data = {
-			storeId: order.storeId,
-			publicId: OrderUtilites.getOrderPublicId(order)
-		};
+	static async getPublicOrder(publicId: string): Promise<Order | null> {
+		const repo = new OrderRepository();
+		const orderDto = await repo.getOrderByShortId(publicId);
+		if (orderDto) {
+			return OrderService.fromDto(orderDto, OrderService.getTempCustomer(orderDto.storeId), {
+				id: 'public',
+				name: 'public',
+				storeId: orderDto.storeId
+			});
+		}
 
-		return Buffer.from(JSON.stringify(data)).toString('base64');
+		return null;
 	}
 
-	static restoreOrderPublicParam(param: string): Record<string, string> {
-		return JSON.parse(Buffer.from(param, 'base64').toString('ascii'));
-	}
-
-	private getTempCustomer(): Customer {
+	private static getTempCustomer(storeId: string): Customer {
 		return {
 			id: tempCustomerUuid,
 			name: 'Temp',
-			storeId: this.storeId,
+			storeId,
 			phone: '+34612345678'
 		};
 	}
@@ -260,6 +261,7 @@ export class OrderService {
 	): Promise<Order> {
 		const order: Order = {
 			id: uuidv4(),
+			shortId: '',
 			customer,
 			createdAt: new Date(),
 			storeId: this.storeId,
@@ -283,6 +285,7 @@ export class OrderService {
 			}
 		};
 
+		order.shortId = OrderService.generateShortId(order);
 		OrderService.verifyItem(order.item);
 		const calculatedItem = await this.calculatedItemService.createCalculatedItem(
 			order,
@@ -293,6 +296,24 @@ export class OrderService {
 		await this.repository.createOrder(OrderService.toDto(order));
 		await this.calculatedItemService.saveCalculatedItem(calculatedItem);
 		return order;
+	}
+
+	private static generateShortId(order: Order): string {
+		const orderStr = JSON.stringify(order) + uuidv4();
+		const base64 = Buffer.from(orderStr).toString('base64');
+
+		// Create an array of numbers from 0 to maxValue (excluding maxValue)
+		const numbersArray = Array.from({ length: base64.length }, (_, i) => i);
+
+		// Shuffle the array randomly
+		for (let i = numbersArray.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[numbersArray[i], numbersArray[j]] = [numbersArray[j], numbersArray[i]];
+		}
+
+		// Select the first 7 numbers (no repeats)
+		const randomNumbers = numbersArray.slice(0, 7);
+		return randomNumbers.map((num) => base64[num]).join('');
 	}
 
 	private static verifyItem(item: Item) {
@@ -316,6 +337,7 @@ export class OrderService {
 	private static fromDto(dto: OrderDto, customer: Customer, user: AppUser): Order {
 		return {
 			id: dto.uuid,
+			shortId: dto.shortId,
 			customer,
 			createdAt: new Date(dto.timestamp),
 			storeId: dto.storeId,
@@ -331,6 +353,7 @@ export class OrderService {
 	private static toDto(order: Order): OrderDto {
 		return {
 			uuid: order.id!,
+			shortId: order.shortId,
 			customerUuid: order.customer.id,
 			timestamp: Date.parse(order.createdAt.toISOString()),
 			storeId: order.storeId!,

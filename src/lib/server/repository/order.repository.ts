@@ -17,6 +17,15 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 		return null;
 	}
 
+	public async getOrderByShortId(shortId: string): Promise<OrderDto | null> {
+		const dto = await this.getByShortId(shortId);
+		if (dto && dto.status !== 'deleted') {
+			return dto;
+		}
+
+		return null;
+	}
+
 	public async getOrdersByCustomerId(customerUuid: string): Promise<OrderDto[]> {
 		const dtos = await this.getByPartitionKey(customerUuid);
 		return dtos.filter((dto) => dto.status !== 'deleted');

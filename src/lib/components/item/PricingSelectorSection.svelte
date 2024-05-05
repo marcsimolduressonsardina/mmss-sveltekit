@@ -30,6 +30,17 @@
 		}
 	}
 
+	let defaultPrices = prices.filter((p) => p.isDefault === true);
+	let normalPrices = prices.filter((p) => p.isDefault !== true);
+	let firstPrice: ListPrice;
+	if (defaultPrices.length > 0) {
+		firstPrice = defaultPrices[0];
+		normalPrices = defaultPrices.slice(1).concat(normalPrices);
+		selectedId = firstPrice.id;
+	}
+
+	console.log(defaultPrices);
+
 	$: isButtonDisabled = !selectedId;
 </script>
 
@@ -44,8 +55,13 @@
 			bind:this={idElementInput}
 			class:input-success={added}
 		>
-			<option></option>
-			{#each prices as price}
+			{#if firstPrice}
+				<option value={firstPrice.id}>{getSelectLabel(firstPrice)}</option>
+			{:else}
+				<option></option>
+			{/if}
+
+			{#each normalPrices as price}
 				<option value={price.id}>{getSelectLabel(price)}</option>
 			{/each}
 		</select>

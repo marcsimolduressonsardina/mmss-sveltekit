@@ -29,7 +29,7 @@ function createCustomerTable(scope: Construct, envName: string): Table {
 }
 
 function createOrderTable(scope: Construct, envName: string): Table {
-	return addUuidGsi(
+	const table = addUuidGsi(
 		createTable(
 			scope,
 			`${envName}-order`,
@@ -43,6 +43,16 @@ function createOrderTable(scope: Construct, envName: string): Table {
 			}
 		)
 	);
+
+	table.addGlobalSecondaryIndex({
+		indexName: `shortId`,
+		partitionKey: {
+			name: 'shortId',
+			type: AttributeType.STRING
+		}
+	});
+
+	return table;
 }
 
 function createListPricingTable(scope: Construct, envName: string): Table {

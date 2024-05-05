@@ -83,7 +83,8 @@ const listPriceSchema = {
 	]),
 	areas: z.array(areaSchema).default([]),
 	maxD1: z.number().optional(),
-	maxD2: z.number().optional()
+	maxD2: z.number().optional(),
+	isDefault: z.boolean().default(false)
 };
 
 export const listPriceSchemaNew = z.object({

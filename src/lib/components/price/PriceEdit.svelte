@@ -248,6 +248,12 @@
 				/>
 			</label>
 		{/if}
+
+		<Spacer title={'Otros datos'} />
+		<label class="label flex items-center space-x-2" for="isDefault">
+			<input class="checkbox" type="checkbox" name="isDefault" bind:checked={$form.isDefault} />
+			<p>Valor por defecto</p>
+		</label>
 		<button class="variant-filled-warning btn lg:col-span-2" type="submit"
 			><Icon class="mr-2" data={check} /> Guardar</button
 		>

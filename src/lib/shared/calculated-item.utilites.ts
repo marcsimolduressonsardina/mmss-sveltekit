@@ -1,4 +1,4 @@
-import type { PPDimensions } from '../type/api.type';
+import type { CalculatedItem, PPDimensions } from '../type/api.type';
 
 export const cornersId = 'cantoneras_extra';
 export const otherExtraId = 'other_extra';
@@ -43,6 +43,22 @@ export class CalculatedItemUtilities {
 		const before_ = moldId.split('_')[0];
 		const after_ = moldId.split('_')[1];
 		return `${after_} - UBI: ${before_}`;
+	}
+
+	public static getUnitPriceWithoutDiscount(calculatedItem: CalculatedItem): number {
+		const totalWithoutDiscount = calculatedItem.total / (1 - calculatedItem.discount / 100);
+		const unitWithoutDiscount = totalWithoutDiscount / calculatedItem.quantity;
+		return Math.ceil(unitWithoutDiscount * 100) / 100;
+	}
+
+	public static getUnitPriceWithDiscount(calculatedItem: CalculatedItem): number {
+		const unitWithoutDiscount = calculatedItem.total / calculatedItem.quantity;
+		return Math.ceil(unitWithoutDiscount * 100) / 100;
+	}
+
+	public static getPriceWithoutDiscount(calculatedItem: CalculatedItem): number {
+		const totalWithoutDiscount = calculatedItem.total / (1 - calculatedItem.discount / 100);
+		return Math.ceil(totalWithoutDiscount * 100) / 100;
 	}
 
 	private static roundUpToNearestGreaterFiveOrTen(value: number): number {

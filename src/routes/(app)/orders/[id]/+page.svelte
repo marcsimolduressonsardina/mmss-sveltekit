@@ -4,7 +4,6 @@
 	import { goto } from '$app/navigation';
 	import { enhance } from '$app/forms';
 	import { Icon } from 'svelte-awesome';
-	import { faMessage } from '@fortawesome/free-solid-svg-icons/faMessage';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
 	import { faCommentSms } from '@fortawesome/free-solid-svg-icons/faCommentSms';
 	import { faMoneyBill } from '@fortawesome/free-solid-svg-icons/faMoneyBill';
@@ -19,6 +18,8 @@
 	import { OrderUtilites, isOrderTemp, orderStatusMap } from '$lib/shared/order.utilities';
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import { OrderStatus } from '$lib/type/order.type';
+	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
+	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 
 	let formLoading = false;
 
@@ -47,7 +48,7 @@
 				<a
 					class="variant-ghost-secondary btn btn-sm w-full"
 					target="_blank"
-					href={`/service?order=${data.orderPublicParam}`}
+					href={`/s/${data.order.shortId}`}
 					><Icon class="mr-1" data={faPrint} /> Imprimir resguardo para cliente
 				</a>
 				<a
@@ -136,7 +137,7 @@
 					on:click={() => {
 						goto(`/orders/${data?.order?.id}/day`);
 					}}
-					><Icon class="mr-1" data={faMessage} /> Notificar pedidos finalizados
+					><Icon class="mr-1" data={faBox} /> Pedidos del día
 				</button>
 
 				{#if data.order.amountPayed === data.calculatedItem?.total}
@@ -251,15 +252,22 @@
 					</span>
 				{/each}
 
-				{#if data.calculatedItem.quantity > 1}<span class="text-md text-gray-700">
-						Precio unitario: <span class="variant-ghost badge"
-							>{data.calculatedItem.total / data.calculatedItem.quantity}€</span
-						>
+				{#if data.calculatedItem.quantity > 1}
+					<span class="text-md text-gray-700">
+						Precio unitario: <span class="variant-ghost badge">
+							{CalculatedItemUtilities.getUnitPriceWithoutDiscount(data.calculatedItem)} €
+						</span>
 					</span>
-				{/if}
-				{#if data.calculatedItem.discount > 0}<span class="text-md text-gray-700">
-						Descuento: <span class="variant-ghost badge">{data.calculatedItem.discount}%</span>
-					</span>
+					{#if data.calculatedItem.discount > 0}
+						<span class="text-md text-gray-700">
+							Descuento: <span class="variant-ghost badge"> {data.calculatedItem.discount}% </span>
+						</span>
+						<span class="text-md text-gray-700">
+							Precio unitario con descuento: <span class="variant-ghost badge">
+								{CalculatedItemUtilities.getUnitPriceWithDiscount(data.calculatedItem)} €</span
+							>
+						</span>
+					{/if}
 				{/if}
 				<span class="variant-ghost badge">Total {data.calculatedItem.total.toFixed(2)}€</span>
 				{#if data.order.amountPayed === 0}

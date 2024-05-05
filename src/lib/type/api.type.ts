@@ -37,6 +37,7 @@ export type PreCalculatedItemPartRequest = {
 
 export type Order = {
 	id: string;
+	shortId: string;
 	customer: Customer;
 	storeId: string;
 	createdAt: Date;
@@ -91,6 +92,7 @@ export type ListPrice = {
 	type: PricingType;
 	formula: PricingFormula;
 	areas: MaxArea[];
+	isDefault: boolean;
 	maxD1?: number;
 	maxD2?: number;
 };

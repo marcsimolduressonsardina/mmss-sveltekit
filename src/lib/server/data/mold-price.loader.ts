@@ -108,10 +108,11 @@ export class MoldPriceLoader {
 			id,
 			internalId: uuidv4(),
 			price,
-			description: `${internalId} Ref: ${externalId}`,
+			description: `${externalId} UBI: ${internalId}`,
 			type: PricingType.MOLD,
 			formula: PricingFormula.NONE,
-			areas: []
+			areas: [],
+			isDefault: false
 		};
 	}
 

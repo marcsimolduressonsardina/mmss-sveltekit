@@ -30,6 +30,7 @@ export const load = async ({ locals, params }) => {
 	form.data.areas = listPrice.areas;
 	form.data.maxD1 = listPrice.maxD1;
 	form.data.maxD2 = listPrice.maxD2;
+	form.data.isDefault = listPrice.isDefault;
 	return { form };
 };
 
@@ -55,6 +56,7 @@ export const actions = {
 			listPrice.areas = form.data.areas;
 			listPrice.maxD1 = form.data.maxD1;
 			listPrice.maxD2 = form.data.maxD2;
+			listPrice.isDefault = form.data.isDefault;
 			await pricingService.updatePricing(listPrice);
 		} catch (error: unknown) {
 			return setError(form, '', 'Error actualizando el item. Intente de nuevo.');

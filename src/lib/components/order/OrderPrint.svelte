@@ -6,6 +6,7 @@
 	import mmlogo from '$lib/assets/mmlogo.png';
 	import type { CalculatedItem, Order } from '$lib/type/api.type';
 	import { OrderStatus } from '$lib/type/order.type';
+	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 
 	export let order: Order;
 	export let calculatedItem: CalculatedItem;
@@ -39,9 +40,9 @@
 
 	if (order.amountPayed === calculatedItem.total) {
 		statusInfo.push('PAGADO');
-	} else if (order.amountPayed > 0) {
-		statusInfo.push(`PAGO A CUENTA ${order.amountPayed.toFixed(2)} €`);
 	}
+
+	const extraColForDiscount = calculatedItem.discount > 0 ? 1 : 0;
 </script>
 
 <main>
@@ -55,7 +56,7 @@
 			<td colspan="1" class="center-text">
 				<Qr size={85} qrData={order.id}></Qr><br />
 			</td>
-			<td colspan="3" class="center-text">
+			<td colspan={3 + extraColForDiscount} class="center-text">
 				{#if isForCustomer}
 					<img class="logo" src={mmlogo} alt="logo" /><br />
 				{/if}
@@ -67,7 +68,7 @@
 
 		<tr>
 			<th colspan="2">Moldura</th>
-			<th colspan="2">PP / Fondo</th>
+			<th colspan={2 + extraColForDiscount}>PP / Fondo</th>
 		</tr>
 		<tr>
 			<td colspan="2">
@@ -75,7 +76,7 @@
 					{mold}<br />
 				{/each}
 			</td>
-			<td colspan="2">
+			<td colspan={2 + extraColForDiscount}>
 				{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.PP) as pp}
 					{pp}<br />
 				{/each}
@@ -89,13 +90,13 @@
 			</td>
 		</tr>
 		<tr>
-			<th>Medidas</th>
+			<th colspan={1 + extraColForDiscount}>Medidas</th>
 			<th>Uds</th>
 			<th>Cristal</th>
 			<th>Trasera</th>
 		</tr>
 		<tr>
-			<td>
+			<td colspan={1 + extraColForDiscount}>
 				Obra: {`${order.item.height}x${order.item.width} cm`} <br />
 				Trabajo: {OrderUtilites.getWorkingDimensions(order)}
 			</td>
@@ -113,10 +114,10 @@
 		</tr>
 		{#if others.length > 0}
 			<tr>
-				<th colspan="4"> Otros </th>
+				<th colspan={4 + extraColForDiscount}> Otros </th>
 			</tr>
 			<tr>
-				<td colspan="4">
+				<td colspan={4 + extraColForDiscount}>
 					{#each others as f}
 						{f}<br />
 					{/each}
@@ -124,16 +125,16 @@
 			</tr>
 		{/if}
 		<tr>
-			<th colspan="4"> Descripción </th>
+			<th colspan={4 + extraColForDiscount}> Descripción </th>
 		</tr>
 		<tr>
-			<td colspan="4">{order.item.description}</td>
+			<td colspan={4 + extraColForDiscount}>{order.item.description}</td>
 		</tr>
 		<tr>
-			<th colspan="4"> Observaciones </th>
+			<th colspan={4 + extraColForDiscount}> Observaciones </th>
 		</tr>
 		<tr>
-			<td colspan="4">
+			<td colspan={4 + extraColForDiscount}>
 				{#if order.item.observations.length > 0}
 					{order.item.observations}<br />
 				{/if}
@@ -143,8 +144,30 @@
 			</td>
 		</tr>
 		<tr>
+			<th>Precio ud</th>
+			{#if calculatedItem.discount > 0}
+				<th></th>
+			{/if}
+			<th>Uds</th>
+			<th>A cuenta</th>
+			<th>Total</th>
+		</tr>
+		<tr>
+			<td class="center-text">
+				{CalculatedItemUtilities.getUnitPriceWithoutDiscount(calculatedItem)} €
+			</td>
+			{#if calculatedItem.discount > 0}
+				<td class="center-text">
+					{CalculatedItemUtilities.getUnitPriceWithDiscount(calculatedItem)} €
+				</td>
+			{/if}
+			<td class="center-text"> {order.item.quantity} </td>
+			<td class="center-text"> {order.amountPayed.toFixed(2)} €</td>
+			<td class="center-text"> {calculatedItem.total.toFixed(2)} €</td>
+		</tr>
+		<tr>
 			<th colspan="1"> Recogida </th>
-			<th colspan="2"> Cliente </th>
+			<th colspan={2 + extraColForDiscount}> Cliente </th>
 			<th colspan="1"> Teléfono </th>
 		</tr>
 		<tr>
@@ -152,12 +175,15 @@
 				{esWeekDay}
 				{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
 			</td>
-			<td colspan="2" class="center-text"> {order.customer.name} </td>
+			<td colspan={2 + extraColForDiscount} class="center-text"> {order.customer.name} </td>
 			<td colspan="1" class="center-text"> {order.customer.phone} </td>
 		</tr>
+
 		{#if statusInfo.length > 0}
 			<tr>
-				<td colspan="4" class="center-text status-info"> {statusInfo.join(' | ')} </td>
+				<td colspan={4 + extraColForDiscount} class="center-text status-info">
+					{statusInfo.join(' | ')}
+				</td>
 			</tr>
 		{/if}
 	</table>

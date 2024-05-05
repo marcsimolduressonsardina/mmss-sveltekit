@@ -54,30 +54,11 @@ export abstract class DynamoRepository<T> {
 	}
 
 	protected async getByUuid(uuid: string): Promise<T | null> {
-		const params = {
-			TableName: this.table,
-			IndexName: 'uuid',
-			KeyConditionExpression: '#uuid = :uuid',
-			ExpressionAttributeNames: {
-				'#uuid': 'uuid'
-			},
-			ExpressionAttributeValues: {
-				':uuid': uuid
-			}
-		};
+		return await this.getBySecondaryIndex('uuid', uuid);
+	}
 
-		try {
-			const command = new QueryCommand(params);
-			const response = await this.client.send(command);
-			if (response.Items && response.Items.length > 0) {
-				return response.Items[0] as T;
-			}
-		} catch (error: unknown) {
-			this.logError('getByUuid', error);
-			throw error;
-		}
-
-		return null;
+	protected async getByShortId(shortId: string): Promise<T | null> {
+		return await this.getBySecondaryIndex('shortId', shortId);
 	}
 
 	protected async get(
@@ -318,6 +299,36 @@ export abstract class DynamoRepository<T> {
 			this.logError('batchWrite', error);
 			throw error;
 		}
+	}
+
+	private async getBySecondaryIndex(
+		indexName: string,
+		indexValue: string | number
+	): Promise<T | null> {
+		const params = {
+			TableName: this.table,
+			IndexName: indexName,
+			KeyConditionExpression: '#in = :iv',
+			ExpressionAttributeNames: {
+				'#in': indexName
+			},
+			ExpressionAttributeValues: {
+				':iv': indexValue
+			}
+		};
+
+		try {
+			const command = new QueryCommand(params);
+			const response = await this.client.send(command);
+			if (response.Items && response.Items.length > 0) {
+				return response.Items[0] as T;
+			}
+		} catch (error: unknown) {
+			this.logError('get by secondary index', error);
+			throw error;
+		}
+
+		return null;
 	}
 
 	private logError(functionName: string, error: unknown, otherInfo?: object) {

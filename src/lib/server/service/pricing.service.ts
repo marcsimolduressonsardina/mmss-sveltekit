@@ -54,6 +54,7 @@ export class PricingService {
 		type: PricingType,
 		formula: PricingFormula,
 		areas: MaxArea[] = [],
+		isDefault: boolean,
 		maxD1?: number,
 		maxD2?: number
 	): Promise<void> {
@@ -66,7 +67,8 @@ export class PricingService {
 			formula,
 			areas,
 			maxD1,
-			maxD2
+			maxD2,
+			isDefault
 		};
 
 		await this.listPricingRepository.storeListPrice(
@@ -117,7 +119,8 @@ export class PricingService {
 				formula: PricingFormula.NONE,
 				areas: [],
 				maxD1: 300,
-				maxD2: 250
+				maxD2: 250,
+				isDefault: false
 			};
 		}
 
@@ -135,7 +138,8 @@ export class PricingService {
 			formula: PricingFormula.NONE,
 			areas: [],
 			maxD1: 300,
-			maxD2: 250
+			maxD2: 250,
+			isDefault: false
 		};
 	}
 
@@ -246,7 +250,8 @@ export class PricingService {
 			formula: price.formula,
 			areas: price.areas,
 			maxD1: price.maxD1,
-			maxD2: price.maxD2
+			maxD2: price.maxD2,
+			isDefault: price.isDefault
 		};
 	}
 
@@ -260,7 +265,8 @@ export class PricingService {
 			formula: dto.formula as PricingFormula,
 			areas: dto.areas,
 			maxD1: dto.maxD1,
-			maxD2: dto.maxD2
+			maxD2: dto.maxD2,
+			isDefault: dto.isDefault ?? false
 		};
 	}
 }

@@ -35,6 +35,7 @@ export const actions = {
 				form.data.type,
 				form.data.formula,
 				form.data.areas,
+				form.data.isDefault,
 				form.data.maxD1,
 				form.data.maxD2
 			);
