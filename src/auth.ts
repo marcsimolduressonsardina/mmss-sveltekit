@@ -7,5 +7,6 @@ const providers: Provider[] = [Auth0];
 
 export const { handle } = SvelteKitAuth({
 	providers,
+	trustHost: true,
 	debug: AUTH_DEBUG === 'debug'
 });
