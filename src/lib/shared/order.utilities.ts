@@ -50,7 +50,7 @@ export class OrderUtilites {
 
 	public static getWhatsappTicketText(order: Order): string {
 		const url = `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
-		return `Su pedido ${order.item.description}, ha sido registrado correctamente, puede consultar aquí su resguardo ${url} . Marcs i Moldures Son Sardina.`;
+		return `Su pedido ${OrderUtilites.getOrderPublicId(order)}, ha sido registrado correctamente, puede consultar aquí su resguardo ${url} . Marcs i Moldures Son Sardina.`;
 	}
 
 	public static getWhatsappFinishedText(orders: Order[]): string {
