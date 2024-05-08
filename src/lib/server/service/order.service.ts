@@ -204,7 +204,9 @@ export class OrderService {
 		const repo = new OrderRepository();
 		const orderDto = await repo.getOrderByShortId(publicId);
 		if (orderDto) {
-			return OrderService.fromDto(orderDto, OrderService.getTempCustomer(orderDto.storeId), {
+			const publicCustomer = await CustomerService.getPublicCustomerForPublicOrder(orderDto);
+			if (publicCustomer == null) return null;
+			return OrderService.fromDto(orderDto, publicCustomer, {
 				id: 'public',
 				name: 'public',
 				storeId: orderDto.storeId

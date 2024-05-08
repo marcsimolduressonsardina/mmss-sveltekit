@@ -5,7 +5,7 @@
 	import { enhance } from '$app/forms';
 	import { Icon } from 'svelte-awesome';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
-	import { faCommentSms } from '@fortawesome/free-solid-svg-icons/faCommentSms';
+	import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
 	import { faMoneyBill } from '@fortawesome/free-solid-svg-icons/faMoneyBill';
 	import { faTruckPickup } from '@fortawesome/free-solid-svg-icons/faTruckPickup';
 	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
@@ -20,6 +20,7 @@
 	import { OrderStatus } from '$lib/type/order.type';
 	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
 	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
+	import { CustomerUtilites } from '$lib/shared/customer.utilities';
 
 	let formLoading = false;
 
@@ -52,11 +53,27 @@
 					><Icon class="mr-1" data={faPrint} /> Imprimir resguardo para cliente
 				</a>
 				<a
-					class="variant-ringed-secondary btn btn-sm w-full"
+					class="variant-filled-success btn btn-sm w-full"
 					target="_blank"
-					href={`/orders/${data?.order?.id}/print`}
-					><Icon class="mr-1" data={faCommentSms} /> Enviar resguardo a cliente (SMS)
+					href={CustomerUtilites.getWhatsappLink(
+						data.order.customer,
+						OrderUtilites.getWhatsappTicketText(data.order)
+					)}
+					><Icon class="mr-1" data={faWhatsapp} /> Enviar resguardo a cliente
 				</a>
+				{#if data.order.status === OrderStatus.FINISHED}
+					<a
+						class="variant-filled-success btn btn-sm w-full"
+						target="_blank"
+						aria-disabled="true"
+						href={CustomerUtilites.getWhatsappLink(
+							data.order.customer,
+							OrderUtilites.getWhatsappFinishedText([data.order])
+						)}
+					>
+						<Icon class="mr-1" data={faWhatsapp} /> Enviar mensaje finalizado
+					</a>
+				{/if}
 				<form
 					class="w-full"
 					method="post"

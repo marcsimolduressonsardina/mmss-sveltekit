@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { Icon } from 'svelte-awesome';
 	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
+	import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
 	import { faUser } from '@fortawesome/free-regular-svg-icons/faUser';
 	import plus from 'svelte-awesome/icons/plus';
 
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import type { PageData } from './$types';
+	import { CustomerUtilites } from '$lib/shared/customer.utilities';
 
 	export let data: PageData;
 </script>
@@ -28,9 +30,7 @@
 				</div>
 			</div>
 
-			<div
-				class="flex w-full flex-col place-content-center space-y-2 pt-2 lg:flex-row lg:space-x-2 lg:space-y-0"
-			>
+			<div class="flex w-full flex-col place-content-center gap-2 pt-2 lg:flex-row">
 				<a
 					class="variant-filled-warning btn btn-xl w-full shadow-sm lg:btn-md"
 					href="/customers/{customer.id}/orders/new"
@@ -42,6 +42,13 @@
 					class="variant-filled btn btn-xl shadow-sm lg:btn-md lg:w-full"
 				>
 					<Icon class="mr-2" data={faBox} /> Ver pedidos
+				</a>
+				<a
+					href={CustomerUtilites.getWhatsappLink(customer)}
+					target="_blank"
+					class="variant-filled-success btn btn-xl shadow-sm lg:btn-md lg:w-full"
+				>
+					<Icon class="mr-2" data={faWhatsapp} /> Enviar Whatsapp
 				</a>
 			</div>
 		{/if}

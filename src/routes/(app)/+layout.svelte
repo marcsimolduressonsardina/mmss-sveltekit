@@ -11,6 +11,9 @@
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 </script>
 
+<svelte:head>
+	<title>Marcs i Moldures Son Sardina</title>
+</svelte:head>
 <Toast />
 <AppShell>
 	<svelte:fragment slot="header">

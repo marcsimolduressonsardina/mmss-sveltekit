@@ -7,6 +7,7 @@ import { InvalidDataError } from '../error/invalid-data.error';
 import { CustomerRepository } from '../repository/customer.repository';
 import type { CustomerDto } from '../repository/dto/customer.dto';
 import type { Customer, AppUser } from '../../type/api.type';
+import type { OrderDto } from '../repository/dto/order.dto';
 
 export class CustomerService {
 	private readonly storeId: string;
@@ -54,6 +55,16 @@ export class CustomerService {
 		// Create a command to send the SMS
 		const command = new PublishCommand(params);
 		await this.getSnsClient().send(command);
+	}
+
+	public static async getPublicCustomerForPublicOrder(order: OrderDto): Promise<Customer | null> {
+		const repo = new CustomerRepository();
+		const customerDto = await repo.getCustomerById(order.customerUuid);
+		if (customerDto && customerDto.storeId === order.storeId) {
+			return CustomerService.fromDto(customerDto);
+		}
+
+		return null;
 	}
 
 	private getSnsClient(): SNSClient {
