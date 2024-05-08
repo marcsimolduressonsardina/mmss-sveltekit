@@ -22,7 +22,7 @@
 					id="id"
 					type="text"
 					name="id"
-					placeholder="Ejemplo: 20240315/46/34612345678"
+					placeholder="Ejemplo: 20240315/AB/34612345678"
 					bind:value={$form.id}
 				/>
 			</label>

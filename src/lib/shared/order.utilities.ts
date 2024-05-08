@@ -11,7 +11,8 @@ export class OrderUtilites {
 		const date = DateTime.fromJSDate(order.createdAt);
 		const dateStr = date.toFormat('yyyyMMdd');
 		const phoneWithoutPlus = order.customer.phone.replace('+', '');
-		return `${dateStr}/${date.second}/${phoneWithoutPlus}`;
+		const middle = (order.shortId.charAt(0) + order.id.charAt(0)).toUpperCase();
+		return `${dateStr}/${middle}/${phoneWithoutPlus}`;
 	}
 
 	public static getOrderMolds(order: Order): string[] {
