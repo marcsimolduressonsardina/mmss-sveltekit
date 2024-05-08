@@ -56,11 +56,12 @@ export class OrderUtilites {
 	public static getWhatsappFinishedText(orders: Order[]): string {
 		if (orders.length === 1) {
 			const url = `${PUBLIC_DOMAIN_URL}/s/${orders[0].shortId}`;
-			return `Hemos terminado su pedido ${orders[0].item.description}, puede pasar a buscarlo. Aquí tiene el resguardo ${url} . Marcs i Moldures Son Sardina.`;
+			return `Hemos terminado su pedido ${OrderUtilites.getOrderPublicId(orders[0])}, puede pasar a buscarlo. Aquí tiene el resguardo ${url} . Marcs i Moldures Son Sardina.`;
 		} else {
 			const orderLines = orders
 				.map(
-					(order) => `${order.item.description} - Resguardo ${PUBLIC_DOMAIN_URL}/s/${order.shortId}`
+					(order) =>
+						`${OrderUtilites.getOrderPublicId(order)} - Resguardo ${PUBLIC_DOMAIN_URL}/s/${order.shortId}`
 				)
 				.join('\n');
 
