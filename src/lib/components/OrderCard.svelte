@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { DateTime } from 'luxon';
 	import { goto } from '$app/navigation';
 	import type { Order } from '$lib/type/api.type';
 	import OrderId from '$lib/components/OrderId.svelte';
@@ -18,6 +19,9 @@
 >
 	<OrderId {order} />
 	<p>{new Date(order.createdAt).toLocaleString()}</p>
+	<p class="font-medium">
+		Fecha de entrega: {DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+	</p>
 	<p>{order.item.description}</p>
 	<p class="font-medium">{orderStatusMap[order.status].toUpperCase()}</p>
 	<button class="variant-filled btn btn-sm mt-1" on:click={() => goto(`/orders/${order.id}`)}
