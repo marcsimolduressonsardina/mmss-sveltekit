@@ -17,13 +17,13 @@
 	class:bg-green-300={OrderStatus.FINISHED === order.status}
 	class:bg-blue-300={OrderStatus.PICKED_UP === order.status}
 >
-	<OrderId {order} />
+	<OrderId {order} /> <span class="variant-ghost badge">{orderStatusMap[order.status].toUpperCase()}</span>
 	<p>{new Date(order.createdAt).toLocaleString()}</p>
 	<p class="font-medium">
-		Fecha de entrega: {DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+		Recogida: {DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
 	</p>
-	<p>{order.item.description}</p>
-	<p class="font-medium">{orderStatusMap[order.status].toUpperCase()}</p>
+	<p class="font-medium">Descripción: {order.item.description}</p>
+
 	<button class="variant-filled btn btn-sm mt-1" on:click={() => goto(`/orders/${order.id}`)}
 		><Icon class="mr-2" data={faEye} />Ver pedido</button
 	>
