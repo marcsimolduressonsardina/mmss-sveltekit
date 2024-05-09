@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { DateTime } from 'luxon';
 	import { goto } from '$app/navigation';
-	import type { Order } from '$lib/type/api.type';
+	import type { Order, OrderFromList } from '$lib/type/api.type';
 	import OrderId from '$lib/components/OrderId.svelte';
 	import { Icon } from 'svelte-awesome';
 	import { faEye } from '@fortawesome/free-solid-svg-icons/faEye';
 	import { orderStatusMap } from '$lib/shared/order.utilities';
 	import { OrderStatus } from '$lib/type/order.type';
 
-	export let order: Order;
+	export let order: Order | OrderFromList;
 </script>
 
 <div

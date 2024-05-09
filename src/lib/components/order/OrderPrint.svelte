@@ -30,7 +30,7 @@
 	};
 
 	const enWeekDay = DateTime.fromJSDate(order.item.deliveryDate).weekdayShort as string;
-	const esWeekDay = weekDayMap[enWeekDay];
+	const esWeekDay = weekDayMap[enWeekDay] ?? enWeekDay;
 
 	const statusInfo: string[] = [];
 

@@ -74,22 +74,6 @@
 						<Icon class="mr-1" data={faWhatsapp} /> Enviar mensaje finalizado
 					</a>
 				{/if}
-				<form
-					class="w-full"
-					method="post"
-					action="?/deleteOrder"
-					use:enhance={() => {
-						formLoading = true;
-						return async ({ update }) => {
-							await update();
-							formLoading = false;
-						};
-					}}
-				>
-					<button class="variant-filled-error btn btn-sm w-full"
-						><Icon class="mr-1" data={trash} />Eliminar pedido</button
-					>
-				</form>
 				{#if data.order.status !== OrderStatus.FINISHED}
 					<form
 						class="w-full"
@@ -215,6 +199,24 @@
 						>
 					</form>
 				{/if}
+
+				<div class="border-black-800 border md:hidden"></div>
+				<form
+					class="w-full"
+					method="post"
+					action="?/deleteOrder"
+					use:enhance={() => {
+						formLoading = true;
+						return async ({ update }) => {
+							await update();
+							formLoading = false;
+						};
+					}}
+				>
+					<button class="variant-filled-error btn btn-sm w-full"
+						><Icon class="mr-1" data={trash} />Eliminar pedido</button
+					>
+				</form>
 			</div>
 		{/if}
 

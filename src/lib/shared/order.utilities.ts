@@ -1,5 +1,5 @@
 import { PUBLIC_DOMAIN_URL } from '$env/static/public';
-import type { CalculatedItem, Order } from '$lib/type/api.type';
+import type { CalculatedItem, Order, OrderFromList } from '$lib/type/api.type';
 import { OrderStatus } from '$lib/type/order.type';
 import { PricingType } from '$lib/type/pricing.type';
 import { DateTime } from 'luxon';
@@ -7,10 +7,14 @@ import { z } from 'zod';
 import { CalculatedItemUtilities, otherExtraId } from './calculated-item.utilites';
 
 export class OrderUtilites {
-	public static getOrderPublicId(order: Order): string {
+	public static getOrderPublicId(order: Order | OrderFromList): string {
 		const date = DateTime.fromJSDate(order.createdAt);
 		const dateStr = date.toFormat('yyyyMMdd');
-		const phoneWithoutPlus = order.customer.phone.replace('+', '');
+		let phoneWithoutPlus = '******';
+		if ('customer' in order) {
+			phoneWithoutPlus = order.customer.phone.replace('+', '');
+		}
+
 		const middle = (order.shortId.charAt(0) + order.id.charAt(0)).toUpperCase();
 		return `${dateStr}/${middle}/${phoneWithoutPlus}`;
 	}

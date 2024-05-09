@@ -49,6 +49,20 @@ export type Order = {
 	statusUpdated: Date;
 };
 
+export type OrderFromList = {
+	id: string;
+	shortId: string;
+	customerId: string;
+	storeId: string;
+	createdAt: Date;
+	userId: string;
+	userName?: string;
+	amountPayed: number;
+	item: Item;
+	status: OrderStatus;
+	statusUpdated: Date;
+};
+
 export type PPDimensions = {
 	up: number;
 	down: number;

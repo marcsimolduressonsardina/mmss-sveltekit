@@ -14,7 +14,8 @@ import {
 	BatchGetCommand,
 	BatchWriteCommand,
 	type UpdateCommandInput,
-	UpdateCommand
+	UpdateCommand,
+	type QueryCommandInput
 } from '@aws-sdk/lib-dynamodb';
 import _ from 'lodash';
 import type { ItemDto } from './dto/item.dto';
@@ -54,11 +55,11 @@ export abstract class DynamoRepository<T> {
 	}
 
 	protected async getByUuid(uuid: string): Promise<T | null> {
-		return await this.getBySecondaryIndex('uuid', uuid);
+		return await this.getBySecondaryIndex('uuid', 'uuid', uuid);
 	}
 
 	protected async getByShortId(shortId: string): Promise<T | null> {
-		return await this.getBySecondaryIndex('shortId', shortId);
+		return await this.getBySecondaryIndex('shortId', 'shortId', shortId);
 	}
 
 	protected async get(
@@ -133,8 +134,8 @@ export abstract class DynamoRepository<T> {
 		return [];
 	}
 
-	protected async getByPartitionKey(partitionKeyValue: string): Promise<T[]> {
-		const params = {
+	protected async getByPartitionKey(partitionKeyValue: string, ascendent: boolean = true): Promise<T[]> {
+		const params: QueryCommandInput = {
 			TableName: this.table,
 			KeyConditionExpression: '#pk = :pkv',
 			ExpressionAttributeNames: {
@@ -142,7 +143,8 @@ export abstract class DynamoRepository<T> {
 			},
 			ExpressionAttributeValues: {
 				':pkv': partitionKeyValue
-			}
+			},
+			ScanIndexForward: ascendent
 		};
 
 		try {
@@ -282,6 +284,70 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
+	protected async getBySecondaryIndex(
+		indexName: string,
+		partitionKeyName: string,
+		partitionKeyValue: string | number
+	): Promise<T | null> {
+		const params = {
+			TableName: this.table,
+			IndexName: indexName,
+			KeyConditionExpression: '#in = :iv',
+			ExpressionAttributeNames: {
+				'#in': partitionKeyName
+			},
+			ExpressionAttributeValues: {
+				':iv': partitionKeyValue
+			}
+		};
+
+		try {
+			const command = new QueryCommand(params);
+			const response = await this.client.send(command);
+			if (response.Items && response.Items.length > 0) {
+				return response.Items[0] as T;
+			}
+		} catch (error: unknown) {
+			this.logError('get by secondary index', error);
+			throw error;
+		}
+
+		return null;
+	}
+
+	protected async getBySecondaryIndexWithSortKey(
+		indexName: string,
+		partitionKeyName: string,
+		partitionKeyValue: string | number,
+		ascendent: boolean
+	): Promise<T[]> {
+		const params: QueryCommandInput = {
+			TableName: this.table,
+			IndexName: indexName,
+			KeyConditionExpression: '#in = :iv',
+			ExpressionAttributeNames: {
+				'#in': partitionKeyName
+			},
+			ExpressionAttributeValues: {
+				':iv': partitionKeyValue
+			},
+			ScanIndexForward: ascendent
+		};
+
+		try {
+			const command = new QueryCommand(params);
+			const response = await this.client.send(command);
+			if (response.Items && response.Items.length > 0) {
+				return response.Items as T[];
+			}
+		} catch (error: unknown) {
+			this.logError('get by secondary index', error);
+			throw error;
+		}
+
+		return [];
+	}
+
 	private async batchWrite(
 		requests:
 			| { PutRequest: { Item: Record<string, AttributeValue> } }[]
@@ -299,36 +365,6 @@ export abstract class DynamoRepository<T> {
 			this.logError('batchWrite', error);
 			throw error;
 		}
-	}
-
-	private async getBySecondaryIndex(
-		indexName: string,
-		indexValue: string | number
-	): Promise<T | null> {
-		const params = {
-			TableName: this.table,
-			IndexName: indexName,
-			KeyConditionExpression: '#in = :iv',
-			ExpressionAttributeNames: {
-				'#in': indexName
-			},
-			ExpressionAttributeValues: {
-				':iv': indexValue
-			}
-		};
-
-		try {
-			const command = new QueryCommand(params);
-			const response = await this.client.send(command);
-			if (response.Items && response.Items.length > 0) {
-				return response.Items[0] as T;
-			}
-		} catch (error: unknown) {
-			this.logError('get by secondary index', error);
-			throw error;
-		}
-
-		return null;
 	}
 
 	private logError(functionName: string, error: unknown, otherInfo?: object) {

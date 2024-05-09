@@ -18,7 +18,7 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 	}
 
 	public async getOrderByShortId(shortId: string): Promise<OrderDto | null> {
-		const dto = await this.getByShortId(shortId);
+		const dto = await this.getBySecondaryIndex('shortId', 'shortId', shortId);
 		if (dto && dto.status !== 'deleted') {
 			return dto;
 		}
@@ -27,8 +27,13 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 	}
 
 	public async getOrdersByCustomerId(customerUuid: string): Promise<OrderDto[]> {
-		const dtos = await this.getByPartitionKey(customerUuid);
+		const dtos = await this.getByPartitionKey(customerUuid, false);
 		return dtos.filter((dto) => dto.status !== 'deleted');
+	}
+
+	public async getOrdersByStatus(status: string, storeId: string): Promise<OrderDto[]> {
+		const dtos = await this.getBySecondaryIndexWithSortKey('statusIndex', 'status', status, false);
+		return dtos.filter((dto) => dto.storeId === storeId);
 	}
 
 	public async getOrdersBetweenTs(

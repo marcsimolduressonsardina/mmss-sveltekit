@@ -6,6 +6,7 @@ import { OrderRepository } from '../repository/order.repository';
 import type {
 	Customer,
 	Order,
+	OrderFromList,
 	AppUser,
 	PreCalculatedItemPart,
 	CalculatedItemPart,
@@ -48,6 +49,11 @@ export class OrderService {
 		}
 
 		return null;
+	}
+
+	async getOrdersByStatus(status: OrderStatus): Promise<OrderFromList[]> {
+		const orderDtos = await this.repository.getOrdersByStatus(status, this.storeId);
+		return orderDtos.map((o) => OrderService.fromDtoToOrderList(o));
 	}
 
 	async getOrdersByCustomerId(customerId: string): Promise<Order[] | null> {
@@ -339,6 +345,22 @@ export class OrderService {
 			createdAt: new Date(dto.timestamp),
 			storeId: dto.storeId,
 			user,
+			userName: dto.userName,
+			amountPayed: dto.amountPayed,
+			item: OrderService.fromDtoItem(dto.item),
+			status: dto.status as OrderStatus,
+			statusUpdated: new Date(dto.statusTimestamp)
+		};
+	}
+
+	private static fromDtoToOrderList(dto: OrderDto): OrderFromList {
+		return {
+			id: dto.uuid,
+			shortId: dto.shortId,
+			customerId: dto.userId,
+			createdAt: new Date(dto.timestamp),
+			storeId: dto.storeId,
+			userId: dto.userId,
 			userName: dto.userName,
 			amountPayed: dto.amountPayed,
 			item: OrderService.fromDtoItem(dto.item),
