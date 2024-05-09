@@ -201,29 +201,6 @@
 					}}
 					><Icon class="mr-1" data={faBox} /> Pedidos del día
 				</button>
-
-				<div class="mb-3 md:hidden"></div>
-				<form
-					class="w-full"
-					method="post"
-					action="?/deleteOrder"
-					use:enhance={({ cancel }) => {
-						if (!confirm('Estás seguro que quieres eliminar el pedido?')) {
-							cancel();
-							return;
-						}
-
-						formLoading = true;
-						return async ({ update }) => {
-							await update();
-							formLoading = false;
-						};
-					}}
-				>
-					<button class="variant-filled-error btn btn-sm w-full"
-						><Icon class="mr-1" data={trash} />Eliminar pedido</button
-					>
-				</form>
 			</div>
 		{/if}
 
@@ -231,20 +208,39 @@
 			<ProgressBar text={'Aplicando cambios...'} />
 		{/if}
 
-		<Spacer title={'Datos del pedido'} />
-		<div class="flex w-full flex-col space-y-1">
-			<span class="text-md text-gray-700"
-				>Estado: <span
-					class="badge"
-					class:variant-ghost={OrderStatus.PENDING === data.order.status}
-					class:variant-ghost-primary={OrderStatus.FINISHED === data.order.status}
-					class:variant-ghost-tertiary={OrderStatus.PICKED_UP === data.order.status}
-				>
-					{orderStatusMap[data.order.status] +
-						' ' +
-						DateTime.fromJSDate(data.order.statusUpdated).toFormat('dd/MM/yyyy HH:mm')}
-				</span>
-			</span>
+		<div class="flex w-full flex-col gap-1">
+			{#if data.calculatedItem}
+				<div class="flex w-full flex-col gap-1">
+					<hr class="mb-3 mt-2 border-t border-gray-200 lg:col-span-2" />
+					<span class="variant-ghost badge text-lg"
+						>Total {data.calculatedItem.total.toFixed(2)} €</span
+					>
+					{#if data.order.amountPayed === 0}
+						<span class="variant-ghost-warning badge text-lg"> No pagado </span>
+					{:else if data.order.amountPayed === data.calculatedItem.total}
+						<span class="variant-ghost-success badge text-lg"> Pagado </span>
+					{:else}
+						<span class="variant-ghost-secondary badge text-lg">
+							{data.order.amountPayed.toFixed(2)}€ pagado - {(
+								data.calculatedItem.total - data.order.amountPayed
+							).toFixed(2)}€ pendiente
+						</span>
+					{/if}
+					<span
+						class="badge text-lg"
+						class:variant-ghost={OrderStatus.PENDING === data.order.status}
+						class:variant-ghost-primary={OrderStatus.FINISHED === data.order.status}
+						class:variant-ghost-tertiary={OrderStatus.PICKED_UP === data.order.status}
+					>
+						{orderStatusMap[data.order.status] +
+							' - ' +
+							DateTime.fromJSDate(data.order.statusUpdated).toFormat('dd/MM/yyyy HH:mm')}
+					</span>
+				</div>
+			{/if}
+
+			<Spacer title={'Datos del pedido'} />
+
 			<span class="text-md text-gray-700"
 				>Unidades: <span class="variant-ghost badge">{data.order.item.quantity}</span>
 			</span>
@@ -253,7 +249,9 @@
 				Fecha y hora: {DateTime.fromJSDate(data.order.createdAt).toFormat('dd/MM/yyyy HH:mm')}
 			</span>
 			<span class="text-md text-gray-700">
-				Fecha de entrega: {DateTime.fromJSDate(data.order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+				Fecha de recogida: {DateTime.fromJSDate(data.order.item.deliveryDate).toFormat(
+					'dd/MM/yyyy'
+				)}
 			</span>
 			<span class="text-md text-gray-700">
 				Medidas de la obra: {`${data.order.item.height}x${data.order.item.width} cm`}
@@ -277,7 +275,6 @@
 						{/if}
 					</span>
 				{/each}
-
 				{#if data.calculatedItem.quantity > 1}
 					<span class="text-md text-gray-700">
 						Precio unitario: <span class="variant-ghost badge">
@@ -286,28 +283,43 @@
 					</span>
 					{#if data.calculatedItem.discount > 0}
 						<span class="text-md text-gray-700">
-							Descuento: <span class="variant-ghost badge"> {data.calculatedItem.discount}% </span>
-						</span>
-						<span class="text-md text-gray-700">
 							Precio unitario con descuento: <span class="variant-ghost badge">
 								{CalculatedItemUtilities.getUnitPriceWithDiscount(data.calculatedItem)} €</span
 							>
 						</span>
 					{/if}
 				{/if}
-				<span class="variant-ghost badge">Total {data.calculatedItem.total.toFixed(2)}€</span>
-				{#if data.order.amountPayed === 0}
-					<span class="variant-ghost-warning badge"> No pagado </span>
-				{:else if data.order.amountPayed === data.calculatedItem.total}
-					<span class="variant-ghost-success badge"> Pagado </span>
-				{:else}
-					<span class="variant-ghost-secondary badge">
-						{data.order.amountPayed.toFixed(2)}€ pagado - {(
-							data.calculatedItem.total - data.order.amountPayed
-						).toFixed(2)}€ pendiente
-					</span>
+				{#if data.calculatedItem.discount > 0}
+					<span class="variant-ghost badge"
+						>Total sin descuento {CalculatedItemUtilities.getPriceWithoutDiscount(
+							data.calculatedItem
+						)} €</span
+					>
+					<span class="variant-ghost badge"> Descuento {data.calculatedItem.discount}% </span>
 				{/if}
 			{/if}
+
+			<form
+				class="w-full pt-4"
+				method="post"
+				action="?/deleteOrder"
+				use:enhance={({ cancel }) => {
+					if (!confirm('Estás seguro que quieres eliminar el pedido?')) {
+						cancel();
+						return;
+					}
+
+					formLoading = true;
+					return async ({ update }) => {
+						await update();
+						formLoading = false;
+					};
+				}}
+			>
+				<button class="variant-filled-error btn btn-sm w-full"
+					><Icon class="mr-1" data={trash} />Eliminar pedido</button
+				>
+			</form>
 		</div>
 	{/if}
 </div>
