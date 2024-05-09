@@ -4,16 +4,14 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 
 import { CustomerService } from '$lib/server/service/customer.service';
-import { AuthService } from '$lib/server/service/auth.service';
+import { AuthUtilities } from '$lib/shared/auth.utilites';
 
 const schema = z.object({
 	phone: z.string().min(9).default('+34')
 });
 
 export const load = async ({ locals }) => {
-	const session = await locals.auth();
-	const appUser = AuthService.generateUserFromAuth(session?.user);
-	if (!appUser) throw redirect(303, '/auth/signin');
+	await AuthUtilities.checkAuth(locals);
 
 	const form = await superValidate(zod(schema));
 	return { form };
@@ -21,9 +19,7 @@ export const load = async ({ locals }) => {
 
 export const actions = {
 	async default({ request, locals }) {
-		const session = await locals.auth();
-		const appUser = AuthService.generateUserFromAuth(session?.user);
-		if (!appUser) throw redirect(303, '/auth/signin');
+		const appUser = await AuthUtilities.checkAuth(locals);
 
 		const form = await superValidate(request, zod(schema));
 

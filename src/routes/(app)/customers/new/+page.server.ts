@@ -3,14 +3,11 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
 import { CustomerService } from '$lib/server/service/customer.service';
-import { AuthService } from '$lib/server/service/auth.service';
 import { customerSchema } from '$lib/shared/customer.utilities';
+import { AuthUtilities } from '$lib/shared/auth.utilites';
 
 export const load = async ({ url, locals }) => {
-	const session = await locals.auth();
-	const appUser = AuthService.generateUserFromAuth(session?.user);
-	if (!appUser) throw redirect(303, '/auth/signin');
-
+	await AuthUtilities.checkAuth(locals);
 	const phone = url.searchParams.get('phone');
 	const form = await superValidate(zod(customerSchema));
 	if (phone) form.data.phone = phone;
@@ -19,10 +16,7 @@ export const load = async ({ url, locals }) => {
 
 export const actions = {
 	async default({ request, locals }) {
-		const session = await locals.auth();
-		const appUser = AuthService.generateUserFromAuth(session?.user);
-		if (!appUser) throw redirect(303, '/auth/signin');
-
+		const appUser = await AuthUtilities.checkAuth(locals);
 		const form = await superValidate(request, zod(customerSchema));
 
 		if (!form.valid) {

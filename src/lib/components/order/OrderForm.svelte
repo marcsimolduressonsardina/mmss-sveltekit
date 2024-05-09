@@ -52,6 +52,7 @@
 	];
 
 	// PP vars
+	let canAddPp = false;
 	let asymetricPP = false;
 	let upPP = 0;
 	let downPP = 0;
@@ -391,6 +392,7 @@
 		addedPP = partsToCalulatePreview.some((p) => p.pre.type === PricingType.PP);
 		addedGlass = partsToCalulatePreview.some((p) => p.pre.type === PricingType.GLASS);
 		addedBack = partsToCalulatePreview.some((p) => p.pre.type === PricingType.BACK);
+		canAddPp = $form.pp > 0 || upPP > 0 || downPP > 0 || leftPP > 0 || rightPP > 0;
 		updatePP(asymetricPP, upPP, downPP, leftPP, rightPP);
 		updateTotalSizes($form.width, $form.height, $form.pp, $form.ppDimensions);
 		cleanFabric(addedMold);
@@ -531,6 +533,7 @@
 				addValue={addFromPricingSelector}
 				pricingType={PricingType.PP}
 				added={addedPP}
+				canBeAdded={canAddPp}
 			/>
 
 			<Spacer title={'Medidas totales de la obra'} />

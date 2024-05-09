@@ -5,13 +5,11 @@ import { customerSchema } from '$lib/shared/customer.utilities';
 import { zod } from 'sveltekit-superforms/adapters';
 import { isOrderTemp } from '$lib/shared/order.utilities';
 import { fail, redirect } from '@sveltejs/kit';
-import { AuthService } from '$lib/server/service/auth.service';
 import { CustomerService } from '$lib/server/service/customer.service';
+import { AuthUtilities } from '$lib/shared/auth.utilites';
 
 export const load = (async ({ params, locals }) => {
-	const session = await locals.auth();
-	const appUser = AuthService.generateUserFromAuth(session?.user);
-	if (!appUser) throw redirect(303, '/auth/signin');
+	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
 	const orderService = new OrderService(appUser);
 
@@ -26,9 +24,7 @@ export const load = (async ({ params, locals }) => {
 
 export const actions = {
 	async default({ request, locals, params }) {
-		const session = await locals.auth();
-		const appUser = AuthService.generateUserFromAuth(session?.user);
-		if (!appUser) throw redirect(303, '/auth/signin');
+		const appUser = await AuthUtilities.checkAuth(locals);
 
 		const { id } = params;
 		const orderService = new OrderService(appUser);

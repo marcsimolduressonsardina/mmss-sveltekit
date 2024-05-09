@@ -1,19 +1,17 @@
-import { AuthService } from '$lib/server/service/auth.service';
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, RouteParams } from './$types';
 import { OrderService } from '$lib/server/service/order.service';
 import { CalculatedItemService } from '$lib/server/service/calculated-item.service';
 import { OrderStatus } from '$lib/type/order.type';
 import type { Order } from '$lib/type/api.type';
+import { AuthUtilities } from '$lib/shared/auth.utilites';
 
 async function setOrderStatus(
 	status: OrderStatus,
 	params: RouteParams,
 	locals: App.Locals
 ): Promise<Order> {
-	const session = await locals.auth();
-	const appUser = AuthService.generateUserFromAuth(session?.user);
-	if (!appUser) throw redirect(303, '/auth/signin');
+	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
 
 	const orderService = new OrderService(appUser);
@@ -28,9 +26,7 @@ async function setOrderStatus(
 }
 
 export const load = (async ({ params, locals }) => {
-	const session = await locals.auth();
-	const appUser = AuthService.generateUserFromAuth(session?.user);
-	if (!appUser) throw redirect(303, '/auth/signin');
+	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
 	const orderService = new OrderService(appUser);
 	const calculatedItemService = new CalculatedItemService();
@@ -49,9 +45,7 @@ export const actions = {
 	},
 
 	async payOrderFull({ params, locals }) {
-		const session = await locals.auth();
-		const appUser = AuthService.generateUserFromAuth(session?.user);
-		if (!appUser) throw redirect(303, '/auth/signin');
+		const appUser = await AuthUtilities.checkAuth(locals);
 		const { id } = params;
 		const orderService = new OrderService(appUser);
 
@@ -64,9 +58,7 @@ export const actions = {
 	},
 
 	async unpayOrder({ params, locals }) {
-		const session = await locals.auth();
-		const appUser = AuthService.generateUserFromAuth(session?.user);
-		if (!appUser) throw redirect(303, '/auth/signin');
+		const appUser = await AuthUtilities.checkAuth(locals);
 		const { id } = params;
 
 		const orderService = new OrderService(appUser);
@@ -79,9 +71,7 @@ export const actions = {
 	},
 
 	async payOrderPartially({ params, locals, request }) {
-		const session = await locals.auth();
-		const appUser = AuthService.generateUserFromAuth(session?.user);
-		if (!appUser) throw redirect(303, '/auth/signin');
+		const appUser = await AuthUtilities.checkAuth(locals);
 		const { id } = params;
 		const data = await request.formData();
 		const amount = data.get('amount')?.toString();

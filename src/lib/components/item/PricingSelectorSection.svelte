@@ -12,6 +12,7 @@
 	export let pricingType: PricingType;
 	export let prices: ListPrice[];
 	export let added: boolean;
+	export let canBeAdded: boolean = true;
 
 	let idElementInput: HTMLSelectElement;
 	let selectedId = '';
@@ -68,6 +69,7 @@
 		<button
 			class="variant-filled btn w-full lg:w-auto"
 			type="button"
+			disabled={!canBeAdded}
 			on:click={() => addFunction()}
 		>
 			<Icon class="mr-2" data={plus} /> Añadir a la lista

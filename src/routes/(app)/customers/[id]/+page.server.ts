@@ -1,13 +1,10 @@
-import { AuthService } from '$lib/server/service/auth.service';
 import { CustomerService } from '$lib/server/service/customer.service';
+import { AuthUtilities } from '$lib/shared/auth.utilites';
 import type { PageServerLoad } from './$types';
-import { redirect } from '@sveltejs/kit';
 
 export const load = (async ({ params, locals }) => {
 	const { id } = params;
-	const session = await locals.auth();
-	const appUser = AuthService.generateUserFromAuth(session?.user);
-	if (!appUser) throw redirect(303, '/auth/signin');
+	const appUser = await AuthUtilities.checkAuth(locals);
 	const customerService = new CustomerService(appUser);
 	const customer = customerService.getCustomerById(id);
 	return { customer };

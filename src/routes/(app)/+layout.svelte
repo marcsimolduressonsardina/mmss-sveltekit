@@ -24,7 +24,7 @@
 			MMSS
 			<svelte:fragment slot="trail">
 				<a href="/prices"><Icon data={faCalculator} /></a>
-				<a href="/auth/signout"><Icon data={faRightFromBracket} /></a>
+				<a href="/auth/signout?callbackUrl=/"><Icon data={faRightFromBracket} /></a>
 			</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>

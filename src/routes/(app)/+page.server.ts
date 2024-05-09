@@ -1,9 +1,6 @@
 import type { PageServerLoad } from './$types';
-import { redirect } from '@sveltejs/kit';
-import { AuthService } from '$lib/server/service/auth.service';
+import { AuthUtilities } from '$lib/shared/auth.utilites';
 
 export const load = (async ({ locals }) => {
-	const session = await locals.auth();
-	const appUser = AuthService.generateUserFromAuth(session?.user);
-	if (!appUser) throw redirect(303, '/auth/signin');
+	await AuthUtilities.checkAuth(locals);
 }) satisfies PageServerLoad;

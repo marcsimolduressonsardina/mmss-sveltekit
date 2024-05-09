@@ -2,24 +2,19 @@ import { fail, redirect } from '@sveltejs/kit';
 import { setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
-import { AuthService } from '$lib/server/service/auth.service';
 import { PricingService } from '$lib/server/service/pricing.service.js';
 import { listPriceSchemaNew } from '$lib/shared/pricing.utilites';
+import { AuthUtilities } from '$lib/shared/auth.utilites';
 
 export const load = async ({ locals }) => {
-	const session = await locals.auth();
-	const appUser = AuthService.generateUserFromAuth(session?.user);
-	if (!appUser) throw redirect(303, '/auth/signin');
-
+	await AuthUtilities.checkAuth(locals);
 	const form = await superValidate(zod(listPriceSchemaNew));
 	return { form };
 };
 
 export const actions = {
 	async default({ request, locals }) {
-		const session = await locals.auth();
-		const appUser = AuthService.generateUserFromAuth(session?.user);
-		if (!appUser) throw redirect(303, '/auth/signin');
+		await AuthUtilities.checkAuth(locals);
 
 		const form = await superValidate(request, zod(listPriceSchemaNew));
 		if (!form.valid) {
