@@ -52,95 +52,6 @@
 					href={`/s/${data.order.shortId}`}
 					><Icon class="mr-1" data={faPrint} /> Imprimir resguardo para cliente
 				</a>
-				<a
-					class="variant-filled-success btn btn-sm w-full"
-					target="_blank"
-					href={CustomerUtilites.getWhatsappLink(
-						data.order.customer,
-						OrderUtilites.getWhatsappTicketText(data.order)
-					)}
-					><Icon class="mr-1" data={faWhatsapp} /> Enviar resguardo a cliente
-				</a>
-				{#if data.order.status === OrderStatus.FINISHED}
-					<a
-						class="variant-filled-success btn btn-sm w-full"
-						target="_blank"
-						aria-disabled="true"
-						href={CustomerUtilites.getWhatsappLink(
-							data.order.customer,
-							OrderUtilites.getWhatsappFinishedText([data.order])
-						)}
-					>
-						<Icon class="mr-1" data={faWhatsapp} /> Enviar mensaje finalizado
-					</a>
-				{/if}
-				{#if data.order.status !== OrderStatus.FINISHED}
-					<form
-						class="w-full"
-						method="post"
-						action="?/setOrderFinished"
-						use:enhance={() => {
-							formLoading = true;
-							return async ({ update }) => {
-								await update();
-								formLoading = false;
-							};
-						}}
-					>
-						<button class="variant-ghost-primary btn btn-sm w-full"
-							><Icon class="mr-1" data={faCheck} />Marcar como finalizado</button
-						>
-					</form>
-				{/if}
-				{#if data.order.status !== OrderStatus.PENDING}
-					<form
-						class="w-full"
-						method="post"
-						action="?/setOrderPending"
-						use:enhance={() => {
-							formLoading = true;
-							return async ({ update }) => {
-								await update();
-								formLoading = false;
-							};
-						}}
-					>
-						<button class="variant-ghost btn btn-sm w-full"
-							><Icon class="mr-1" data={faClockRotateLeft} />Marcar como pendiente</button
-						>
-					</form>
-				{/if}
-				{#if data.order.status !== OrderStatus.PICKED_UP}
-					<form
-						class="w-full"
-						method="post"
-						action="?/setOrderPickedUp"
-						use:enhance={() => {
-							formLoading = true;
-							return async ({ update }) => {
-								await update();
-								formLoading = false;
-							};
-						}}
-					>
-						<button class="variant-ghost-tertiary btn btn-sm w-full"
-							><Icon class="mr-1" data={faTruckPickup} />Marcar como recogido</button
-						>
-					</form>
-				{/if}
-				<a
-					class="variant-filled-warning btn btn-sm w-full"
-					href="/customers/{data.order.customer.id}"
-					><Icon class="mr-1" data={faUser} />Ver cliente</a
-				>
-				<button
-					class="variant-filled btn btn-sm w-full"
-					on:click={() => {
-						goto(`/orders/${data?.order?.id}/day`);
-					}}
-					><Icon class="mr-1" data={faBox} /> Pedidos del día
-				</button>
-
 				{#if data.order.amountPayed === data.calculatedItem?.total}
 					<form
 						class="w-full"
@@ -199,13 +110,109 @@
 						>
 					</form>
 				{/if}
+				<a
+					class="variant-filled-success btn btn-sm w-full"
+					target="_blank"
+					href={CustomerUtilites.getWhatsappLink(
+						data.order.customer,
+						OrderUtilites.getWhatsappTicketText(data.order)
+					)}
+					><Icon class="mr-1" data={faWhatsapp} /> Enviar resguardo a cliente
+				</a>
 
-				<div class="border-black-800 border md:hidden"></div>
+				{#if data.order.status !== OrderStatus.FINISHED}
+					<form
+						class="w-full"
+						method="post"
+						action="?/setOrderFinished"
+						use:enhance={() => {
+							formLoading = true;
+							return async ({ update }) => {
+								await update();
+								formLoading = false;
+							};
+						}}
+					>
+						<button class="variant-ghost-primary btn btn-sm w-full"
+							><Icon class="mr-1" data={faCheck} />Marcar como finalizado</button
+						>
+					</form>
+				{/if}
+
+				{#if data.order.status === OrderStatus.FINISHED}
+					<a
+						class="variant-filled-success btn btn-sm w-full"
+						target="_blank"
+						aria-disabled="true"
+						href={CustomerUtilites.getWhatsappLink(
+							data.order.customer,
+							OrderUtilites.getWhatsappFinishedText([data.order])
+						)}
+					>
+						<Icon class="mr-1" data={faWhatsapp} /> Enviar mensaje finalizado
+					</a>
+				{/if}
+
+				{#if data.order.status !== OrderStatus.PENDING}
+					<form
+						class="w-full"
+						method="post"
+						action="?/setOrderPending"
+						use:enhance={() => {
+							formLoading = true;
+							return async ({ update }) => {
+								await update();
+								formLoading = false;
+							};
+						}}
+					>
+						<button class="variant-ghost btn btn-sm w-full"
+							><Icon class="mr-1" data={faClockRotateLeft} />Marcar como pendiente</button
+						>
+					</form>
+				{/if}
+				{#if data.order.status !== OrderStatus.PICKED_UP}
+					<form
+						class="w-full"
+						method="post"
+						action="?/setOrderPickedUp"
+						use:enhance={() => {
+							formLoading = true;
+							return async ({ update }) => {
+								await update();
+								formLoading = false;
+							};
+						}}
+					>
+						<button class="variant-ghost-tertiary btn btn-sm w-full"
+							><Icon class="mr-1" data={faTruckPickup} />Marcar como recogido</button
+						>
+					</form>
+				{/if}
+				<a
+					class="variant-filled-warning btn btn-sm w-full"
+					href="/customers/{data.order.customer.id}"
+					><Icon class="mr-1" data={faUser} />Ver cliente</a
+				>
+				<button
+					class="variant-filled btn btn-sm w-full"
+					on:click={() => {
+						goto(`/orders/${data?.order?.id}/day`);
+					}}
+					><Icon class="mr-1" data={faBox} /> Pedidos del día
+				</button>
+
+				<div class="mb-3 md:hidden"></div>
 				<form
 					class="w-full"
 					method="post"
 					action="?/deleteOrder"
-					use:enhance={() => {
+					use:enhance={({ cancel }) => {
+						if (!confirm('Estás seguro que quieres eliminar el pedido?')) {
+							cancel();
+							return;
+						}
+						
 						formLoading = true;
 						return async ({ update }) => {
 							await update();

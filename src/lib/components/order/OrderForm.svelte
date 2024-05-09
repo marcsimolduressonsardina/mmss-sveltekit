@@ -391,6 +391,7 @@
 		addedPP = partsToCalulatePreview.some((p) => p.pre.type === PricingType.PP);
 		addedGlass = partsToCalulatePreview.some((p) => p.pre.type === PricingType.GLASS);
 		addedBack = partsToCalulatePreview.some((p) => p.pre.type === PricingType.BACK);
+		addedLabour = partsToCalulatePreview.some((p) => p.pre.type === PricingType.LABOUR);
 		updatePP(asymetricPP, upPP, downPP, leftPP, rightPP);
 		updateTotalSizes($form.width, $form.height, $form.pp, $form.ppDimensions);
 		cleanFabric(addedMold);

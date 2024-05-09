@@ -12,10 +12,15 @@
 
 	export let data: PageData;
 	let searchValue = '';
-	const status = data.status as OrderStatus;
+	
 
 	function normalizeString(str: string): string {
 		return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
+	}
+
+	function getStatus(statusStr: string) {
+		const status = statusStr as OrderStatus;
+		return orderStatusMap[status]
 	}
 
 	function isWordPresent(inputString1: string, inputString2: string): boolean {
@@ -51,7 +56,7 @@
 	{#await data.orders}
 		<ProgressBar />
 	{:then orders}
-		<span class="pb-1 text-xl font-medium text-gray-700">Pedidos {orderStatusMap[status]}s</span>
+		<span class="pb-1 text-xl font-medium text-gray-700">Pedidos {getStatus(data.status)}s</span>
 
 		<div
 			class="flex w-full flex-col place-content-center items-center justify-center gap-1 md:grid md:grid-cols-2"

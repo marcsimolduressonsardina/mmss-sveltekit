@@ -27,7 +27,6 @@
 	function addFunction() {
 		if (!isButtonDisabled) {
 			addValue(pricingType, idElementInput.value);
-			idElementInput.value = '';
 		}
 	}
 

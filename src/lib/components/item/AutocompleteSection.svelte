@@ -34,7 +34,6 @@
 	function addFunction() {
 		if (!isButtonDisabled) {
 			addValue(pricingType, autocompleteInput);
-			autocompleteInput = '';
 		}
 	}
 
