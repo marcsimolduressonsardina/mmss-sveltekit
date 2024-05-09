@@ -5,12 +5,12 @@
 	import { enhance } from '$app/forms';
 	import { Icon } from 'svelte-awesome';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+	import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
 	import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
 	import { faMoneyBill } from '@fortawesome/free-solid-svg-icons/faMoneyBill';
 	import { faTruckPickup } from '@fortawesome/free-solid-svg-icons/faTruckPickup';
 	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
 	import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint';
-	import plus from 'svelte-awesome/icons/plus';
 	import trash from 'svelte-awesome/icons/trash';
 
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
@@ -146,8 +146,8 @@
 				{/if}
 				<a
 					class="variant-filled-warning btn btn-sm w-full"
-					href="/customers/{data.order.customer.id}/orders/new"
-					><Icon class="mr-1" data={plus} />Nuevo pedido para cliente</a
+					href="/customers/{data.order.customer.id}"
+					><Icon class="mr-1" data={faUser} />Ver cliente</a
 				>
 				<button
 					class="variant-filled btn btn-sm w-full"

@@ -52,7 +52,6 @@
 	];
 
 	// PP vars
-	let canAddPp = false;
 	let asymetricPP = false;
 	let upPP = 0;
 	let downPP = 0;
@@ -392,7 +391,6 @@
 		addedPP = partsToCalulatePreview.some((p) => p.pre.type === PricingType.PP);
 		addedGlass = partsToCalulatePreview.some((p) => p.pre.type === PricingType.GLASS);
 		addedBack = partsToCalulatePreview.some((p) => p.pre.type === PricingType.BACK);
-		canAddPp = $form.pp > 0 || upPP > 0 || downPP > 0 || leftPP > 0 || rightPP > 0;
 		updatePP(asymetricPP, upPP, downPP, leftPP, rightPP);
 		updateTotalSizes($form.width, $form.height, $form.pp, $form.ppDimensions);
 		cleanFabric(addedMold);
@@ -533,7 +531,6 @@
 				addValue={addFromPricingSelector}
 				pricingType={PricingType.PP}
 				added={addedPP}
-				canBeAdded={canAddPp}
 			/>
 
 			<Spacer title={'Medidas totales de la obra'} />
@@ -649,7 +646,15 @@
 					id="predefinedElements"
 					bind:this={predefinedElementInput}
 				>
-					{#each pricing.otherPrices as otherPrice}
+					{#each pricing.otherPrices.sort((a, b) => {
+						if (a.isDefault === b.isDefault) {
+							return 0;
+						} else if (a.isDefault) {
+							return -1;
+						} else {
+							return 1;
+						}
+					}) as otherPrice}
 						<option value={otherPrice.id}
 							>{otherPrice.description} ({otherPrice.price.toFixed(2)} €)</option
 						>

@@ -52,6 +52,18 @@ function createOrderTable(scope: Construct, envName: string): Table {
 		}
 	});
 
+	table.addGlobalSecondaryIndex({
+		indexName: `statusIndex`,
+		partitionKey: {
+			name: 'status',
+			type: AttributeType.STRING
+		},
+		sortKey: {
+			name: 'timestamp',
+			type: AttributeType.NUMBER
+		}
+	});
+
 	return table;
 }
 
