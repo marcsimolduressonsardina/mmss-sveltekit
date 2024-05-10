@@ -38,16 +38,16 @@ jobs:
         run: npm run cdk bootstrap
         env:
           CDK_ENV_NAME: dev
-          ALLOWED_UPLOAD_ORIGINS: ${{ env.ALLOWED_UPLOAD_ORIGINS }}
+          ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS }}
 
       - name: Diff stack
         run: npm run cdk diff
         env:
           CDK_ENV_NAME: dev
-          ALLOWED_UPLOAD_ORIGINS: ${{ env.ALLOWED_UPLOAD_ORIGINS }}
+          ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS }}
 
       - name: Deploy stack
         run: npx cdk deploy --all --require-approval never
         env:
           CDK_ENV_NAME: dev
-          ALLOWED_UPLOAD_ORIGINS: ${{ env.ALLOWED_UPLOAD_ORIGINS }}
+          ALLOWED_UPLOAD_ORIGINS: ${{ vars.ALLOWED_UPLOAD_ORIGINS }}
