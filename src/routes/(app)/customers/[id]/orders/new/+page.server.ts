@@ -55,8 +55,11 @@ export const actions = {
 				partsToCalculate,
 				form.data.extraParts,
 				form.data.discount,
+				form.data.hasArrow,
 				form.data.ppDimensions,
-				session?.user?.name
+				session?.user?.name,
+				form.data.exteriorWidth,
+				form.data.exteriorHeight
 			);
 
 			if (!order) {

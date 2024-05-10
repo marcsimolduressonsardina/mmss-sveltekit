@@ -62,6 +62,7 @@
 	// Size vars
 	let totalHeightBox = 0;
 	let totalWidthBox = 0;
+	let exteriorDimensions = false;
 
 	const defaultObservations = [
 		'Sabe que puede ondular',
@@ -395,6 +396,8 @@
 		updatePP(asymetricPP, upPP, downPP, leftPP, rightPP);
 		updateTotalSizes($form.width, $form.height, $form.pp, $form.ppDimensions);
 		cleanFabric(addedMold);
+		if (!exteriorDimensions) $form.exteriorHeight = undefined;
+		if (!exteriorDimensions) $form.exteriorWidth = undefined;
 	}
 </script>
 
@@ -413,7 +416,7 @@
 			<Spacer title={'Datos de la obra'} />
 
 			<label class="label" for="height">
-				<span>Alto:</span>
+				<span>Alto (cm):</span>
 				<input
 					class="input {$errors.height ? 'input-error' : ''}"
 					id="height"
@@ -427,7 +430,7 @@
 			</label>
 
 			<label class="label" for="width">
-				<span>Ancho:</span>
+				<span>Ancho (cm):</span>
 				<input
 					class="input {$errors.width ? 'input-error' : ''}"
 					id="width"
@@ -441,7 +444,7 @@
 			</label>
 
 			<label class="label" for="pp"
-				><span>Medida PP:</span>
+				><span>Medida PP (cm):</span>
 				<input
 					class="input {$errors.pp ? 'input-error' : ''}"
 					type="number"
@@ -466,7 +469,7 @@
 			</label>
 
 			{#if asymetricPP}
-				<Spacer title={'Medidas PP'} />
+				<Spacer title={'Medidas PP (cm)'} />
 
 				<label class="label" for="upPP">
 					<span>Arriba:</span>
@@ -534,7 +537,7 @@
 				added={addedPP}
 			/>
 
-			<Spacer title={'Medidas totales de la obra'} />
+			<Spacer title={'Medidas totales del marco'} />
 
 			<div class="grid grid-cols-1 lg:col-span-2">
 				<div class="rounded-md border-2 border-gray-300 p-4">
@@ -543,6 +546,44 @@
 					</p>
 				</div>
 			</div>
+
+			<label class="label flex items-center space-x-2 lg:col-span-2" for="ppAsymetric">
+				<input
+					class="checkbox"
+					type="checkbox"
+					bind:checked={exteriorDimensions}
+					on:change={() => handleDimensionsChangeEvent()}
+				/>
+				<p>Medidas exteriores del marco</p>
+			</label>
+
+			{#if exteriorDimensions}
+				<label class="label" for="exteriorHeight">
+					<span>Alto Exterior (cm):</span>
+					<input
+						class="input"
+						id="exteriorHeight"
+						type="number"
+						step="0.01"
+						name="exteriorHeight"
+						bind:value={$form.exteriorHeight}
+						class:input-success={$form.exteriorHeight > 0}
+					/>
+				</label>
+
+				<label class="label" for="exteriorWidth">
+					<span>Ancho Exterior (cm):</span>
+					<input
+						class="input"
+						id="exteriorWidth"
+						type="number"
+						step="0.01"
+						name="exteriorWidth"
+						bind:value={$form.exteriorWidth}
+						class:input-success={$form.exteriorWidth > 0}
+					/>
+				</label>
+			{/if}
 
 			<Spacer title={'Descripción de la obra'} />
 
@@ -647,15 +688,7 @@
 					id="predefinedElements"
 					bind:this={predefinedElementInput}
 				>
-					{#each pricing.otherPrices.sort((a, b) => {
-						if (a.isDefault === b.isDefault) {
-							return 0;
-						} else if (a.isDefault) {
-							return -1;
-						} else {
-							return 1;
-						}
-					}) as otherPrice}
+					{#each pricing.otherPrices.sort((a, b) => b.priority - a.priority) as otherPrice}
 						<option value={otherPrice.id}
 							>{otherPrice.description} ({otherPrice.price.toFixed(2)} €)</option
 						>
@@ -768,6 +801,11 @@
 					name="discount"
 					bind:value={$form.discount}
 				/>
+			</label>
+
+			<label class="label flex items-center space-x-2" for="hasArrow">
+				<input class="checkbox" type="checkbox" name="hasArrow" bind:checked={$form.hasArrow} />
+				<p>⬇︎</p>
 			</label>
 
 			<Spacer title={'Elementos añadidos'} />

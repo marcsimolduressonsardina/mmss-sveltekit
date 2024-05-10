@@ -11,7 +11,7 @@
 
 	export let data: PageData;
 	let pricingData = writable(emptyPricing);
-	let selectedType: PricingType = PricingType.MOLD;
+	let selectedType: PricingType = data.pricingType;
 	let tableSource: TableSource = { head: [], body: [] };
 
 	data.pricing.then((pricing) => {
@@ -34,19 +34,23 @@
 		}
 	}
 
+	function sortPricing(priceList: ListPrice[]): ListPrice[] {
+		return priceList.sort((a, b) => b.priority - a.priority);
+	}
+
 	function getPricingListByType(type: PricingType): ListPrice[] {
 		const pricing = $pricingData;
 		switch (type) {
 			case PricingType.GLASS:
-				return pricing.glassPrices;
+				return sortPricing(pricing.glassPrices);
 			case PricingType.BACK:
-				return pricing.backPrices;
+				return sortPricing(pricing.backPrices);
 			case PricingType.PP:
-				return pricing.ppPrices;
+				return sortPricing(pricing.ppPrices);
 			case PricingType.OTHER:
-				return pricing.otherPrices;
+				return sortPricing(pricing.otherPrices);
 			case PricingType.LABOUR:
-				return pricing.labourPrices;
+				return sortPricing(pricing.labourPrices);
 			default:
 				return [];
 		}

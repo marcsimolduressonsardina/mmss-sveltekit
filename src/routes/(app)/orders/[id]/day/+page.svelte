@@ -15,7 +15,8 @@
 	{#await data.orders}
 		<ProgressBar />
 	{:then orders}
-		<span class="pb-1 text-xl text-gray-700">Pedidos del mismo día | {orders[0].customer.name}</span>
+		<span class="pb-1 text-xl text-gray-700">Pedidos del mismo día | {orders[0].customer.name}</span
+		>
 
 		<div class="flex w-full flex-col place-content-center items-center justify-center gap-1">
 			{#if orders.filter((order) => order.status === OrderStatus.FINISHED).length > 0}

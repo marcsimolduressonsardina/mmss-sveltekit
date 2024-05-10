@@ -134,7 +134,10 @@ export abstract class DynamoRepository<T> {
 		return [];
 	}
 
-	protected async getByPartitionKey(partitionKeyValue: string, ascendent: boolean = true): Promise<T[]> {
+	protected async getByPartitionKey(
+		partitionKeyValue: string,
+		ascendent: boolean = true
+	): Promise<T[]> {
 		const params: QueryCommandInput = {
 			TableName: this.table,
 			KeyConditionExpression: '#pk = :pkv',

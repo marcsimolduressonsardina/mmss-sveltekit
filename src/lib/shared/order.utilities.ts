@@ -9,7 +9,7 @@ import { CalculatedItemUtilities, otherExtraId } from './calculated-item.utilite
 export class OrderUtilites {
 	public static getOrderPublicId(order: Order | OrderFromList): string {
 		const date = DateTime.fromJSDate(order.createdAt);
-		const dateStr = date.toFormat('yyyyMMdd');
+		const dateStr = date.toFormat('ddMMyyyy');
 		let phoneWithoutPlus = '******';
 		if ('customer' in order) {
 			phoneWithoutPlus = order.customer.phone.replace('+', '');
@@ -71,6 +71,19 @@ export class OrderUtilites {
 				.join('\n');
 
 			return `Hemos terminado sus pedidos:\n${orderLines}\nPuede pasar a buscarlos. Marcs i Moldures Son Sardina.`;
+		}
+	}
+
+	public static getDiscountRepresentation(discount: number): string {
+		switch (discount) {
+			case 10:
+				return '1';
+			case 15:
+				return '2';
+			case 20:
+				return '3';
+			default:
+				return `${discount}%`;
 		}
 	}
 }
@@ -135,7 +148,10 @@ export const itemSchema = z.object({
 	discount: z.number().min(0).default(0),
 	extraParts: z.array(extraPartSchema),
 	partsToCalculate: z.array(partToCalculateSchema),
-	predefinedObservations: z.array(z.string()).default([])
+	predefinedObservations: z.array(z.string()).default([]),
+	hasArrow: z.boolean().default(false),
+	exteriorWidth: z.number().optional(),
+	exteriorHeight: z.number().optional()
 });
 
 export const smsTemplates = {

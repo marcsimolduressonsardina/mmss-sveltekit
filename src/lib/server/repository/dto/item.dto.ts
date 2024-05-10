@@ -23,4 +23,6 @@ export type ItemDto = {
 	createdAt: number;
 	deliveryDate: number;
 	partsToCalculate: PreCalculatedItemPartDto[];
+	exteriorWidth?: number;
+	exteriorHeight?: number;
 };

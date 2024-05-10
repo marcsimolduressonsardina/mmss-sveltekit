@@ -97,7 +97,7 @@
 	<form
 		use:enhance
 		method="post"
-		class="flex w-full flex-col place-content-center space-y-2 px-2 lg:grid lg:grid-cols-2 lg:gap-2 lg:space-y-0"
+		class="flex w-full flex-col place-content-center gap-2 px-2 lg:grid lg:grid-cols-2"
 	>
 		<label class="label" for="id">
 			<span>ID:</span>
@@ -250,9 +250,16 @@
 		{/if}
 
 		<Spacer title={'Otros datos'} />
-		<label class="label flex items-center space-x-2" for="isDefault">
-			<input class="checkbox" type="checkbox" name="isDefault" bind:checked={$form.isDefault} />
-			<p>Valor por defecto</p>
+		<label class="label" for="priority">
+			<span>Prioridad (Cuanto más alto, antes saldrá en la lista):</span>
+			<input
+				class="input {$errors.priority ? 'input-error' : ''}"
+				id="priority"
+				type="number"
+				step="1"
+				name="priority"
+				bind:value={$form.priority}
+			/>
 		</label>
 		<button class="variant-filled-warning btn lg:col-span-2" type="submit"
 			><Icon class="mr-2" data={check} /> Guardar</button

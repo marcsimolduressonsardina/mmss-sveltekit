@@ -30,7 +30,7 @@ export const actions = {
 				form.data.type,
 				form.data.formula,
 				form.data.areas,
-				form.data.isDefault,
+				form.data.priority,
 				form.data.maxD1,
 				form.data.maxD2
 			);
@@ -38,6 +38,6 @@ export const actions = {
 			return setError(form, '', 'Error creando el item. Intente de nuevo.');
 		}
 
-		return redirect(302, `/prices`);
+		return redirect(302, `/prices/list?type=${form.data.type}`);
 	}
 };

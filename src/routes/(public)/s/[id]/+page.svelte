@@ -10,4 +10,4 @@
 	<title>Marcs i Moldures Son Sardina</title>
 </svelte:head>
 
-<OrderPrint {order} {calculatedItem} isForCustomer={true}></OrderPrint>
+<OrderPrint {order} {calculatedItem} isForCustomer={true} print={data.shouldPrint}></OrderPrint>

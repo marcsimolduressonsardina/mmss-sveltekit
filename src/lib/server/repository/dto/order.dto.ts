@@ -12,4 +12,5 @@ export type OrderDto = {
 	item: ItemDto;
 	status: string;
 	statusTimestamp: number;
+	hasArrow?: boolean;
 };

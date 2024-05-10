@@ -12,15 +12,17 @@
 
 	export let data: PageData;
 	let searchValue = '';
-	
 
 	function normalizeString(str: string): string {
-		return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
+		return str
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.toLocaleLowerCase();
 	}
 
 	function getStatus(statusStr: string) {
 		const status = statusStr as OrderStatus;
-		return orderStatusMap[status]
+		return orderStatusMap[status];
 	}
 
 	function isWordPresent(inputString1: string, inputString2: string): boolean {
@@ -74,8 +76,15 @@
 				<Icon class="mr-1" data={faClockRotateLeft} /> Ver pedidos pendientes
 			</a>
 		</div>
-		<div class="flex w-full mt-3 mb-3 flex-col place-content-center items-center justify-center gap-1">
-			<input bind:value={searchValue} class="input" type="text" placeholder="Buscar en descripción..." />
+		<div
+			class="mb-3 mt-3 flex w-full flex-col place-content-center items-center justify-center gap-1"
+		>
+			<input
+				bind:value={searchValue}
+				class="input"
+				type="text"
+				placeholder="Buscar en descripción..."
+			/>
 		</div>
 
 		<div class="flex w-full flex-col gap-1 lg:grid lg:grid-cols-4">

@@ -4,7 +4,6 @@
 	import plus from 'svelte-awesome/icons/plus';
 	import Spacer from './Spacer.svelte';
 	import type { ListPrice } from '$lib/type/api.type';
-	import { getPriceString } from '$lib/shared/pricing.utilites';
 
 	export let sectionTitle: string;
 	export let label: string;
@@ -17,11 +16,8 @@
 	let idElementInput: HTMLSelectElement;
 	let selectedId = '';
 
-	function getSelectLabel(price: ListPrice) {
-		if (price.description == null || price.description === '') {
-			return `${price.id} (${getPriceString(price)})`;
-		}
-		return `${price.description} (${getPriceString(price)})`;
+	function getSelectLabel(price: ListPrice): string {
+		return price.description ?? price.id;
 	}
 
 	function addFunction() {
@@ -30,12 +26,12 @@
 		}
 	}
 
-	let defaultPrices = prices.filter((p) => p.isDefault === true);
-	let normalPrices = prices.filter((p) => p.isDefault !== true);
+	let defaultPrices = prices.filter((p) => p.priority > 0).sort((a, b) => b.priority - a.priority);
+	let normalPrices = prices.filter((p) => p.priority === 0);
 	let firstPrice: ListPrice;
 	if (defaultPrices.length > 0) {
 		firstPrice = defaultPrices[0];
-		normalPrices = defaultPrices.slice(1).concat(normalPrices);
+		defaultPrices = defaultPrices.slice(1);
 		selectedId = firstPrice.id;
 	}
 
@@ -58,6 +54,13 @@
 			{#if firstPrice}
 				<option value={firstPrice.id}>{getSelectLabel(firstPrice)}</option>
 			{:else}
+				<option></option>
+			{/if}
+
+			{#if defaultPrices.length > 0}
+				{#each defaultPrices as price}
+					<option value={price.id}>{getSelectLabel(price)}</option>
+				{/each}
 				<option></option>
 			{/if}
 

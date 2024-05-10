@@ -35,32 +35,27 @@ export type PreCalculatedItemPartRequest = {
 	height: number;
 };
 
-export type Order = {
+type OrderBase = {
 	id: string;
 	shortId: string;
-	customer: Customer;
 	storeId: string;
 	createdAt: Date;
-	user: AppUser;
 	userName?: string;
 	amountPayed: number;
 	item: Item;
 	status: OrderStatus;
 	statusUpdated: Date;
+	hasArrow: boolean;
 };
 
-export type OrderFromList = {
-	id: string;
-	shortId: string;
+export type Order = OrderBase & {
+	customer: Customer;
+	user: AppUser;
+};
+
+export type OrderFromList = OrderBase & {
 	customerId: string;
-	storeId: string;
-	createdAt: Date;
 	userId: string;
-	userName?: string;
-	amountPayed: number;
-	item: Item;
-	status: OrderStatus;
-	statusUpdated: Date;
 };
 
 export type PPDimensions = {
@@ -82,6 +77,8 @@ export type Item = {
 	createdAt: Date;
 	deliveryDate: Date;
 	partsToCalculate: PreCalculatedItemPart[];
+	exteriorWidth?: number;
+	exteriorHeight?: number;
 };
 
 export type CalculatedItem = {
@@ -106,7 +103,7 @@ export type ListPrice = {
 	type: PricingType;
 	formula: PricingFormula;
 	areas: MaxArea[];
-	isDefault: boolean;
+	priority: number;
 	maxD1?: number;
 	maxD2?: number;
 };

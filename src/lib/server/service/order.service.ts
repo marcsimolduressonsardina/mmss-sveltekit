@@ -90,8 +90,11 @@ export class OrderService {
 		partsToCalculate: PreCalculatedItemPart[] = [],
 		extraParts: CalculatedItemPart[] = [],
 		discount: number = 0,
+		hasArrow: boolean = false,
 		ppDimensions?: PPDimensions,
-		authorName?: string | null
+		authorName?: string | null,
+		exteriorWidth?: number,
+		exteriorHeight?: number
 	): Promise<Order | null> {
 		const customer = await this.customerService.getCustomerById(customerId);
 		if (customer === null) return null;
@@ -108,8 +111,11 @@ export class OrderService {
 			partsToCalculate,
 			extraParts,
 			discount,
+			hasArrow,
 			ppDimensions,
-			authorName
+			authorName,
+			exteriorWidth,
+			exteriorHeight
 		);
 		return order;
 	}
@@ -126,8 +132,11 @@ export class OrderService {
 		partsToCalculate: PreCalculatedItemPart[] = [],
 		extraParts: CalculatedItemPart[] = [],
 		discount: number = 0,
+		hasArrow: boolean = false,
 		ppDimensions?: PPDimensions,
-		authorName?: string | null
+		authorName?: string | null,
+		exteriorWidth?: number,
+		exteriorHeight?: number
 	): Promise<Order> {
 		const customer = OrderService.getTempCustomer(this.storeId);
 		const order = await this.createOrder(
@@ -143,8 +152,11 @@ export class OrderService {
 			partsToCalculate,
 			extraParts,
 			discount,
+			hasArrow,
 			ppDimensions,
-			authorName
+			authorName,
+			exteriorWidth,
+			exteriorHeight
 		);
 		return order;
 	}
@@ -264,8 +276,11 @@ export class OrderService {
 		partsToCalculate: PreCalculatedItemPart[] = [],
 		extraParts: CalculatedItemPart[] = [],
 		discount: number = 0,
+		hasArrow: boolean = false,
 		ppDimensions?: PPDimensions,
-		authorName?: string | null
+		authorName?: string | null,
+		exteriorWidth?: number,
+		exteriorHeight?: number
 	): Promise<Order> {
 		const order: Order = {
 			id: uuidv4(),
@@ -278,6 +293,7 @@ export class OrderService {
 			amountPayed: 0,
 			status: OrderStatus.PENDING,
 			statusUpdated: new Date(),
+			hasArrow,
 			item: {
 				width,
 				height,
@@ -289,7 +305,9 @@ export class OrderService {
 				quantity,
 				createdAt: new Date(),
 				deliveryDate,
-				partsToCalculate: partsToCalculate
+				partsToCalculate: partsToCalculate,
+				exteriorWidth,
+				exteriorHeight
 			}
 		};
 
@@ -349,7 +367,8 @@ export class OrderService {
 			amountPayed: dto.amountPayed,
 			item: OrderService.fromDtoItem(dto.item),
 			status: dto.status as OrderStatus,
-			statusUpdated: new Date(dto.statusTimestamp)
+			statusUpdated: new Date(dto.statusTimestamp),
+			hasArrow: dto.hasArrow ?? false
 		};
 	}
 
@@ -365,7 +384,8 @@ export class OrderService {
 			amountPayed: dto.amountPayed,
 			item: OrderService.fromDtoItem(dto.item),
 			status: dto.status as OrderStatus,
-			statusUpdated: new Date(dto.statusTimestamp)
+			statusUpdated: new Date(dto.statusTimestamp),
+			hasArrow: dto.hasArrow ?? false
 		};
 	}
 
@@ -381,7 +401,8 @@ export class OrderService {
 			amountPayed: order.amountPayed,
 			item: OrderService.toDtoItem(order.item),
 			status: order.status,
-			statusTimestamp: Date.parse(order.statusUpdated.toISOString())
+			statusTimestamp: Date.parse(order.statusUpdated.toISOString()),
+			hasArrow: order.hasArrow
 		};
 	}
 
@@ -401,7 +422,9 @@ export class OrderService {
 				id: part.id,
 				quantity: part.quantity,
 				type: part.type as string
-			}))
+			})),
+			exteriorHeight: item.exteriorHeight,
+			exteriorWidth: item.exteriorWidth
 		};
 	}
 
@@ -421,7 +444,9 @@ export class OrderService {
 				id: part.id,
 				quantity: part.quantity,
 				type: part.type as PricingType
-			}))
+			})),
+			exteriorHeight: dto.exteriorHeight,
+			exteriorWidth: dto.exteriorWidth
 		};
 	}
 }

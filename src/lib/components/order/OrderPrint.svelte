@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { OrderUtilites } from '$lib/shared/order.utilities';
 	import { PricingType } from '$lib/type/pricing.type';
 	import { DateTime } from 'luxon';
@@ -11,6 +12,7 @@
 	export let order: Order;
 	export let calculatedItem: CalculatedItem;
 	export let isForCustomer: boolean;
+	export let print: boolean = false;
 
 	const others = [
 		...OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.FABRIC),
@@ -43,6 +45,14 @@
 	}
 
 	const extraColForDiscount = calculatedItem.discount > 0 ? 1 : 0;
+
+	onMount(() => {
+		if (print) {
+			setTimeout(() => {
+				window.print();
+			}, 750);
+		}
+	});
 </script>
 
 <main>
@@ -68,7 +78,8 @@
 
 		<tr>
 			<th colspan="2">Moldura</th>
-			<th colspan={2 + extraColForDiscount}>PP / Fondo</th>
+			<th colspan={1 + extraColForDiscount}>Cristal</th>
+			<th>Trasera</th>
 		</tr>
 		<tr>
 			<td colspan="2">
@@ -76,7 +87,33 @@
 					{mold}<br />
 				{/each}
 			</td>
-			<td colspan={2 + extraColForDiscount}>
+			<td colspan={1 + extraColForDiscount}>
+				{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.GLASS) as glass}
+					{glass}<br />
+				{/each}
+			</td>
+			<td>
+				{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.BACK) as back}
+					{back}<br />
+				{/each}
+			</td>
+		</tr>
+		<tr>
+			<th colspan={1 + extraColForDiscount}>Medidas</th>
+			<th>Uds</th>
+			<th colspan={1 + extraColForDiscount}>PP / Fondo</th>
+		</tr>
+		<tr>
+			<td colspan={1 + extraColForDiscount}>
+				Obra: {`${order.item.height}x${order.item.width} cm`} <br />
+				Trabajo: {OrderUtilites.getWorkingDimensions(order)}
+				{#if order.item.exteriorHeight || order.item.exteriorWidth}
+					<br />
+					Marco exterior: {`${order.item.exteriorHeight}x${order.item.exteriorWidth} cm`}
+				{/if}
+			</td>
+			<td class="center-text"> {order.item.quantity} </td>
+			<td colspan={1 + extraColForDiscount}>
 				{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.PP) as pp}
 					{pp}<br />
 				{/each}
@@ -87,29 +124,6 @@
 				{:else if order.item.pp > 0}
 					Simétrico: {order.item.pp} cm
 				{/if}
-			</td>
-		</tr>
-		<tr>
-			<th colspan={1 + extraColForDiscount}>Medidas</th>
-			<th>Uds</th>
-			<th>Cristal</th>
-			<th>Trasera</th>
-		</tr>
-		<tr>
-			<td colspan={1 + extraColForDiscount}>
-				Obra: {`${order.item.height}x${order.item.width} cm`} <br />
-				Trabajo: {OrderUtilites.getWorkingDimensions(order)}
-			</td>
-			<td class="center-text"> {order.item.quantity} </td>
-			<td>
-				{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.GLASS) as glass}
-					{glass}<br />
-				{/each}
-			</td>
-			<td>
-				{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.BACK) as back}
-					{back}<br />
-				{/each}
 			</td>
 		</tr>
 		{#if others.length > 0}
@@ -150,7 +164,7 @@
 			{/if}
 			<th>Uds</th>
 			<th>A cuenta</th>
-			<th>Total</th>
+			<th>Total {order.hasArrow ? '⬇︎' : ''}</th>
 		</tr>
 		<tr>
 			<td class="center-text">
@@ -158,12 +172,12 @@
 			</td>
 			{#if calculatedItem.discount > 0}
 				<td class="center-text">
-					{CalculatedItemUtilities.getUnitPriceWithDiscount(calculatedItem)} €
+					{OrderUtilites.getDiscountRepresentation(calculatedItem.discount)}
 				</td>
 			{/if}
 			<td class="center-text"> {order.item.quantity} </td>
 			<td class="center-text"> {order.amountPayed.toFixed(2)} €</td>
-			<td class="center-text"> {calculatedItem.total.toFixed(2)} €</td>
+			<td class="center-text">{calculatedItem.total.toFixed(2)} €</td>
 		</tr>
 		<tr>
 			<th colspan="1"> Recogida </th>
@@ -190,6 +204,23 @@
 </main>
 
 <style>
+	@media print {
+		table {
+			width: 100%;
+			-webkit-print-color-adjust: exact;
+			print-color-adjust: exact;
+		}
+
+		@page {
+			size: A5 portrait;
+			margin: 0;
+		}
+
+		body {
+			-webkit-print-color-adjust: exact;
+			print-color-adjust: exact;
+		}
+	}
 	.customer-title {
 		font-family: sans-serif;
 		padding-bottom: 5px;

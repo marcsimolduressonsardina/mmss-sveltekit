@@ -14,5 +14,5 @@ export type ListPriceDto = {
 	areas: MaxAreaDto[];
 	maxD1?: number;
 	maxD2?: number;
-	isDefault?: boolean;
+	priority?: number;
 };

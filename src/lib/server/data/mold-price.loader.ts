@@ -112,7 +112,7 @@ export class MoldPriceLoader {
 			type: PricingType.MOLD,
 			formula: PricingFormula.NONE,
 			areas: [],
-			isDefault: false
+			priority: 0
 		};
 	}
 

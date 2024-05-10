@@ -43,13 +43,13 @@
 				<a
 					class="variant-ghost-warning btn btn-sm w-full"
 					target="_blank"
-					href={`/orders/${data?.order?.id}/print`}
+					href={`/orders/${data.order.id}/print`}
 					><Icon class="mr-1" data={faPrint} /> Imprimir resguardo para taller
 				</a>
 				<a
 					class="variant-ghost-secondary btn btn-sm w-full"
 					target="_blank"
-					href={`/s/${data.order.shortId}`}
+					href={`/s/${data.order.shortId}?print=1`}
 					><Icon class="mr-1" data={faPrint} /> Imprimir resguardo para cliente
 				</a>
 				{#if data.order.amountPayed === data.calculatedItem?.total}
@@ -239,7 +239,7 @@
 				</div>
 			{/if}
 
-			<Spacer title={'Datos del pedido'} />
+			<Spacer title={`Datos del pedido ${data.order.hasArrow ? '⬇︎' : ''}`} />
 
 			<span class="text-md text-gray-700"
 				>Unidades: <span class="variant-ghost badge">{data.order.item.quantity}</span>
@@ -259,6 +259,11 @@
 			<span class="text-md text-gray-700">
 				Medidas de trabajo: {OrderUtilites.getWorkingDimensions(data.order)}
 			</span>
+			{#if data.order.item.exteriorHeight || data.order.item.exteriorWidth}
+				<span class="text-md text-gray-700">
+					Medidas exteriores del marco: {`${data.order.item.exteriorHeight}x${data.order.item.exteriorWidth} cm`}
+				</span>
+			{/if}
 			<span class="text-md text-gray-700"> Descripción: {data.order.item.description} </span>
 			<span class="text-md text-gray-700"> Observaciones: {data.order.item.observations} </span>
 			{#each data.order.item.predefinedObservations as obv}
