@@ -1,11 +1,13 @@
 export type CalculatedItemDto = {
-	itemUuid: string;
+	orderUuid: string;
 	discount: number;
 	parts: CalculatedItemPartDto[];
 	total: number;
+	quantity: number;
 };
 
 export type CalculatedItemPartDto = {
+	priceId: string;
 	price: number;
 	quantity: number;
 	description: string;

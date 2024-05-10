@@ -1,4 +1,5 @@
-import type { PricingType } from "./pricing.type";
+import type { OrderStatus } from './order.type';
+import type { PricingFormula, PricingType } from './pricing.type';
 
 export type Customer = {
 	id: string;
@@ -14,6 +15,7 @@ export type AppUser = {
 };
 
 export type CalculatedItemPart = {
+	priceId: string;
 	price: number;
 	quantity: number;
 	description: string;
@@ -24,50 +26,84 @@ export type PreCalculatedItemPart = {
 	type: PricingType;
 	id: string;
 	quantity: number;
-}
+	moldId?: string; // For fabric
+};
 
 export type PreCalculatedItemPartRequest = {
 	partToCalculate: PreCalculatedItemPart;
 	width: number;
 	height: number;
-}
-
-export type ItemResponse = {
-	itemInfo: Item;
-	calculatedItem: CalculatedItem;
 };
 
-export type Order = {
+type OrderBase = {
 	id: string;
-	customer: Customer;
+	shortId: string;
 	storeId: string;
 	createdAt: Date;
-	user: AppUser;
 	userName?: string;
-	deleted: boolean;
+	amountPayed: number;
+	item: Item;
+	status: OrderStatus;
+	statusUpdated: Date;
+	hasArrow: boolean;
+};
+
+export type Order = OrderBase & {
+	customer: Customer;
+	user: AppUser;
+};
+
+export type OrderFromList = OrderBase & {
+	customerId: string;
+	userId: string;
+};
+
+export type PPDimensions = {
+	up: number;
+	down: number;
+	left: number;
+	right: number;
 };
 
 export type Item = {
-	id: string;
-	orderId: string;
 	width: number;
 	height: number;
-	passePartoutWidth: number;
-	passePartoutHeight: number;
+	pp: number;
+	ppDimensions?: PPDimensions;
 	description: string;
+	predefinedObservations: string[];
 	observations: string;
 	quantity: number;
 	createdAt: Date;
 	deliveryDate: Date;
 	partsToCalculate: PreCalculatedItemPart[];
-	deleted: boolean;
+	exteriorWidth?: number;
+	exteriorHeight?: number;
 };
 
 export type CalculatedItem = {
-	itemId: string;
+	orderId: string;
 	discount: number;
 	parts: CalculatedItemPart[];
 	total: number;
+	quantity: number;
 };
 
+export type MaxArea = {
+	d1: number;
+	d2: number;
+	price: number;
+};
 
+export type ListPrice = {
+	id: string;
+	internalId: string;
+	price: number;
+	description: string;
+	type: PricingType;
+	formula: PricingFormula;
+	areas: MaxArea[];
+	priority: number;
+	maxD1?: number;
+	maxD2?: number;
+};

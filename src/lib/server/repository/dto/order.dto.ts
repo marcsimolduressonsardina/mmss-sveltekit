@@ -1,9 +1,16 @@
+import type { ItemDto } from './item.dto';
+
 export type OrderDto = {
 	uuid: string;
+	shortId: string;
 	customerUuid: string;
 	timestamp: number;
 	storeId: string;
 	userId: string;
 	userName?: string;
-	deleted: boolean;
+	amountPayed: number;
+	item: ItemDto;
+	status: string;
+	statusTimestamp: number;
+	hasArrow?: boolean;
 };

@@ -1,10 +1,11 @@
+import { CUSTOMER_TABLE } from '$env/static/private';
+
 import type { CustomerDto } from './dto/customer.dto';
 import { DynamoRepository } from './dynamo.repository';
-import { env } from '../config/env';
 
 export class CustomerRepository extends DynamoRepository<CustomerDto> {
 	constructor() {
-		super(env.customerTable, 'storeId', 'phone');
+		super(CUSTOMER_TABLE, 'storeId', 'phone');
 	}
 
 	public async getCustomerById(customerId: string): Promise<CustomerDto | null> {

@@ -1,41 +1,80 @@
 <script lang="ts">
-	import type { ListPriceDto } from '$lib/server/repository/dto/list-price.dto';
 	import type { PricingType } from '$lib/type/pricing.type';
 	import Icon from 'svelte-awesome';
 	import plus from 'svelte-awesome/icons/plus';
 	import Spacer from './Spacer.svelte';
+	import type { ListPrice } from '$lib/type/api.type';
 
 	export let sectionTitle: string;
 	export let label: string;
 	export let addValue: (pricingType: PricingType, value?: string) => void;
 	export let pricingType: PricingType;
-	export let prices: ListPriceDto[];
+	export let prices: ListPrice[];
+	export let added: boolean;
+	export let canBeAdded: boolean = true;
 
 	let idElementInput: HTMLSelectElement;
+	let selectedId = '';
 
-	function getSelectLabel(price: ListPriceDto) {
-		if (price.description == null || price.description === '') {
-			return `${price.id}`;
-		}
-		return `${price.description}`;
+	function getSelectLabel(price: ListPrice): string {
+		return price.description ?? price.id;
 	}
 
 	function addFunction() {
-		addValue(pricingType, idElementInput.value);
+		if (!isButtonDisabled) {
+			addValue(pricingType, idElementInput.value);
+		}
 	}
+
+	let defaultPrices = prices.filter((p) => p.priority > 0).sort((a, b) => b.priority - a.priority);
+	let normalPrices = prices.filter((p) => p.priority === 0);
+	let firstPrice: ListPrice;
+	if (defaultPrices.length > 0) {
+		firstPrice = defaultPrices[0];
+		defaultPrices = defaultPrices.slice(1);
+		selectedId = firstPrice.id;
+	}
+
+	console.log(defaultPrices);
+
+	$: isButtonDisabled = !selectedId;
 </script>
 
 <Spacer title={sectionTitle} />
 <label class="label lg:col-span-2">
 	<span>{label}: </span>
 	<div class="space-y-2 lg:grid lg:grid-cols-2 lg:space-x-2 lg:space-y-0">
-		<select class="select" name="moldingId" bind:this={idElementInput}>
-			{#each prices as price}
+		<select
+			class="select"
+			name="moldingId"
+			bind:value={selectedId}
+			bind:this={idElementInput}
+			class:input-success={added}
+		>
+			{#if firstPrice}
+				<option value={firstPrice.id}>{getSelectLabel(firstPrice)}</option>
+			{:else}
+				<option></option>
+			{/if}
+
+			{#if defaultPrices.length > 0}
+				{#each defaultPrices as price}
+					<option value={price.id}>{getSelectLabel(price)}</option>
+				{/each}
+				<option></option>
+			{/if}
+
+			{#each normalPrices as price}
 				<option value={price.id}>{getSelectLabel(price)}</option>
 			{/each}
 		</select>
-		<button class="variant-filled btn w-full lg:w-auto" type="button" on:click={() => addFunction()}
-			><Icon class="mr-2" data={plus} /> Añadir a la lista</button
+		<button
+			class="variant-filled btn w-full lg:w-auto"
+			type="button"
+			disabled={!canBeAdded}
+			on:click={() => addFunction()}
 		>
+			<Icon class="mr-2" data={plus} /> Añadir a la lista
+		</button>
 	</div>
 </label>

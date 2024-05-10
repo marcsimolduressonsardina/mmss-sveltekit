@@ -1,8 +1,12 @@
 import { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } from '$env/static/private';
-import { AttributeValue, DynamoDBClient, type KeysAndAttributes } from '@aws-sdk/client-dynamodb';
+import {
+	type AttributeValue,
+	DynamoDBClient,
+	type KeysAndAttributes
+} from '@aws-sdk/client-dynamodb';
 import {
 	DynamoDBDocument,
-	DynamoDBDocumentClient,
+	type DynamoDBDocumentClient,
 	QueryCommand,
 	GetCommand,
 	PutCommand,
@@ -10,9 +14,11 @@ import {
 	BatchGetCommand,
 	BatchWriteCommand,
 	type UpdateCommandInput,
-	UpdateCommand
+	UpdateCommand,
+	type QueryCommandInput
 } from '@aws-sdk/lib-dynamodb';
 import _ from 'lodash';
+import type { ItemDto } from './dto/item.dto';
 
 export abstract class DynamoRepository<T> {
 	protected readonly table: string;
@@ -49,30 +55,11 @@ export abstract class DynamoRepository<T> {
 	}
 
 	protected async getByUuid(uuid: string): Promise<T | null> {
-		const params = {
-			TableName: this.table,
-			IndexName: 'uuid',
-			KeyConditionExpression: '#uuid = :uuid',
-			ExpressionAttributeNames: {
-				'#uuid': 'uuid'
-			},
-			ExpressionAttributeValues: {
-				':uuid': uuid
-			}
-		};
+		return await this.getBySecondaryIndex('uuid', 'uuid', uuid);
+	}
 
-		try {
-			const command = new QueryCommand(params);
-			const response = await this.client.send(command);
-			if (response.Items && response.Items.length > 0) {
-				return response.Items[0] as T;
-			}
-		} catch (error: unknown) {
-			this.logError('getByUuid', error);
-			throw error;
-		}
-
-		return null;
+	protected async getByShortId(shortId: string): Promise<T | null> {
+		return await this.getBySecondaryIndex('shortId', 'shortId', shortId);
 	}
 
 	protected async get(
@@ -110,8 +97,48 @@ export abstract class DynamoRepository<T> {
 		return null;
 	}
 
-	protected async getByPartitionKey(partitionKeyValue: string): Promise<T[]> {
+	protected async getBySortingKeyBetween(
+		partitionKeyValue: string,
+		sortKeyStartValue: string | number,
+		sorKeyEndValue: string | number
+	): Promise<T[]> {
+		if (this.sortKey == null) {
+			return [];
+		}
+
 		const params = {
+			TableName: this.table,
+			KeyConditionExpression: '#pk = :pkv AND #sk BETWEEN :sksv AND :skev',
+			ExpressionAttributeNames: {
+				'#pk': this.partitionKey,
+				'#sk': this.sortKey
+			},
+			ExpressionAttributeValues: {
+				':pkv': partitionKeyValue,
+				':sksv': sortKeyStartValue,
+				':skev': sorKeyEndValue
+			}
+		};
+
+		try {
+			const command = new QueryCommand(params);
+			const response = await this.client.send(command);
+			if (response.Items) {
+				return response.Items as T[];
+			}
+		} catch (error: unknown) {
+			this.logError('getBySortingKeyBetween', error);
+			throw error;
+		}
+
+		return [];
+	}
+
+	protected async getByPartitionKey(
+		partitionKeyValue: string,
+		ascendent: boolean = true
+	): Promise<T[]> {
+		const params: QueryCommandInput = {
 			TableName: this.table,
 			KeyConditionExpression: '#pk = :pkv',
 			ExpressionAttributeNames: {
@@ -119,7 +146,8 @@ export abstract class DynamoRepository<T> {
 			},
 			ExpressionAttributeValues: {
 				':pkv': partitionKeyValue
-			}
+			},
+			ScanIndexForward: ascendent
 		};
 
 		try {
@@ -160,9 +188,10 @@ export abstract class DynamoRepository<T> {
 		return [];
 	}
 
-	protected async setDeleted(
-		deleted: boolean,
+	protected async updateField(
 		partitionKeyValue: string,
+		fieldName: string,
+		value: string | number | ItemDto | boolean,
 		sortKeyValue?: string | number
 	) {
 		const key: { [x: string]: string | number } = {
@@ -180,19 +209,19 @@ export abstract class DynamoRepository<T> {
 		const params: UpdateCommandInput = {
 			TableName: this.table,
 			Key: key,
-			UpdateExpression: 'set #deleted = :deleted',
+			UpdateExpression: 'set #field = :value',
 			ExpressionAttributeNames: {
-				'#deleted': 'deleted'
+				'#field': fieldName
 			},
 			ExpressionAttributeValues: {
-				':deleted': deleted
+				':value': value
 			}
 		};
 
 		try {
 			await this.client.send(new UpdateCommand(params));
 		} catch (error: unknown) {
-			this.logError('setDeleted', error);
+			this.logError('updateField', error);
 			throw error;
 		}
 	}
@@ -229,9 +258,11 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
-	protected async batchDelete(values: { partitionKey: string; sortKey?: string }[]) {
+	protected async batchDelete(values: { partitionKey: string; sortKey?: string | number }[]) {
 		const deleteRequests = values.map((value) => {
-			const key = {
+			const key: {
+				[x: string]: string | number;
+			} = {
 				[this.partitionKey]: value.partitionKey
 			};
 
@@ -256,10 +287,74 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
+	protected async getBySecondaryIndex(
+		indexName: string,
+		partitionKeyName: string,
+		partitionKeyValue: string | number
+	): Promise<T | null> {
+		const params = {
+			TableName: this.table,
+			IndexName: indexName,
+			KeyConditionExpression: '#in = :iv',
+			ExpressionAttributeNames: {
+				'#in': partitionKeyName
+			},
+			ExpressionAttributeValues: {
+				':iv': partitionKeyValue
+			}
+		};
+
+		try {
+			const command = new QueryCommand(params);
+			const response = await this.client.send(command);
+			if (response.Items && response.Items.length > 0) {
+				return response.Items[0] as T;
+			}
+		} catch (error: unknown) {
+			this.logError('get by secondary index', error);
+			throw error;
+		}
+
+		return null;
+	}
+
+	protected async getBySecondaryIndexWithSortKey(
+		indexName: string,
+		partitionKeyName: string,
+		partitionKeyValue: string | number,
+		ascendent: boolean
+	): Promise<T[]> {
+		const params: QueryCommandInput = {
+			TableName: this.table,
+			IndexName: indexName,
+			KeyConditionExpression: '#in = :iv',
+			ExpressionAttributeNames: {
+				'#in': partitionKeyName
+			},
+			ExpressionAttributeValues: {
+				':iv': partitionKeyValue
+			},
+			ScanIndexForward: ascendent
+		};
+
+		try {
+			const command = new QueryCommand(params);
+			const response = await this.client.send(command);
+			if (response.Items && response.Items.length > 0) {
+				return response.Items as T[];
+			}
+		} catch (error: unknown) {
+			this.logError('get by secondary index', error);
+			throw error;
+		}
+
+		return [];
+	}
+
 	private async batchWrite(
 		requests:
 			| { PutRequest: { Item: Record<string, AttributeValue> } }[]
-			| { DeleteRequest: { Key: { [x: string]: string } } }[]
+			| { DeleteRequest: { Key: { [x: string]: string | number } } }[]
 	) {
 		const params = {
 			RequestItems: {

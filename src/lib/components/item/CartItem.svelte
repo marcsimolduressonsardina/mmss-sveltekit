@@ -5,13 +5,12 @@
 	import trash from 'svelte-awesome/icons/trash';
 
 	export let part: CalculatedItemPart;
-    export let partToDelete: any = {};
-    export let deleteExtraPart: (partToDelete: any) => void = (p: any) => {};
+	export let partToDelete: any = {};
+	export let deleteExtraPart: (partToDelete: any) => void = (p: any) => {};
 	export let hideDeleteButton: boolean = false;
 </script>
 
 <div>
-	
 	<span class="badge bg-green-200"><Icon data={faCartPlus} /></span>
 	<span class="flex-auto">
 		<dt>{part.description} x {part.quantity}</dt>
