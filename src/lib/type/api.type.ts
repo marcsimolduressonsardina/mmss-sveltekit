@@ -9,19 +9,15 @@ export type Customer = {
 	phone: string;
 };
 
-export type AppUser = {
+export interface StaticUser {
 	id: string;
 	storeId: string;
 	name: string;
-	priceManager: boolean;
-};
+}
 
-export type StaticUser = {
-	id: string;
-	storeId: string;
-	name: string;
+export interface AppUser extends StaticUser {
 	priceManager: boolean;
-};
+}
 
 export type CalculatedItemPart = {
 	priceId: string;
@@ -49,22 +45,20 @@ type OrderBase = {
 	shortId: string;
 	storeId: string;
 	createdAt: Date;
-	userName: string;
 	amountPayed: number;
 	item: Item;
 	status: OrderStatus;
 	statusUpdated: Date;
 	hasArrow: boolean;
+	user: StaticUser;
 };
 
 export type Order = OrderBase & {
 	customer: Customer;
-	user: AppUser | StaticUser;
 };
 
 export type OrderFromList = OrderBase & {
 	customerId: string;
-	userId: string;
 };
 
 export type PPDimensions = {

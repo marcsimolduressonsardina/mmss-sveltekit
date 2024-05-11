@@ -244,7 +244,7 @@
 			<span class="text-md text-gray-700"
 				>Unidades: <span class="variant-ghost badge">{data.order.item.quantity}</span>
 			</span>
-			<span class="text-md text-gray-700">Dependiente: {data.order.userName}</span>
+			<span class="text-md text-gray-700">Dependiente: {data.order.user.name}</span>
 			<span class="text-md text-gray-700">
 				Fecha y hora: {DateTime.fromJSDate(data.order.createdAt).toFormat('dd/MM/yyyy HH:mm')}
 			</span>

@@ -74,7 +74,7 @@
 					/><br />
 				{/if}
 				Pedido: {OrderUtilites.getOrderPublicId(order)}<br />
-				<span>Dependiente: {order.userName}</span><br />
+				<span>Dependiente: {order.user.name}</span><br />
 				<span>Fecha: {DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy HH:mm')}</span>
 			</td>
 		</tr>

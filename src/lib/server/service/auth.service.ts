@@ -23,8 +23,7 @@ export class AuthService {
 		return {
 			id,
 			storeId,
-			name,
-			priceManager: false
+			name
 		};
 	}
 }
