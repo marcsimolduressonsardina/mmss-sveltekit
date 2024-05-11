@@ -52,7 +52,7 @@ export class OrderService {
 	async getOrdersByStatus(status: OrderStatus): Promise<Order[]> {
 		const orderDtos = await this.repository.getOrdersByStatus(status, this.storeId);
 		const customerIds = orderDtos.map((dto) => dto.customerUuid);
-		const customerMap = await this.customerService.getAllCustomersMap(customerIds)
+		const customerMap = await this.customerService.getAllCustomersMap(customerIds);
 		return orderDtos.map((o) => OrderService.fromDto(o, customerMap.get(o.customerUuid)!));
 	}
 
@@ -290,7 +290,7 @@ export class OrderService {
 				quantity,
 				createdAt: new Date(),
 				deliveryDate,
-				partsToCalculate: partsToCalculate,
+				partsToCalculate: OrderService.optimizePartsToCalculate(partsToCalculate),
 				exteriorWidth,
 				exteriorHeight
 			}
@@ -307,6 +307,21 @@ export class OrderService {
 		await this.repository.createOrder(OrderService.toDto(order));
 		await this.calculatedItemService.saveCalculatedItem(calculatedItem);
 		return order;
+	}
+
+	private static optimizePartsToCalculate(parts: PreCalculatedItemPart[]): PreCalculatedItemPart[] {
+		const map = new Map<string, PreCalculatedItemPart>();
+		parts.forEach((p) => {
+			const id = `${p.type}_${p.id}`;
+			if (map.has(id)) {
+				const existingPart = map.get(id)!;
+				p.quantity += existingPart.quantity;
+			}
+
+			map.set(id, p);
+		});
+
+		return Array.from(map.values());
 	}
 
 	private static generateShortId(order: Order): string {

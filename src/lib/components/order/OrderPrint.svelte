@@ -45,6 +45,19 @@
 
 	const extraColForDiscount = calculatedItem.discount > 0 ? 1 : 0;
 
+	function groupInPairs(arr: string[]): string[][] {
+		const result: string[][] = [];
+
+		for (let i = 0; i < arr.length; i += 2) {
+			const pair: string[] = [arr[i], arr[i + 1] || ''];
+			result.push(pair);
+		}
+
+		return result;
+	}
+
+	const bullCharacter = '\u2022';
+
 	onMount(() => {
 		if (print) {
 			setTimeout(() => {
@@ -135,9 +148,18 @@
 			</tr>
 			<tr>
 				<td colspan={4 + extraColForDiscount}>
-					{#each others as f}
-						{f}<br />
-					{/each}
+					<table class="internal-table">
+						{#each groupInPairs(others) as pair}
+							<tr>
+								<td> {bullCharacter} {pair[0]} </td>
+								<td>
+									{#if pair[1].length > 0}
+										{bullCharacter} {pair[1]}
+									{/if}
+								</td>
+							</tr>
+						{/each}
+					</table>
 				</td>
 			</tr>
 		{/if}
@@ -152,12 +174,19 @@
 		</tr>
 		<tr>
 			<td colspan={4 + extraColForDiscount}>
-				{#if order.item.observations.length > 0}
-					{order.item.observations}<br />
-				{/if}
-				{#each order.item.predefinedObservations as p}
-					- {p}<br />
-				{/each}
+				{order.item.observations}
+				<table class="internal-table">
+					{#each groupInPairs(order.item.predefinedObservations) as pair}
+						<tr>
+							<td> {bullCharacter} {pair[0]} </td>
+							<td>
+								{#if pair[1].length > 0}
+									{bullCharacter} {pair[1]}
+								{/if}
+							</td>
+						</tr>
+					{/each}
+				</table>
 			</td>
 		</tr>
 		<tr>
@@ -233,6 +262,11 @@
 		font-family: monospace;
 		font-size: smaller;
 		border-collapse: collapse;
+	}
+
+	.internal-table {
+		font-size: 11px;
+		width: 100%;
 	}
 
 	th {

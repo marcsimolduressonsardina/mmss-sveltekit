@@ -18,7 +18,10 @@ export class OrderUtilites {
 	public static getOrderMolds(order: Order): string[] {
 		return order.item.partsToCalculate
 			.filter((p) => p.type === PricingType.MOLD)
-			.map((p) => CalculatedItemUtilities.getMoldDescription(p.id));
+			.map(
+				(p) =>
+					`${CalculatedItemUtilities.getMoldDescription(p.id)} ${p.quantity > 1 ? 'x' + p.quantity : ''}`
+			);
 	}
 
 	public static getOrderElementByPricingType(
@@ -30,7 +33,7 @@ export class OrderUtilites {
 
 		return calculatedItem.parts
 			.filter((p) => ids.indexOf(p.priceId) > -1)
-			.map((p) => p.description);
+			.map((p) => `${p.description} ${p.quantity > 1 ? 'x' + p.quantity : ''}`);
 	}
 
 	public static getExtras(calculatedItem: CalculatedItem): string[] {
