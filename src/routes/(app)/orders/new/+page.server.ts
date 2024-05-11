@@ -19,7 +19,6 @@ export const load = (async ({ locals }) => {
 
 export const actions = {
 	async default({ request, locals }) {
-		const session = await locals.auth();
 		const appUser = await AuthUtilities.checkAuth(locals);
 		const form = await superValidate(request, zod(itemSchema));
 		console.log(form.errors);
@@ -53,7 +52,6 @@ export const actions = {
 				form.data.discount ?? 0,
 				form.data.hasArrow,
 				form.data.ppDimensions,
-				session?.user?.name,
 				form.data.exteriorWidth,
 				form.data.exteriorHeight
 			);

@@ -13,6 +13,11 @@ export class CustomerRepository extends DynamoRepository<CustomerDto> {
 		return dto;
 	}
 
+	public async getAllCustomers(storeId: string): Promise<CustomerDto[]> {
+		const dtos = await this.getByPartitionKey(storeId);
+		return dtos;
+	}
+
 	public async getCustomerByPhone(storeId: string, phone: string): Promise<CustomerDto | null> {
 		const dto = await this.get(storeId, phone);
 		return dto;

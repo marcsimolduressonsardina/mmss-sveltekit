@@ -2,6 +2,7 @@
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { Icon } from 'svelte-awesome';
 	import search from 'svelte-awesome/icons/search';
+	import { faList } from '@fortawesome/free-solid-svg-icons/faList';
 	import { superForm } from 'sveltekit-superforms';
 
 	export let data;
@@ -13,7 +14,7 @@
 	{#if $submitting}
 		<ProgressBar />
 	{:else}
-		<form use:enhance class="w-full space-y-2" method="post">
+		<form use:enhance class="mb-2 w-full space-y-2" method="post">
 			<label class="label" for="phone">
 				<span>Teléfono:</span>
 				<input
@@ -29,5 +30,8 @@
 				><Icon class="mr-2" data={search} /> Buscar</button
 			>
 		</form>
+		<a class="variant-filled btn w-full" href="/customers/list">
+			<Icon class="mr-2" data={faList} /> Ver listado
+		</a>
 	{/if}
 </div>

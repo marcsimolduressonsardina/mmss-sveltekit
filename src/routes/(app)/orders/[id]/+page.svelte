@@ -11,14 +11,14 @@
 	import { faTruckPickup } from '@fortawesome/free-solid-svg-icons/faTruckPickup';
 	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
 	import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint';
+	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
+	import { faUserLarge } from '@fortawesome/free-solid-svg-icons/faUserLarge';
 	import trash from 'svelte-awesome/icons/trash';
 
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import OrderId from '$lib/components/OrderId.svelte';
 	import { OrderUtilites, isOrderTemp, orderStatusMap } from '$lib/shared/order.utilities';
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import { OrderStatus } from '$lib/type/order.type';
-	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
 	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 	import { CustomerUtilites } from '$lib/shared/customer.utilities';
 
@@ -33,9 +33,13 @@
 	{:else if isOrderTemp(data.order)}
 		{goto(`/orders/${data.order.id}/link`)}
 	{:else}
-		<span class="pb-1 text-xl text-gray-700"
-			>{data.order.customer.name} | <OrderId order={data.order} /></span
-		>
+		<p class="pb-1 text-lg text-gray-700">
+			<Icon class="mr-1" data={faUserLarge} /> {data.order.customer.name}
+		</p>
+		<p class="pb-1 text-md text-gray-700">
+			<Icon class="mr-1" data={faBox} /> {OrderUtilites.getOrderPublicId(data.order)}
+		</p>
+
 		{#if !formLoading}
 			<div
 				class="flex w-full flex-col place-content-center items-center justify-center gap-1 md:grid md:grid-cols-2 lg:grid-cols-3"
@@ -244,7 +248,7 @@
 			<span class="text-md text-gray-700"
 				>Unidades: <span class="variant-ghost badge">{data.order.item.quantity}</span>
 			</span>
-			<span class="text-md text-gray-700">Dependiente: {data.order.userName}</span>
+			<span class="text-md text-gray-700">Dependiente: {data.order.user.name}</span>
 			<span class="text-md text-gray-700">
 				Fecha y hora: {DateTime.fromJSDate(data.order.createdAt).toFormat('dd/MM/yyyy HH:mm')}
 			</span>

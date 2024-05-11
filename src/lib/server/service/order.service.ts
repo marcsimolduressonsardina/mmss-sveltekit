@@ -6,13 +6,11 @@ import { OrderRepository } from '../repository/order.repository';
 import type {
 	Customer,
 	Order,
-	OrderFromList,
 	AppUser,
 	PreCalculatedItemPart,
 	CalculatedItemPart,
 	Item,
-	PPDimensions,
-	StaticUser
+	PPDimensions
 } from '$lib/type/api.type';
 import { CalculatedItemService } from './calculated-item.service';
 import type { ItemDto } from '../repository/dto/item.dto';
@@ -39,26 +37,23 @@ export class OrderService {
 	async getOrderById(orderId: string): Promise<Order | null> {
 		const orderDto = await this.repository.getOrderById(orderId);
 		if (orderDto && orderDto.storeId === this.storeId) {
-			const user = AuthService.generateStaticUser(
-				orderDto.userId,
-				orderDto.userName,
-				orderDto.storeId
-			);
 			const customer =
 				orderDto.customerUuid === tempCustomerUuid
 					? OrderService.getTempCustomer(this.storeId)
 					: await this.customerService.getCustomerById(orderDto.customerUuid);
-			if (customer && user) {
-				return OrderService.fromDto(orderDto, customer, user);
+			if (customer) {
+				return OrderService.fromDto(orderDto, customer);
 			}
 		}
 
 		return null;
 	}
 
-	async getOrdersByStatus(status: OrderStatus): Promise<OrderFromList[]> {
+	async getOrdersByStatus(status: OrderStatus): Promise<Order[]> {
 		const orderDtos = await this.repository.getOrdersByStatus(status, this.storeId);
-		return orderDtos.map((o) => OrderService.fromDtoToOrderList(o));
+		const customerIds = orderDtos.map((dto) => dto.customerUuid);
+		const customerMap = await this.customerService.getAllCustomersMap(customerIds);
+		return orderDtos.map((o) => OrderService.fromDto(o, customerMap.get(o.customerUuid)!));
 	}
 
 	async getOrdersByCustomerId(customerId: string): Promise<Order[] | null> {
@@ -225,12 +220,7 @@ export class OrderService {
 		if (orderDto) {
 			const publicCustomer = await CustomerService.getPublicCustomerForPublicOrder(orderDto);
 			if (publicCustomer == null) return null;
-			return OrderService.fromDto(orderDto, publicCustomer, {
-				id: 'public',
-				name: 'public',
-				storeId: orderDto.storeId,
-				priceManager: false
-			});
+			return OrderService.fromDto(orderDto, publicCustomer);
 		}
 
 		return null;
@@ -251,15 +241,7 @@ export class OrderService {
 	): Promise<Order[]> {
 		const filteredOrderDtos = orderDtos.filter((dto) => dto.storeId === this.storeId);
 		if (filteredOrderDtos.length > 0) {
-			const users = new Map<string, StaticUser>();
-			filteredOrderDtos.forEach((d) => {
-				if (!users.has(d.userId)) {
-					users.set(d.userId, AuthService.generateStaticUser(d.userId, d.userName, this.storeId));
-				}
-			});
-			const orders = filteredOrderDtos.map((dto) =>
-				OrderService.fromDto(dto, customer, users.get(dto.userId)!)
-			);
+			const orders = filteredOrderDtos.map((dto) => OrderService.fromDto(dto, customer));
 			return orders.sort(
 				(a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
 			);
@@ -293,7 +275,6 @@ export class OrderService {
 			createdAt: new Date(),
 			storeId: this.storeId,
 			user: this.currentUser,
-			userName: this.currentUser.name,
 			amountPayed: 0,
 			status: OrderStatus.PENDING,
 			statusUpdated: new Date(),
@@ -309,7 +290,7 @@ export class OrderService {
 				quantity,
 				createdAt: new Date(),
 				deliveryDate,
-				partsToCalculate: partsToCalculate,
+				partsToCalculate: OrderService.optimizePartsToCalculate(partsToCalculate),
 				exteriorWidth,
 				exteriorHeight
 			}
@@ -326,6 +307,21 @@ export class OrderService {
 		await this.repository.createOrder(OrderService.toDto(order));
 		await this.calculatedItemService.saveCalculatedItem(calculatedItem);
 		return order;
+	}
+
+	private static optimizePartsToCalculate(parts: PreCalculatedItemPart[]): PreCalculatedItemPart[] {
+		const map = new Map<string, PreCalculatedItemPart>();
+		parts.forEach((p) => {
+			const id = `${p.type}_${p.id}`;
+			if (map.has(id)) {
+				const existingPart = map.get(id)!;
+				p.quantity += existingPart.quantity;
+			}
+
+			map.set(id, p);
+		});
+
+		return Array.from(map.values());
 	}
 
 	private static generateShortId(order: Order): string {
@@ -359,32 +355,14 @@ export class OrderService {
 		}
 	}
 
-	private static fromDto(dto: OrderDto, customer: Customer, user: StaticUser): Order {
+	private static fromDto(dto: OrderDto, customer: Customer): Order {
 		return {
 			id: dto.uuid,
 			shortId: dto.shortId,
 			customer,
 			createdAt: new Date(dto.timestamp),
 			storeId: dto.storeId,
-			user,
-			userName: dto.userName,
-			amountPayed: dto.amountPayed,
-			item: OrderService.fromDtoItem(dto.item),
-			status: dto.status as OrderStatus,
-			statusUpdated: new Date(dto.statusTimestamp),
-			hasArrow: dto.hasArrow ?? false
-		};
-	}
-
-	private static fromDtoToOrderList(dto: OrderDto): OrderFromList {
-		return {
-			id: dto.uuid,
-			shortId: dto.shortId,
-			customerId: dto.userId,
-			createdAt: new Date(dto.timestamp),
-			storeId: dto.storeId,
-			userId: dto.userId,
-			userName: dto.userName,
+			user: AuthService.generateStaticUser(dto.userId, dto.userName, dto.storeId),
 			amountPayed: dto.amountPayed,
 			item: OrderService.fromDtoItem(dto.item),
 			status: dto.status as OrderStatus,
@@ -401,7 +379,7 @@ export class OrderService {
 			timestamp: Date.parse(order.createdAt.toISOString()),
 			storeId: order.storeId!,
 			userId: order.user.id,
-			userName: order.userName,
+			userName: order.user.name,
 			amountPayed: order.amountPayed,
 			item: OrderService.toDtoItem(order.item),
 			status: order.status,

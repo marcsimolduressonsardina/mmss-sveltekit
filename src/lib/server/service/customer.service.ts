@@ -28,6 +28,20 @@ export class CustomerService {
 		return null;
 	}
 
+	public async getAllCustomersMap(filterIds?: string[]): Promise<Map<string, Customer>> {
+		const map = new Map<string, Customer>();
+		const filterSet = new Set<string>(filterIds ?? []);
+		const dtos = await this.repository.getAllCustomers(this.storeId);
+		dtos.forEach((dto) => {
+			if (filterIds == null || filterSet.has(dto.uuid)) {
+				const customer = CustomerService.fromDto(dto);
+				map.set(customer.id, customer);
+			}
+		});
+
+		return map;
+	}
+
 	public async getCustomerByPhone(phone: string): Promise<Customer | null> {
 		const dto = await this.repository.getCustomerByPhone(this.storeId, phone);
 		return dto ? CustomerService.fromDto(dto) : null;

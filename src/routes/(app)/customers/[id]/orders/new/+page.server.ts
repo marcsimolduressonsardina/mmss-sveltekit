@@ -1,4 +1,3 @@
-import { AuthService } from '$lib/server/service/auth.service';
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { OrderService } from '$lib/server/service/order.service';
@@ -8,11 +7,10 @@ import { PricingType } from '$lib/type/pricing.type';
 import { InvalidSizeError } from '$lib/server/error/invalid-size.error';
 import { PricingHelper } from '$lib/server/shared/pricing/pricing.helper';
 import { itemSchema } from '$lib/shared/order.utilities';
+import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 
 export const load = (async ({ locals }) => {
-	const session = await locals.auth();
-	const appUser = AuthService.generateUserFromAuth(session?.user);
-	if (!appUser) throw redirect(303, '/auth/signin');
+	await AuthUtilities.checkAuth(locals);
 	const form = await superValidate(zod(itemSchema));
 	const pricing = PricingHelper.getPricing();
 
@@ -21,9 +19,7 @@ export const load = (async ({ locals }) => {
 
 export const actions = {
 	async default({ request, locals, params }) {
-		const session = await locals.auth();
-		const appUser = AuthService.generateUserFromAuth(session?.user);
-		if (!appUser) throw redirect(303, '/auth/signin');
+		const appUser = await AuthUtilities.checkAuth(locals);
 
 		const form = await superValidate(request, zod(itemSchema));
 		if (!form.valid) {
@@ -57,7 +53,6 @@ export const actions = {
 				form.data.discount,
 				form.data.hasArrow,
 				form.data.ppDimensions,
-				session?.user?.name,
 				form.data.exteriorWidth,
 				form.data.exteriorHeight
 			);
