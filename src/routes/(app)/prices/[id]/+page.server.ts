@@ -5,7 +5,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { PricingService } from '$lib/server/service/pricing.service.js';
 import { listPriceSchemaEdit, type EditablePricingTypes } from '$lib/shared/pricing.utilites';
 import type { ListPrice } from '$lib/type/api.type.js';
-import { AuthUtilities } from '$lib/shared/auth.utilites';
+import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 
 async function getListPrice(id: string): Promise<ListPrice> {
 	if (id == null) throw fail(400);
@@ -16,7 +16,7 @@ async function getListPrice(id: string): Promise<ListPrice> {
 }
 
 export const load = async ({ locals, params }) => {
-	await AuthUtilities.checkAuth(locals);
+	await AuthUtilities.checkAuth(locals, true);
 	const { id } = params;
 	const listPrice = await getListPrice(id);
 	const form = await superValidate(zod(listPriceSchemaEdit));

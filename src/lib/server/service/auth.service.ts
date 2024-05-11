@@ -1,39 +1,24 @@
-import type { AppUser } from '$lib/type/api.type';
-import type { User } from '@auth/sveltekit';
+import type { AppUser, CustomSession, StaticUser } from '$lib/type/api.type';
 
 export class AuthService {
-	public static generateUserFromAuth(user?: User): AppUser | undefined {
-		if (!user) return undefined;
-		return AuthService.generateUserFromId(user.email!);
-	}
-
-	public static generateUserFromId(id: string): AppUser | undefined {
-		const idParts = id.split('_');
-		if (idParts.length !== 2) {
-			return undefined;
-		}
-
-		const [storeId, name] = idParts;
-
-		if (storeId == null || name == null) {
-			return undefined;
-		}
-
+	public static generateUserFromAuth(session?: CustomSession): AppUser | undefined {
+		if (session == null) return undefined;
+		const user = session.user;
+		if (user == null || session.userMetadata.storeId == null) return undefined;
 		return {
-			id,
-			storeId,
-			name
+			id: user.id!,
+			name: user.name!,
+			storeId: session.userMetadata.storeId,
+			priceManager: session.userMetadata.priceManager ?? false
 		};
 	}
 
-	public static generateUsersFromIds(ids: Set<string>): Map<string, AppUser> {
-		const users = new Map<string, AppUser>();
-		Array.from(ids).forEach((id) => {
-			const user = AuthService.generateUserFromId(id);
-			if (user) {
-				users.set(id, user);
-			}
-		});
-		return users;
+	public static generateStaticUser(id: string, name: string, storeId: string): StaticUser {
+		return {
+			id,
+			storeId,
+			name,
+			priceManager: false
+		};
 	}
 }

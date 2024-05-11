@@ -4,7 +4,7 @@ import { OrderService } from '$lib/server/service/order.service';
 import { CalculatedItemService } from '$lib/server/service/calculated-item.service';
 import { OrderStatus } from '$lib/type/order.type';
 import type { Order } from '$lib/type/api.type';
-import { AuthUtilities } from '$lib/shared/auth.utilites';
+import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 
 async function setOrderStatus(
 	status: OrderStatus,

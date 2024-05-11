@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { CustomerService } from '$lib/server/service/customer.service';
 import { OrderService } from '$lib/server/service/order.service';
 import { OrderUtilites } from '$lib/shared/order.utilities';
-import { AuthUtilities } from '$lib/shared/auth.utilites';
+import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 
 const schema = z.object({
 	id: z.string().min(15).includes('/').includes('/')

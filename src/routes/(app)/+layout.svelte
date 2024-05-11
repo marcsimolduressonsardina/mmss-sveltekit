@@ -1,4 +1,5 @@
-<script>
+<script lang="ts">
+	import type { LayoutData } from './$types';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { Toast, storePopup, initializeStores } from '@skeletonlabs/skeleton';
 	import { AppBar, AppShell } from '@skeletonlabs/skeleton';
@@ -9,6 +10,8 @@
 	import { faCalculator } from '@fortawesome/free-solid-svg-icons/faCalculator';
 	initializeStores();
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
+
+	export let data: LayoutData;
 </script>
 
 <svelte:head>
@@ -23,7 +26,9 @@
 			</svelte:fragment>
 			MMSS
 			<svelte:fragment slot="trail">
-				<a href="/prices"><Icon data={faCalculator} /></a>
+				{#if data.canEditPricing}
+					<a href="/prices"><Icon data={faCalculator} /></a>
+				{/if}
 				<a href="/auth/signout?callbackUrl=/"><Icon data={faRightFromBracket} /></a>
 			</svelte:fragment>
 		</AppBar>
