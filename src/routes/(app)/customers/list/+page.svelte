@@ -1,14 +1,9 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import OrderCard from '$lib/components/OrderCard.svelte';
+	import type { Customer } from '$lib/type/api.type';
+	import { faUserLarge } from '@fortawesome/free-solid-svg-icons/faUserLarge';
 	import { Icon } from 'svelte-awesome';
-	import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
-	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
-	import { orderStatusMap } from '$lib/shared/order.utilities';
-	import { OrderStatus } from '$lib/type/order.type';
-	import type { Order } from '$lib/type/api.type';
 
 	export let data: PageData;
 	let searchValue = '';
@@ -18,11 +13,6 @@
 			.normalize('NFD')
 			.replace(/[\u0300-\u036f]/g, '')
 			.toLocaleLowerCase();
-	}
-
-	function getStatus(statusStr: string) {
-		const status = statusStr as OrderStatus;
-		return orderStatusMap[status];
 	}
 
 	function isWordPresent(inputString1: string, inputString2: string): boolean {
@@ -45,37 +35,20 @@
 		return false; // If no match is found, return false
 	}
 
-	function filterOrders(orders: Order[], search: string): Order[] {
+	function filterCustomers(customers: Customer[], search: string): Customer[] {
 		if (searchValue.length === 0) {
-			return orders;
+			return customers;
 		}
 
-		return orders.filter((o) => isWordPresent(search, o.item.description));
+		return customers.filter((c) => isWordPresent(search, c.name));
 	}
 </script>
 
+<div class="pl-3 pr-3 pt-3 text-lg font-medium">Todos los clientes</div>
 <div class="space flex w-full flex-col gap-1 p-3">
-	{#await data.orders}
+	{#await data.customers}
 		<ProgressBar />
-	{:then orders}
-		<span class="pb-1 text-xl font-medium text-gray-700">Pedidos {getStatus(data.status)}s</span>
-
-		<div
-			class="flex w-full flex-col place-content-center items-center justify-center gap-1 md:grid md:grid-cols-2"
-		>
-			<a
-				class="variant-ghost-primary btn btn-sm w-full"
-				href={`/orders/list?status=${OrderStatus.FINISHED}`}
-			>
-				<Icon class="mr-1" data={faCheck} /> Ver pedidos finalizados
-			</a>
-			<a
-				class="variant-ghost btn btn-sm w-full"
-				href={`/orders/list?status=${OrderStatus.PENDING}`}
-			>
-				<Icon class="mr-1" data={faClockRotateLeft} /> Ver pedidos pendientes
-			</a>
-		</div>
+	{:then customers}
 		<div
 			class="mb-3 mt-3 flex w-full flex-col place-content-center items-center justify-center gap-1"
 		>
@@ -83,13 +56,15 @@
 				bind:value={searchValue}
 				class="input"
 				type="text"
-				placeholder="Buscar en descripción..."
+				placeholder="Buscar por nombre..."
 			/>
 		</div>
 
 		<div class="flex w-full flex-col gap-1 lg:grid lg:grid-cols-4">
-			{#each filterOrders(orders, searchValue) as order}
-				<OrderCard {order} />
+			{#each filterCustomers(customers, searchValue) as customer}
+				<a class="variant-filled-warning btn" href={`/customers/${customer.id}`}>
+					<Icon class="mr-1" data={faUserLarge} />{customer.name}
+				</a>
 			{/each}
 		</div>
 	{/await}

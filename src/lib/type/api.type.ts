@@ -40,7 +40,7 @@ export type PreCalculatedItemPartRequest = {
 	height: number;
 };
 
-type OrderBase = {
+export type Order = {
 	id: string;
 	shortId: string;
 	storeId: string;
@@ -51,14 +51,7 @@ type OrderBase = {
 	statusUpdated: Date;
 	hasArrow: boolean;
 	user: StaticUser;
-};
-
-export type Order = OrderBase & {
 	customer: Customer;
-};
-
-export type OrderFromList = OrderBase & {
-	customerId: string;
 };
 
 export type PPDimensions = {

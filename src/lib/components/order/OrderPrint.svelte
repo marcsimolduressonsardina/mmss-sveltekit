@@ -104,7 +104,7 @@
 		<tr>
 			<th colspan={1 + extraColForDiscount}>Medidas</th>
 			<th>Uds</th>
-			<th colspan={1 + extraColForDiscount}>PP / Fondo</th>
+			<th colspan={2 + extraColForDiscount}>PP / Fondo</th>
 		</tr>
 		<tr>
 			<td colspan={1 + extraColForDiscount}>
@@ -116,7 +116,7 @@
 				{/if}
 			</td>
 			<td class="center-text"> {order.item.quantity} </td>
-			<td colspan={1 + extraColForDiscount}>
+			<td colspan={2 + extraColForDiscount}>
 				{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.PP) as pp}
 					{pp}<br />
 				{/each}

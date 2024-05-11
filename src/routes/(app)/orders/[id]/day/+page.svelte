@@ -42,7 +42,7 @@
 
 		<div class="flex w-full flex-col gap-1">
 			{#each orders as order (order.id)}
-				<OrderCard {order} />
+				<OrderCard {order} showCustomer={false} />
 			{/each}
 		</div>
 	{/await}
