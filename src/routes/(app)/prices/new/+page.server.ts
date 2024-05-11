@@ -4,17 +4,17 @@ import { zod } from 'sveltekit-superforms/adapters';
 
 import { PricingService } from '$lib/server/service/pricing.service.js';
 import { listPriceSchemaNew } from '$lib/shared/pricing.utilites';
-import { AuthUtilities } from '$lib/shared/auth.utilites';
+import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 
 export const load = async ({ locals }) => {
-	await AuthUtilities.checkAuth(locals);
+	await AuthUtilities.checkAuth(locals, true);
 	const form = await superValidate(zod(listPriceSchemaNew));
 	return { form };
 };
 
 export const actions = {
 	async default({ request, locals }) {
-		await AuthUtilities.checkAuth(locals);
+		await AuthUtilities.checkAuth(locals, true);
 
 		const form = await superValidate(request, zod(listPriceSchemaNew));
 		if (!form.valid) {

@@ -11,7 +11,8 @@ import type {
 	PreCalculatedItemPart,
 	CalculatedItemPart,
 	Item,
-	PPDimensions
+	PPDimensions,
+	StaticUser
 } from '$lib/type/api.type';
 import { CalculatedItemService } from './calculated-item.service';
 import type { ItemDto } from '../repository/dto/item.dto';
@@ -38,7 +39,11 @@ export class OrderService {
 	async getOrderById(orderId: string): Promise<Order | null> {
 		const orderDto = await this.repository.getOrderById(orderId);
 		if (orderDto && orderDto.storeId === this.storeId) {
-			const user = AuthService.generateUserFromId(orderDto.userId);
+			const user = AuthService.generateStaticUser(
+				orderDto.userId,
+				orderDto.userName,
+				orderDto.storeId
+			);
 			const customer =
 				orderDto.customerUuid === tempCustomerUuid
 					? OrderService.getTempCustomer(this.storeId)
@@ -92,7 +97,6 @@ export class OrderService {
 		discount: number = 0,
 		hasArrow: boolean = false,
 		ppDimensions?: PPDimensions,
-		authorName?: string | null,
 		exteriorWidth?: number,
 		exteriorHeight?: number
 	): Promise<Order | null> {
@@ -113,7 +117,6 @@ export class OrderService {
 			discount,
 			hasArrow,
 			ppDimensions,
-			authorName,
 			exteriorWidth,
 			exteriorHeight
 		);
@@ -134,7 +137,6 @@ export class OrderService {
 		discount: number = 0,
 		hasArrow: boolean = false,
 		ppDimensions?: PPDimensions,
-		authorName?: string | null,
 		exteriorWidth?: number,
 		exteriorHeight?: number
 	): Promise<Order> {
@@ -154,7 +156,6 @@ export class OrderService {
 			discount,
 			hasArrow,
 			ppDimensions,
-			authorName,
 			exteriorWidth,
 			exteriorHeight
 		);
@@ -227,7 +228,8 @@ export class OrderService {
 			return OrderService.fromDto(orderDto, publicCustomer, {
 				id: 'public',
 				name: 'public',
-				storeId: orderDto.storeId
+				storeId: orderDto.storeId,
+				priceManager: false
 			});
 		}
 
@@ -249,9 +251,12 @@ export class OrderService {
 	): Promise<Order[]> {
 		const filteredOrderDtos = orderDtos.filter((dto) => dto.storeId === this.storeId);
 		if (filteredOrderDtos.length > 0) {
-			const users = AuthService.generateUsersFromIds(
-				new Set(filteredOrderDtos.map((dto) => dto.userId))
-			);
+			const users = new Map<string, StaticUser>();
+			filteredOrderDtos.forEach((d) => {
+				if (!users.has(d.userId)) {
+					users.set(d.userId, AuthService.generateStaticUser(d.userId, d.userName, this.storeId));
+				}
+			});
 			const orders = filteredOrderDtos.map((dto) =>
 				OrderService.fromDto(dto, customer, users.get(dto.userId)!)
 			);
@@ -278,7 +283,6 @@ export class OrderService {
 		discount: number = 0,
 		hasArrow: boolean = false,
 		ppDimensions?: PPDimensions,
-		authorName?: string | null,
 		exteriorWidth?: number,
 		exteriorHeight?: number
 	): Promise<Order> {
@@ -289,7 +293,7 @@ export class OrderService {
 			createdAt: new Date(),
 			storeId: this.storeId,
 			user: this.currentUser,
-			userName: authorName != null ? authorName : undefined,
+			userName: this.currentUser.name,
 			amountPayed: 0,
 			status: OrderStatus.PENDING,
 			statusUpdated: new Date(),
@@ -355,7 +359,7 @@ export class OrderService {
 		}
 	}
 
-	private static fromDto(dto: OrderDto, customer: Customer, user: AppUser): Order {
+	private static fromDto(dto: OrderDto, customer: Customer, user: StaticUser): Order {
 		return {
 			id: dto.uuid,
 			shortId: dto.shortId,

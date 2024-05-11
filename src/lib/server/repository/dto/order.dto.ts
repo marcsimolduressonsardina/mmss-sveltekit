@@ -7,7 +7,7 @@ export type OrderDto = {
 	timestamp: number;
 	storeId: string;
 	userId: string;
-	userName?: string;
+	userName: string;
 	amountPayed: number;
 	item: ItemDto;
 	status: string;

@@ -4,7 +4,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 
 import { CustomerService } from '$lib/server/service/customer.service';
 import { customerSchema } from '$lib/shared/customer.utilities';
-import { AuthUtilities } from '$lib/shared/auth.utilites';
+import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 
 export const load = async ({ url, locals }) => {
 	await AuthUtilities.checkAuth(locals);

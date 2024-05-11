@@ -1,7 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { OrderService } from '$lib/server/service/order.service';
 import { CalculatedItemService } from '$lib/server/service/calculated-item.service';
-import { AuthUtilities } from '$lib/shared/auth.utilites';
+import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 
 export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);

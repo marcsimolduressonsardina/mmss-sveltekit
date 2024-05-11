@@ -1,5 +1,5 @@
 import { OrderService } from '$lib/server/service/order.service';
-import { AuthUtilities } from '$lib/shared/auth.utilites';
+import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { OrderStatus } from '$lib/type/order.type';
 import type { PageServerLoad } from './$types';
 

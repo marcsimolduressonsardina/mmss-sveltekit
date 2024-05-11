@@ -1,4 +1,4 @@
-import type { PreCalculatedItemPartRequest } from '$lib/type/api.type';
+import type { CustomSession, PreCalculatedItemPartRequest } from '$lib/type/api.type';
 import { json } from '@sveltejs/kit';
 import { CalculatedItemService } from '$lib/server/service/calculated-item.service';
 import { AuthService } from '$lib/server/service/auth.service';
@@ -8,7 +8,7 @@ const calculatedItemService = new CalculatedItemService();
 
 export async function POST({ request, locals }) {
 	const session = await locals.auth();
-	const appUser = AuthService.generateUserFromAuth(session?.user);
+	const appUser = AuthService.generateUserFromAuth(session as CustomSession);
 	if (!appUser) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}

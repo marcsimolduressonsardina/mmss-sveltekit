@@ -6,7 +6,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { isOrderTemp } from '$lib/shared/order.utilities';
 import { fail, redirect } from '@sveltejs/kit';
 import { CustomerService } from '$lib/server/service/customer.service';
-import { AuthUtilities } from '$lib/shared/auth.utilites';
+import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 
 export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);

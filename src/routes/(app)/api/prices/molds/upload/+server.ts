@@ -1,13 +1,14 @@
 import { json } from '@sveltejs/kit';
 import { AuthService } from '$lib/server/service/auth.service';
 import { MoldPriceLoader } from '$lib/server/data/mold-price.loader';
+import type { CustomSession } from '$lib/type/api.type.js';
 
 const moldPriceLoader = new MoldPriceLoader();
 
 export async function GET({ locals }) {
 	const session = await locals.auth();
-	const appUser = AuthService.generateUserFromAuth(session?.user);
-	if (!appUser) {
+	const appUser = AuthService.generateUserFromAuth(session as CustomSession);
+	if (!appUser || !appUser.priceManager) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
@@ -17,8 +18,8 @@ export async function GET({ locals }) {
 
 export async function POST({ request, locals }) {
 	const session = await locals.auth();
-	const appUser = AuthService.generateUserFromAuth(session?.user);
-	if (!appUser) {
+	const appUser = AuthService.generateUserFromAuth(session as CustomSession);
+	if (!appUser || !appUser.priceManager) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
 

@@ -1,4 +1,5 @@
 import type { OrderStatus } from './order.type';
+import type { Session } from '@auth/core/types';
 import type { PricingFormula, PricingType } from './pricing.type';
 
 export type Customer = {
@@ -12,6 +13,14 @@ export type AppUser = {
 	id: string;
 	storeId: string;
 	name: string;
+	priceManager: boolean;
+};
+
+export type StaticUser = {
+	id: string;
+	storeId: string;
+	name: string;
+	priceManager: boolean;
 };
 
 export type CalculatedItemPart = {
@@ -40,7 +49,7 @@ type OrderBase = {
 	shortId: string;
 	storeId: string;
 	createdAt: Date;
-	userName?: string;
+	userName: string;
 	amountPayed: number;
 	item: Item;
 	status: OrderStatus;
@@ -50,7 +59,7 @@ type OrderBase = {
 
 export type Order = OrderBase & {
 	customer: Customer;
-	user: AppUser;
+	user: AppUser | StaticUser;
 };
 
 export type OrderFromList = OrderBase & {
@@ -107,3 +116,14 @@ export type ListPrice = {
 	maxD1?: number;
 	maxD2?: number;
 };
+
+export type UserMetadata = {
+	priceManager?: boolean;
+	storeId?: string;
+};
+
+export type WithMetadata = {
+	userMetadata: UserMetadata;
+};
+
+export type CustomSession = WithMetadata & Session;

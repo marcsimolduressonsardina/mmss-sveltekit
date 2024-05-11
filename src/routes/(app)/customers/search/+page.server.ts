@@ -4,7 +4,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 
 import { CustomerService } from '$lib/server/service/customer.service';
-import { AuthUtilities } from '$lib/shared/auth.utilites';
+import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 
 const schema = z.object({
 	phone: z.string().min(9).default('+34')

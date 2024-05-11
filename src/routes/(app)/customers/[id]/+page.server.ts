@@ -1,5 +1,5 @@
 import { CustomerService } from '$lib/server/service/customer.service';
-import { AuthUtilities } from '$lib/shared/auth.utilites';
+import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ params, locals }) => {

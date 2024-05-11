@@ -4,7 +4,6 @@
 	import { PricingType } from '$lib/type/pricing.type';
 	import { DateTime } from 'luxon';
 	import Qr from '$lib/components/Qr.svelte';
-	import mmlogo from '$lib/assets/mmlogo.png';
 	import type { CalculatedItem, Order } from '$lib/type/api.type';
 	import { OrderStatus } from '$lib/type/order.type';
 	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
@@ -68,7 +67,11 @@
 			</td>
 			<td colspan={3 + extraColForDiscount} class="center-text">
 				{#if isForCustomer}
-					<img class="logo" src={mmlogo} alt="logo" /><br />
+					<img
+						class="logo"
+						src="https://marcsimoldures.com/wp-content/uploads/2017/02/MMlogo111.png"
+						alt="logo"
+					/><br />
 				{/if}
 				Pedido: {OrderUtilites.getOrderPublicId(order)}<br />
 				<span>Dependiente: {order.userName}</span><br />
