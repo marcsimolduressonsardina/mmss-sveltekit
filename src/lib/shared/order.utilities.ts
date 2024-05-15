@@ -58,9 +58,11 @@ export class OrderUtilites {
 	}
 
 	public static getWhatsappFinishedText(orders: Order[]): string {
+		const greeting =
+			'Nuestro horario es de lunes a viernes de 09:00 a 18:00 y los sábados de 09:30 a 13:15. Marcs i Moldures Son Sardina.';
 		if (orders.length === 1) {
 			const url = `${PUBLIC_DOMAIN_URL}/s/${orders[0].shortId}`;
-			return `Hemos terminado su pedido ${OrderUtilites.getOrderPublicId(orders[0])}, puede pasar a buscarlo. Aquí tiene el resguardo ${url} . Marcs i Moldures Son Sardina.`;
+			return `Hemos terminado su pedido ${OrderUtilites.getOrderPublicId(orders[0])}, puede pasar a buscarlo. Aquí tiene el resguardo ${url} . ${greeting}`;
 		} else {
 			const orderLines = orders
 				.map(
@@ -69,7 +71,7 @@ export class OrderUtilites {
 				)
 				.join('\n');
 
-			return `Hemos terminado sus pedidos:\n${orderLines}\nPuede pasar a buscarlos. Marcs i Moldures Son Sardina.`;
+			return `Hemos terminado sus pedidos:\n${orderLines}\nPuede pasar a buscarlos. ${greeting}`;
 		}
 	}
 

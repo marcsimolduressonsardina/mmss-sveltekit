@@ -68,11 +68,6 @@
 </script>
 
 <main>
-	{#if isForCustomer}
-		<div class="customer-title">
-			<span>Copia para el cliente</span>
-		</div>
-	{/if}
 	<table border="1" cellpadding="4" style="">
 		<tr>
 			<td colspan="1" class="center-text">
@@ -233,6 +228,13 @@
 			</tr>
 		{/if}
 	</table>
+	{#if isForCustomer}
+		<div class="customer-text">
+			<p class="customer-bottom">Polígono de Son Rossinyol - Gremi Hortolans 19 - +34 971666920</p>
+			<p class="customer-bottom">www.marcsimoldures.com - mmss@marcsimoldures.com</p>
+			<p class="customer-bottom">Horario de lunes a viernes de 09:00 a 18:00, sábados de 09:30 a 13:15</p>
+		</div>
+	{/if}
 </main>
 
 <style>
@@ -253,15 +255,26 @@
 			print-color-adjust: exact;
 		}
 	}
-	.customer-title {
+
+	.customer-text {
 		font-family: sans-serif;
-		padding-bottom: 5px;
+		font-size: x-small;
+	}
+
+	.customer-bottom {
+		margin: 0;
+		text-align: center;
+	}
+
+	.customer-title {
+		padding-bottom: 3px;
 	}
 
 	table {
 		font-family: monospace;
 		font-size: smaller;
 		border-collapse: collapse;
+		margin: 0 auto;
 	}
 
 	.internal-table {
