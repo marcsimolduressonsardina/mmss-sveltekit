@@ -24,7 +24,7 @@
 			<svelte:fragment slot="lead">
 				<a href="/"><Icon data={home} /></a>
 			</svelte:fragment>
-			{data.user.name}
+			Marcos App
 			<svelte:fragment slot="trail">
 				{#if data.user.priceManager}
 					<a href="/prices"><Icon data={faCalculator} /></a>
