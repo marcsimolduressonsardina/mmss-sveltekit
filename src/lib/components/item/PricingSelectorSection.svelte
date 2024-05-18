@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PricingType } from '$lib/type/pricing.type';
+	import { PricingType } from '$lib/type/pricing.type';
 	import Icon from 'svelte-awesome';
 	import plus from 'svelte-awesome/icons/plus';
 	import Spacer from './Spacer.svelte';
@@ -27,16 +27,7 @@
 	}
 
 	let defaultPrices = prices.filter((p) => p.priority > 0).sort((a, b) => b.priority - a.priority);
-	let normalPrices = prices.filter((p) => p.priority === 0);
-	let firstPrice: ListPrice;
-	if (defaultPrices.length > 0) {
-		firstPrice = defaultPrices[0];
-		defaultPrices = defaultPrices.slice(1);
-		selectedId = firstPrice.id;
-	}
-
-	console.log(defaultPrices);
-
+	let normalPrices = prices.filter((p) => p.priority === 0 || p.priority == null);
 	$: isButtonDisabled = !selectedId;
 </script>
 
@@ -51,19 +42,11 @@
 			bind:this={idElementInput}
 			class:input-success={added}
 		>
-			{#if firstPrice}
-				<option value={firstPrice.id}>{getSelectLabel(firstPrice)}</option>
-			{:else}
-				<option></option>
-			{/if}
+			{#each defaultPrices as price}
+				<option value={price.id}>{getSelectLabel(price)}</option>
+			{/each}
 
-			{#if defaultPrices.length > 0}
-				{#each defaultPrices as price}
-					<option value={price.id}>{getSelectLabel(price)}</option>
-				{/each}
-				<option></option>
-			{/if}
-
+			<option></option>
 			{#each normalPrices as price}
 				<option value={price.id}>{getSelectLabel(price)}</option>
 			{/each}
