@@ -7,7 +7,7 @@ import type { WithMetadata, UserMetadata } from '$lib/type/api.type';
 
 const providers: Provider[] = [Auth0];
 
-export const { handle } = SvelteKitAuth({
+const { handle } = SvelteKitAuth({
 	providers,
 	theme: {
 		colorScheme: 'light',
@@ -29,3 +29,5 @@ export const { handle } = SvelteKitAuth({
 	trustHost: true,
 	debug: AUTH_DEBUG === 'debug'
 });
+
+export const authHandle = handle
