@@ -34,10 +34,12 @@
 		{goto(`/orders/${data.order.id}/link`)}
 	{:else}
 		<p class="pb-1 text-lg text-gray-700">
-			<Icon class="mr-1" data={faUserLarge} /> {data.order.customer.name}
+			<Icon class="mr-1" data={faUserLarge} />
+			{data.order.customer.name}
 		</p>
-		<p class="pb-1 text-md text-gray-700">
-			<Icon class="mr-1" data={faBox} /> {OrderUtilites.getOrderPublicId(data.order)}
+		<p class="text-md pb-1 text-gray-700">
+			<Icon class="mr-1" data={faBox} />
+			{OrderUtilites.getOrderPublicId(data.order)}
 		</p>
 
 		{#if !formLoading}
@@ -246,30 +248,38 @@
 			<Spacer title={`Datos del pedido ${data.order.hasArrow ? '⬇︎' : ''}`} />
 
 			<span class="text-md text-gray-700"
-				>Unidades: <span class="variant-ghost badge">{data.order.item.quantity}</span>
-			</span>
-			<span class="text-md text-gray-700">Dependiente: {data.order.user.name}</span>
+				><span class="font-semibold">Dependiente:</span> {data.order.user.name}</span
+			>
 			<span class="text-md text-gray-700">
-				Fecha y hora: {DateTime.fromJSDate(data.order.createdAt).toFormat('dd/MM/yyyy HH:mm')}
-			</span>
-			<span class="text-md text-gray-700">
-				Fecha de recogida: {DateTime.fromJSDate(data.order.item.deliveryDate).toFormat(
-					'dd/MM/yyyy'
-				)}
+				<span class="font-semibold">Fecha y hora:</span>
+				{DateTime.fromJSDate(data.order.createdAt).toFormat('dd/MM/yyyy HH:mm')}
 			</span>
 			<span class="text-md text-gray-700">
-				Medidas de la obra: {`${data.order.item.height}x${data.order.item.width} cm`}
+				<span class="font-semibold">Fecha de recogida:</span>
+				{DateTime.fromJSDate(data.order.item.deliveryDate).toFormat('dd/MM/yyyy')}
 			</span>
 			<span class="text-md text-gray-700">
-				Medidas de trabajo: {OrderUtilites.getWorkingDimensions(data.order)}
+				<span class="font-semibold">Medidas de la obra:</span>
+				{`${data.order.item.height}x${data.order.item.width} cm`}
+			</span>
+			<span class="text-md text-gray-700">
+				<span class="font-semibold">Medidas de trabajo:</span>
+				{OrderUtilites.getWorkingDimensions(data.order)}
 			</span>
 			{#if data.order.item.exteriorHeight || data.order.item.exteriorWidth}
 				<span class="text-md text-gray-700">
-					Medidas exteriores del marco: {`${data.order.item.exteriorHeight}x${data.order.item.exteriorWidth} cm`}
+					<span class="font-semibold">Medidas exteriores del marco:</span>
+					{`${data.order.item.exteriorHeight}x${data.order.item.exteriorWidth} cm`}
 				</span>
 			{/if}
-			<span class="text-md text-gray-700"> Descripción: {data.order.item.description} </span>
-			<span class="text-md text-gray-700"> Observaciones: {data.order.item.observations} </span>
+			<span class="text-md text-gray-700">
+				<span class="font-semibold">Descripción:</span>
+				{data.order.item.description}
+			</span>
+			<span class="text-md text-gray-700">
+				<span class="font-semibold">Observaciones:</span>
+				{data.order.item.observations}
+			</span>
 			{#each data.order.item.predefinedObservations as obv}
 				<span class="text-md text-gray-700">- {obv}</span>
 			{/each}
@@ -285,6 +295,9 @@
 					</span>
 				{/each}
 				{#if data.calculatedItem.quantity > 1}
+					<span class="text-md text-gray-700"
+						>Unidades: <span class="variant-ghost badge">{data.order.item.quantity}</span>
+					</span>
 					<span class="text-md text-gray-700">
 						Precio unitario: <span class="variant-ghost badge">
 							{CalculatedItemUtilities.getUnitPriceWithoutDiscount(data.calculatedItem)} €
