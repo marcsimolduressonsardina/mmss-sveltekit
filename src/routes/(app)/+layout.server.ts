@@ -3,5 +3,5 @@ import type { LayoutServerLoad } from './$types';
 
 export const load = (async ({ locals }) => {
 	const user = await AuthUtilities.checkAuth(locals);
-	return { canEditPricing: user.priceManager };
+	return { user };
 }) satisfies LayoutServerLoad;

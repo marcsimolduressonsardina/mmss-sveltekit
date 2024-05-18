@@ -24,9 +24,9 @@
 			<svelte:fragment slot="lead">
 				<a href="/"><Icon data={home} /></a>
 			</svelte:fragment>
-			MMSS
+			{data.user.name}
 			<svelte:fragment slot="trail">
-				{#if data.canEditPricing}
+				{#if data.user.priceManager}
 					<a href="/prices"><Icon data={faCalculator} /></a>
 				{/if}
 				<a href="/auth/signout?callbackUrl=/"><Icon data={faRightFromBracket} /></a>
