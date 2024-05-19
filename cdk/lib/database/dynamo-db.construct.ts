@@ -15,6 +15,7 @@ function createCustomerTable(scope: Construct, envName: string): Table {
 	return addUuidGsi(
 		createTable(
 			scope,
+			envName,
 			`${envName}-customer`,
 			{
 				name: 'storeId',
@@ -32,6 +33,7 @@ function createOrderTable(scope: Construct, envName: string): Table {
 	const table = addUuidGsi(
 		createTable(
 			scope,
+			envName,
 			`${envName}-order`,
 			{
 				name: 'customerUuid',
@@ -71,6 +73,7 @@ function createListPricingTable(scope: Construct, envName: string): Table {
 	return addUuidGsi(
 		createTable(
 			scope,
+			envName,
 			`${envName}-list-pricing`,
 			{
 				name: 'type',
@@ -85,7 +88,7 @@ function createListPricingTable(scope: Construct, envName: string): Table {
 }
 
 function createCalculatedItemOrderTable(scope: Construct, envName: string): Table {
-	return createTable(scope, `${envName}-calculated-item-order`, {
+	return createTable(scope, envName, `${envName}-calculated-item-order`, {
 		name: 'orderUuid',
 		type: AttributeType.STRING
 	});
@@ -93,6 +96,7 @@ function createCalculatedItemOrderTable(scope: Construct, envName: string): Tabl
 
 function createTable(
 	scope: Construct,
+	envName: string,
 	tableName: string,
 	partitionKey: Attribute,
 	sortKey?: Attribute
@@ -101,7 +105,8 @@ function createTable(
 		tableName,
 		partitionKey,
 		sortKey,
-		billingMode: BillingMode.PAY_PER_REQUEST
+		billingMode: BillingMode.PAY_PER_REQUEST,
+		pointInTimeRecovery: envName === 'prod'
 	});
 }
 
