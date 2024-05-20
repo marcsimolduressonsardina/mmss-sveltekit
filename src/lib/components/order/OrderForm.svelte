@@ -366,9 +366,9 @@
 		ppDimensions?: PPDimensions
 	) {
 		const { totalWidth, totalHeight } = CalculatedItemUtilities.getTotalDimensions(
-			width,
-			height,
-			pp,
+			isNaN(width) ? 0 : width,
+			isNaN(height) ? 0 : height,
+			isNaN(pp) ? 0 : pp,
 			ppDimensions
 		);
 
@@ -537,7 +537,7 @@
 				added={addedPP}
 			/>
 
-			<Spacer title={'Medidas totales del marco'} />
+			<Spacer title={'Medidas de trabajo'} />
 
 			<div class="grid grid-cols-1 lg:col-span-2">
 				<div class="rounded-md border-2 border-gray-300 p-4">
@@ -791,16 +791,19 @@
 			</label>
 
 			<label class="label" for="discount">
-				<span>Descuento (%):</span>
-				<input
-					class="input {$errors.discount ? 'input-error' : ''}"
-					type="number"
-					step="0.01"
-					min="0"
-					max="100"
+				<span>Descuento:</span>
+				<select
 					name="discount"
+					class="select {$errors.discount ? 'input-error' : ''}"
 					bind:value={$form.discount}
-				/>
+				>
+					<option value="0">0</option>
+					<option value="10">1</option>
+					<option value="15">2</option>
+					<option value="20">3</option>
+					<option value="25">4</option>
+					<option value="50">5</option>
+				</select>
 			</label>
 
 			<label class="label flex items-center space-x-2" for="hasArrow">

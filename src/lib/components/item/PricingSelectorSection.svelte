@@ -28,6 +28,10 @@
 
 	let defaultPrices = prices.filter((p) => p.priority > 0).sort((a, b) => b.priority - a.priority);
 	let normalPrices = prices.filter((p) => p.priority === 0 || p.priority == null);
+	if (defaultPrices.length > 0) {
+		selectedId = defaultPrices[0].id;
+	}
+
 	$: isButtonDisabled = !selectedId;
 </script>
 

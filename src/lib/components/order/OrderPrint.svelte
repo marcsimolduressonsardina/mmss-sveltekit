@@ -10,7 +10,6 @@
 
 	export let order: Order;
 	export let calculatedItem: CalculatedItem;
-	export let isForCustomer: boolean;
 	export let print: boolean = false;
 
 	const others = [
@@ -71,20 +70,37 @@
 	<table border="1" cellpadding="4" style="">
 		<tr>
 			<td colspan="1" class="center-text">
-				<Qr size={85} qrData={order.id}></Qr><br />
+				<Qr size={85} qrData={order.id}></Qr>
+				<div class="customer-text">
+					<p class="customer-bottom">{OrderUtilites.getOrderPublicId(order)}</p>
+				</div>
 			</td>
 			<td colspan={3 + extraColForDiscount} class="center-text">
-				{#if isForCustomer}
-					<img
-						class="logo"
-						src="https://marcsimoldures.com/wp-content/uploads/2017/02/MMlogo111.png"
-						alt="logo"
-					/><br />
-				{/if}
-				Pedido: {OrderUtilites.getOrderPublicId(order)}<br />
-				<span>Dependiente: {order.user.name}</span><br />
-				<span>Fecha: {DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy HH:mm')}</span>
+				<img
+					class="logo"
+					src="https://marcsimoldures.com/wp-content/uploads/2017/02/MMlogo111.png"
+					alt="logo"
+				/>
+				<div class="customer-text">
+					<p class="customer-bottom">
+						Polígono de Son Rossinyol - Gremi Hortolans 19 - +34 971666920
+					</p>
+					<p class="customer-bottom">www.marcsimoldures.com - mmss@marcsimoldures.com</p>
+					<p class="customer-bottom">Horario de lunes a viernes de 09:00 a 18:00,</p>
+					<p class="customer-bottom">sábados de 09:30 a 13:15</p>
+				</div>
 			</td>
+		</tr>
+
+		<tr>
+			<th colspan="3">Dependiente</th>
+			<th colspan={1 + extraColForDiscount}>Fecha y hora</th>
+		</tr>
+		<tr>
+			<td colspan="3">{order.user.name}</td>
+			<td colspan={1 + extraColForDiscount}
+				>{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy HH:mm')}</td
+			>
 		</tr>
 
 		<tr>
@@ -228,13 +244,15 @@
 			</tr>
 		{/if}
 	</table>
-	{#if isForCustomer}
-		<div class="customer-text">
-			<p class="customer-bottom">Polígono de Son Rossinyol - Gremi Hortolans 19 - +34 971666920</p>
-			<p class="customer-bottom">www.marcsimoldures.com - mmss@marcsimoldures.com</p>
-			<p class="customer-bottom">Horario de lunes a viernes de 09:00 a 18:00, sábados de 09:30 a 13:15</p>
-		</div>
-	{/if}
+	<div class="customer-text">
+		<p class="customer-bottom">
+			Una vez pasados <strong>15 días desde la fecha estipulada de entrega</strong>, la empresa <strong>no se hará cargo del
+			material.</strong>
+		</p>
+		<p class="customer-bottom">
+			<strong>Sin el justificante no se hará entrega del material.</strong>
+		</p>
+	</div>
 </main>
 
 <style>
@@ -264,10 +282,6 @@
 	.customer-bottom {
 		margin: 0;
 		text-align: center;
-	}
-
-	.customer-title {
-		padding-bottom: 3px;
 	}
 
 	table {

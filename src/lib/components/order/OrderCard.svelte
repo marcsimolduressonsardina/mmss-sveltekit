@@ -7,9 +7,10 @@
 	import { faSignHanging } from '@fortawesome/free-solid-svg-icons/faSignHanging';
 	import { faTruck } from '@fortawesome/free-solid-svg-icons/faTruck';
 	import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
+	import { faChain } from '@fortawesome/free-solid-svg-icons/faChain';
 	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
 	import { faUserLarge } from '@fortawesome/free-solid-svg-icons/faUserLarge';
-	import { OrderUtilites, orderStatusMap } from '$lib/shared/order.utilities';
+	import { OrderUtilites, orderStatusMap, tempCustomerUuid } from '$lib/shared/order.utilities';
 	import { OrderStatus } from '$lib/type/order.type';
 
 	export let order: Order;
@@ -17,7 +18,7 @@
 </script>
 
 <div
-	class="w-full rounded-lg bg-gray-300 p-3 md:p-5 shadow-sm"
+	class="w-full rounded-lg bg-gray-300 p-3 shadow-sm md:p-5"
 	class:bg-gray-300={OrderStatus.PENDING === order.status}
 	class:bg-lime-300={OrderStatus.FINISHED === order.status}
 	class:bg-blue-300={OrderStatus.PICKED_UP === order.status}
@@ -38,10 +39,17 @@
 			{DateTime.fromJSDate(order.item.createdAt).toFormat('dd/MM/yyyy HH:mm')}
 		</span>
 
-		{#if showCustomer}
+		{#if showCustomer && order.customer.id !== tempCustomerUuid}
 			<span class="variant-ghost-tertiary badge">
 				<Icon class="mr-1" data={faUserLarge} />
 				{order.customer.name}
+			</span>
+		{/if}
+
+		{#if order.customer.id === tempCustomerUuid}
+			<span class="variant-ghost-error badge">
+				<Icon class="mr-1" data={faUserLarge} />
+				Pedido sin vincular
 			</span>
 		{/if}
 
@@ -55,7 +63,11 @@
 
 	<div>
 		<button class="variant-filled btn btn-sm mt-1" on:click={() => goto(`/orders/${order.id}`)}>
-			<Icon class="mr-1" data={faEye} /> Ver pedido
+			{#if order.customer.id === tempCustomerUuid}
+				<Icon class="mr-1" data={faChain} /> Vincular pedido
+			{:else}
+				<Icon class="mr-1" data={faEye} /> Ver pedido
+			{/if}
 		</button>
 	</div>
 </div>

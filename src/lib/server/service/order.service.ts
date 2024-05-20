@@ -53,6 +53,7 @@ export class OrderService {
 		const orderDtos = await this.repository.getOrdersByStatus(status, this.storeId);
 		const customerIds = orderDtos.map((dto) => dto.customerUuid);
 		const customerMap = await this.customerService.getAllCustomersMap(customerIds);
+		customerMap.set(tempCustomerUuid, OrderService.getTempCustomer(this.storeId));
 		return orderDtos.map((o) => OrderService.fromDto(o, customerMap.get(o.customerUuid)!));
 	}
 
