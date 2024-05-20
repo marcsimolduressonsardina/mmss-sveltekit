@@ -50,13 +50,7 @@
 					class="variant-ghost-warning btn btn-sm w-full"
 					target="_blank"
 					href={`/orders/${data.order.id}/print`}
-					><Icon class="mr-1" data={faPrint} /> Imprimir resguardo para taller
-				</a>
-				<a
-					class="variant-ghost-secondary btn btn-sm w-full"
-					target="_blank"
-					href={`/s/${data.order.shortId}?print=1`}
-					><Icon class="mr-1" data={faPrint} /> Imprimir resguardo para cliente
+					><Icon class="mr-1" data={faPrint} /> Imprimir
 				</a>
 				{#if data.order.amountPayed === data.calculatedItem?.total}
 					<form

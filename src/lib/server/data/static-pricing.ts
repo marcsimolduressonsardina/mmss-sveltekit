@@ -16,7 +16,7 @@ export function getFabricPrice(d1: number, d2: number): number {
 }
 
 export function getCrossbarPrice(mPrice: number, d1: number): number {
-	const x = (d1 / 100) * mPrice + 1;
+	const x = (d1 / 100) * mPrice + 3;
 	return Math.ceil(x * 100) / 100;
 }
 

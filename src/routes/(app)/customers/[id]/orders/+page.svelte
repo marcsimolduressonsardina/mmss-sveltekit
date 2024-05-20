@@ -2,7 +2,7 @@
 	import type { PageData } from './$types';
 
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import OrderCard from '$lib/components/OrderCard.svelte';
+	import OrderCard from '$lib/components/order/OrderCard.svelte';
 
 	export let data: PageData;
 </script>

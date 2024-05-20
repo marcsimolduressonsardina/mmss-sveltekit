@@ -2,7 +2,7 @@
 	import type { PageData } from './$types';
 
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import OrderCard from '$lib/components/OrderCard.svelte';
+	import OrderCard from '$lib/components/order/OrderCard.svelte';
 	import { Icon } from 'svelte-awesome';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
 	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';

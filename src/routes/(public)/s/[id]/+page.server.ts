@@ -3,9 +3,8 @@ import { OrderService } from '$lib/server/service/order.service';
 import { CalculatedItemService } from '$lib/server/service/calculated-item.service';
 import { redirect } from '@sveltejs/kit';
 
-export const load = (async ({ params, url }) => {
+export const load = (async ({ params }) => {
 	const { id } = params as { id: string };
-	const shouldPrint = url.searchParams.get('print') != null;
 
 	if (id == null) {
 		throw redirect(303, 'https://marcsimoldures.com/');
@@ -19,7 +18,6 @@ export const load = (async ({ params, url }) => {
 
 		const calculatedItemService = new CalculatedItemService();
 		return {
-			shouldPrint,
 			order,
 			calculatedItem: await calculatedItemService.getCalculatedItem(order.id)
 		};

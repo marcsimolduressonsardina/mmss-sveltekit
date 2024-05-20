@@ -83,6 +83,10 @@ export class OrderUtilites {
 				return '2';
 			case 20:
 				return '3';
+			case 25:
+				return '4';
+			case 50:
+				return '5';	
 			default:
 				return `${discount}%`;
 		}
@@ -134,17 +138,17 @@ const ppDimensionsSchema = z.object({
 export const itemSchema = z.object({
 	width: z
 		.number()
-		.min(1.0)
-		.default('' as unknown as number),
+		.min(10)
+		.default(0),
 	height: z
 		.number()
-		.min(1.0)
-		.default('' as unknown as number),
+		.min(10)
+		.default(0),
 	deliveryDate: z.date().min(new Date()),
 	description: z.string().default(''),
 	observations: z.string().default(''),
 	quantity: z.number().int().min(1).default(1),
-	pp: z.number().min(0).default(0).optional().default(0),
+	pp: z.number().min(0).default(0),
 	ppDimensions: ppDimensionsSchema.optional(),
 	discount: z.number().min(0).default(0),
 	extraParts: z.array(extraPartSchema),

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
-	import OrderCard from '$lib/components/OrderCard.svelte';
+	import OrderCard from '$lib/components/order/OrderCard.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { Icon } from 'svelte-awesome';
 	import { CustomerUtilites } from '$lib/shared/customer.utilities';
