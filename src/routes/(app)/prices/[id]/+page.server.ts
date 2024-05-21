@@ -6,6 +6,7 @@ import { PricingService } from '$lib/server/service/pricing.service.js';
 import { listPriceSchemaEdit, type EditablePricingTypes } from '$lib/shared/pricing.utilites';
 import type { ListPrice } from '$lib/type/api.type.js';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
+import { PricingFormula } from '$lib/type/pricing.type';
 
 async function getListPrice(id: string): Promise<ListPrice> {
 	if (id == null) throw fail(400);
@@ -44,14 +45,22 @@ export const actions = {
 		const { id } = params;
 		const listPrice = await getListPrice(id);
 		const pricingService = new PricingService();
+
+		const areas = form.data.formula === PricingFormula.FORMULA_FIT_AREA ? form.data.areas : [];
+		const price = form.data.formula === PricingFormula.FORMULA_FIT_AREA ? 0 : form.data.price;
+		const maxD1 =
+			form.data.formula === PricingFormula.FORMULA_FIT_AREA ? undefined : form.data.maxD1;
+		const maxD2 =
+			form.data.formula === PricingFormula.FORMULA_FIT_AREA ? undefined : form.data.maxD2;
+
 		try {
-			listPrice.price = form.data.price;
+			listPrice.price = price;
 			listPrice.description = form.data.description;
 			listPrice.type = form.data.type;
 			listPrice.formula = form.data.formula;
-			listPrice.areas = form.data.areas;
-			listPrice.maxD1 = form.data.maxD1;
-			listPrice.maxD2 = form.data.maxD2;
+			listPrice.areas = areas;
+			listPrice.maxD1 = maxD1;
+			listPrice.maxD2 = maxD2;
 			listPrice.priority = form.data.priority;
 			await pricingService.updatePricing(listPrice);
 		} catch (error: unknown) {
