@@ -69,7 +69,7 @@
 		'No pegar',
 		'Muy delicado',
 		'No recortar',
-		'La obra puede ser dañada'
+		'La obra puede ser dañada por su manipulación'
 	];
 
 	let predefinedElementInput: HTMLSelectElement;
@@ -797,12 +797,12 @@
 					class="select {$errors.discount ? 'input-error' : ''}"
 					bind:value={$form.discount}
 				>
-					<option value="0">0</option>
-					<option value="10">1</option>
-					<option value="15">2</option>
-					<option value="20">3</option>
-					<option value="25">4</option>
-					<option value="50">5</option>
+					<option value={0}>0</option>
+					<option value={10}>1</option>
+					<option value={15}>2</option>
+					<option value={20}>3</option>
+					<option value={25}>4</option>
+					<option value={50}>5</option>
 				</select>
 			</label>
 

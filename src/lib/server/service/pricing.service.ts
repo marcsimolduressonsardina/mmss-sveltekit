@@ -5,7 +5,8 @@ import {
 	getFabricPrice,
 	getMoldPrice,
 	areaPricing,
-	getCrossbarPrice
+	getCrossbarPrice,
+	linearPricing
 } from '../data/static-pricing';
 import type { ListPriceDto } from '../repository/dto/list-price.dto';
 import { ListPricingRepository } from '../repository/list-pricing.repository';
@@ -183,6 +184,8 @@ export class PricingService {
 				return fitAreaPricing(priceInfo, d1, d2);
 			case PricingFormula.FORMULA_AREA:
 				return areaPricing(priceInfo.price, d1, d2);
+			case PricingFormula.FORMULA_LINEAR:
+				return linearPricing(priceInfo.price, d1, d2);
 			case PricingFormula.NONE:
 				return priceInfo.price;
 			default:

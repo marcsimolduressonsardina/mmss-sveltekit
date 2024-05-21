@@ -30,6 +30,11 @@ export function areaPricing(m2Price: number, d1: number, d2: number): number {
 	return Math.ceil(x * 100) / 100;
 }
 
+export function linearPricing(mPrice: number, d1: number, d2: number): number {
+	const x = ((d1 / 100) + (d2 / 100)) * 2 * mPrice;
+	return Math.ceil(x * 100) / 100;
+}
+
 export function fitAreaPricing(listPrice: ListPrice, d1: number, d2: number): number {
 	if (listPrice.areas.length === 0) {
 		throw new InvalidSizeError(
