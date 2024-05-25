@@ -7,7 +7,7 @@
 	import plus from 'svelte-awesome/icons/plus';
 	import Spacer from './Spacer.svelte';
 	import type { ListPrice } from '$lib/type/api.type';
-	import { getPriceString } from '$lib/shared/pricing.utilites';
+	import { PricingUtilites } from '$lib/shared/pricing.utilites';
 
 	export let sectionTitle: string;
 	export let label: string;
@@ -26,9 +26,9 @@
 
 	function getSelectLabel(price: ListPrice) {
 		if (price.description == null || price.description === '') {
-			return `${price.id} (${getPriceString(price)})`;
+			return `${price.id} (${PricingUtilites.getPriceString(price)})`;
 		}
-		return `${price.description} (${getPriceString(price)})`;
+		return `${price.description} (${PricingUtilites.getPriceString(price)})`;
 	}
 
 	function addFunction() {

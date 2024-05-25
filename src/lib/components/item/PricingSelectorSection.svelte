@@ -3,36 +3,56 @@
 	import Icon from 'svelte-awesome';
 	import plus from 'svelte-awesome/icons/plus';
 	import Spacer from './Spacer.svelte';
-	import type { ListPrice } from '$lib/type/api.type';
+	import type { ListPriceForm } from '$lib/type/api.type';
 
 	export let sectionTitle: string;
 	export let label: string;
-	export let addValue: (pricingType: PricingType, value?: string) => void;
-	export let pricingType: PricingType;
-	export let prices: ListPrice[];
+	export let addValue: (pricingType: PricingType, value?: string, moldId?: string) => void;
+	export let prices: ListPriceForm[];
 	export let added: boolean;
 	export let canBeAdded: boolean = true;
 
 	let idElementInput: HTMLSelectElement;
 	let selectedId = '';
 
-	function getSelectLabel(price: ListPrice): string {
+	function getSelectLabel(price: ListPriceForm): string {
 		return price.description ?? price.id;
 	}
 
 	function addFunction() {
 		if (!isButtonDisabled) {
-			addValue(pricingType, idElementInput.value);
+			const element = pricesMap.get(idElementInput.value)!;
+			addValue(element.type, element.id, element.moldId);
 		}
 	}
 
-	let defaultPrices = prices.filter((p) => p.priority > 0).sort((a, b) => b.priority - a.priority);
-	let normalPrices = prices.filter((p) => p.priority === 0 || p.priority == null);
-	if (defaultPrices.length > 0) {
-		selectedId = defaultPrices[0].id;
+	let pricesMap = new Map<string, ListPriceForm>();
+
+	function generateMap(ps: ListPriceForm[]) {
+		const pm = new Map<string, ListPriceForm>();
+		ps.forEach((p) => {
+			pm.set(getId(p), p);
+		});
+
+		pricesMap = pm;
 	}
 
+	function getId(p: ListPriceForm): string {
+		return `${p.id}${p.moldId ? '_' + p.moldId : ''}`;
+	}
+
+	function updateSelectedId(df: ListPriceForm[]) {
+		console.log(selectedId);
+		if (df && df.length > 0) {
+			selectedId = getId(df[0]);
+		}
+	}
+
+	$: defaultPrices = prices.filter((p) => p.priority > 0).sort((a, b) => b.priority - a.priority);
+	$: normalPrices = prices.filter((p) => p.priority === 0 || p.priority == null);
 	$: isButtonDisabled = !selectedId;
+	$: generateMap(prices);
+	$: updateSelectedId(defaultPrices);
 </script>
 
 <Spacer title={sectionTitle} />
@@ -47,12 +67,12 @@
 			class:input-success={added}
 		>
 			{#each defaultPrices as price}
-				<option value={price.id}>{getSelectLabel(price)}</option>
+				<option data-mold={price.moldId} value={getId(price)}>{getSelectLabel(price)}</option>
 			{/each}
 
 			<option></option>
 			{#each normalPrices as price}
-				<option value={price.id}>{getSelectLabel(price)}</option>
+				<option value={getId(price)}>{getSelectLabel(price)}</option>
 			{/each}
 		</select>
 		<button

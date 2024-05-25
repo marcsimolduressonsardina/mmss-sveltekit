@@ -9,6 +9,7 @@
 
 	import type {
 		CalculatedItemPart,
+		ListPriceForm,
 		PPDimensions,
 		PreCalculatedItemPart,
 		PreCalculatedItemPartRequest
@@ -26,7 +27,12 @@
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import ChipSet from '$lib/components/item/ChipSet.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { fabricIds, type AllPrices } from '$lib/shared/pricing.utilites';
+	import {
+		PricingUtilites,
+		fabricDefaultPricing,
+		fabricIds,
+		type AllPrices
+	} from '$lib/shared/pricing.utilites';
 
 	export let data: { pricing: Promise<AllPrices>; form: any };
 
@@ -50,6 +56,9 @@
 	let extraParts: CalculatedItemPart[] = [
 		{ description: 'Cantoneras', price: 2.5, quantity: 1, priceId: cornersId }
 	];
+
+	// Fabric vars
+	let fabricPrices: ListPriceForm[] = [fabricDefaultPricing];
 
 	// PP vars
 	let asymetricPP = false;
@@ -134,14 +143,14 @@
 		$form.predefinedObservations = predefinedObservations;
 	}
 
-	function getWorkingDimensions() {
+	function getOrderDimensions() {
 		const width = $form.width;
 		const height = $form.height;
 
 		if (!asymetricPP) {
-			return CalculatedItemUtilities.getWorkingDimensions(width, height, $form.pp);
+			return CalculatedItemUtilities.getOrderDimensions(width, height, $form.pp);
 		} else {
-			return CalculatedItemUtilities.getWorkingDimensions(width, height, 0, {
+			return CalculatedItemUtilities.getOrderDimensions(width, height, 0, {
 				up: upPP,
 				down: downPP,
 				left: leftPP,
@@ -165,7 +174,7 @@
 		$form.extraParts = extraParts;
 	}
 
-	async function addFromPricingSelector(pricingType: PricingType, value?: string) {
+	async function addFromPricingSelector(pricingType: PricingType, value?: string, moldId?: string) {
 		if (value == null) {
 			return;
 		}
@@ -173,27 +182,8 @@
 		const partToCalculate = {
 			id: value,
 			quantity: 1,
-			type: pricingType
-		};
-
-		await processPartToCalculate(partToCalculate);
-	}
-
-	async function addFromFabric(fabricId: string) {
-		const mold = partsToCalulatePreview.find((p) => p.pre.type === PricingType.MOLD);
-		if (mold == null) {
-			toastStore.trigger({
-				message: 'Por favor, añada una moldura antes de añadir la tela.',
-				background: 'variant-filled-error'
-			});
-			return;
-		}
-
-		const partToCalculate = {
-			id: fabricId,
-			quantity: 1,
-			type: PricingType.FABRIC,
-			moldId: mold.pre.id
+			type: pricingType,
+			moldId
 		};
 
 		await processPartToCalculate(partToCalculate);
@@ -214,10 +204,9 @@
 	async function getPartToCalculate(
 		partToCalculate: PreCalculatedItemPart
 	): Promise<CalculatedItemPart | undefined> {
-		const workingDimensions = getWorkingDimensions();
+		const orderDimensions = getOrderDimensions();
 		const request: PreCalculatedItemPartRequest = {
-			width: workingDimensions.workingWidth,
-			height: workingDimensions.workingHeight,
+			orderDimensions,
 			partToCalculate
 		};
 		const response = await fetch('/api/prices', {
@@ -375,18 +364,32 @@
 		totalWidthBox = totalWidth;
 	}
 
-	function cleanFabric(addedMold: boolean) {
-		if (!addedMold) {
-			partsToCalulatePreview = partsToCalulatePreview.filter(
-				(p) => p.pre.type !== PricingType.FABRIC
-			);
-			partsToCalculate = partsToCalculate.filter((p) => p.type !== PricingType.FABRIC);
-			$form.partsToCalculate = partsToCalculate;
-		}
+	function updateFabricPrices(moldPartsToCalculate: TempParts) {
+		const newPrices = [fabricDefaultPricing];
+		const orderDimensions = getOrderDimensions();
+		const sortedMolds = moldPartsToCalculate.sort()
+		sortedMolds.forEach((t) => {
+			[fabricIds.long, fabricIds.short].forEach((id) => {
+				newPrices.push(
+					PricingUtilites.generateCrossbarPricing(
+						id,
+						0,
+						t.post.description,
+						PricingUtilites.getFabricCrossbarDimension(
+							id,
+							orderDimensions.totalHeight,
+							orderDimensions.totalWidth
+						),
+						t.pre.id
+					)
+				);
+			});
+		});
+
+		fabricPrices = newPrices;
 	}
 
 	$: {
-		updateTotal(partsToCalulatePreview, extraParts, $form.discount, $form.quantity);
 		addedMold = partsToCalulatePreview.some((p) => p.pre.type === PricingType.MOLD);
 		addedPP = partsToCalulatePreview.some((p) => p.pre.type === PricingType.PP);
 		addedGlass = partsToCalulatePreview.some((p) => p.pre.type === PricingType.GLASS);
@@ -394,7 +397,8 @@
 		addedLabour = partsToCalulatePreview.some((p) => p.pre.type === PricingType.LABOUR);
 		updatePP(asymetricPP, upPP, downPP, leftPP, rightPP);
 		updateTotalSizes($form.width, $form.height, $form.pp, $form.ppDimensions);
-		cleanFabric(addedMold);
+		updateFabricPrices(partsToCalulatePreview.filter((p) => p.pre.type === PricingType.MOLD));
+		updateTotal(partsToCalulatePreview, extraParts, $form.discount, $form.quantity);
 		if (!exteriorDimensions) $form.exteriorHeight = undefined;
 		if (!exteriorDimensions) $form.exteriorWidth = undefined;
 	}
@@ -532,7 +536,6 @@
 				label={'Tipo de PP'}
 				prices={pricing.ppPrices}
 				addValue={addFromPricingSelector}
-				pricingType={PricingType.PP}
 				added={addedPP}
 			/>
 
@@ -624,16 +627,14 @@
 				label={'Tipo de trasera'}
 				prices={pricing.backPrices}
 				addValue={addFromPricingSelector}
-				pricingType={PricingType.BACK}
 				added={addedBack}
 			/>
 
 			<PricingSelectorSection
 				sectionTitle={'Montajes'}
 				label={'Tipo de montaje'}
-				prices={pricing.labourPrices}
+				prices={[...pricing.labourPrices, ...fabricPrices]}
 				addValue={addFromPricingSelector}
-				pricingType={PricingType.LABOUR}
 				added={addedLabour}
 			/>
 
@@ -642,41 +643,8 @@
 				label={'Tipo de cristal'}
 				prices={pricing.glassPrices}
 				addValue={addFromPricingSelector}
-				pricingType={PricingType.GLASS}
 				added={addedGlass}
 			/>
-
-			<Spacer title={'Estirar tela'} />
-
-			<button
-				class="variant-filled btn lg:col-span-2"
-				type="button"
-				disabled={!addedMold}
-				on:click={() => addFromPricingSelector(PricingType.FABRIC, fabricIds.labour)}
-				><Icon class="mr-2" data={plus} /> Añadir estirar tela</button
-			>
-
-			<button
-				class="variant-filled btn"
-				type="button"
-				disabled={!addedMold}
-				on:click={() => addFromFabric(fabricIds.long)}
-				><Icon class="mr-2" data={plus} /> Añadir travesaño largo ({Math.max(
-					$form.width,
-					$form.height
-				)} cm)</button
-			>
-
-			<button
-				class="variant-filled btn"
-				type="button"
-				disabled={!addedMold}
-				on:click={() => addFromFabric(fabricIds.short)}
-				><Icon class="mr-2" data={plus} /> Añadir travesaño corto ({Math.min(
-					$form.width,
-					$form.height
-				)} cm)</button
-			>
 
 			<Spacer title={'Otros elementos'} />
 			<label class="label" for="predefinedElements">

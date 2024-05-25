@@ -13,7 +13,8 @@ import { ListPricingRepository } from '../repository/list-pricing.repository';
 import { PricingFormula, PricingType } from '../../type/pricing.type';
 import { InvalidSizeError } from '../error/invalid-size.error';
 import type { ListPrice, MaxArea } from '../../type/api.type';
-import { fabricIds } from '$lib/shared/pricing.utilites';
+import { PricingUtilites, fabricDefaultPricing, fabricIds } from '$lib/shared/pricing.utilites';
+import type { OrderDimensions } from '$lib/type/order.type';
 
 export class PricingService {
 	private listPricingRepository: ListPricingRepository;
@@ -79,19 +80,17 @@ export class PricingService {
 
 	public async calculatePrice(
 		pricingType: PricingType,
-		d1d: number,
-		d2d: number,
+		orderDimensions: OrderDimensions,
 		id: string,
 		moldFabricId?: string
 	): Promise<{ price: number; description: string }> {
-		const { d1, d2 } = PricingService.cleanAndOrder(d1d, d2d);
 		const pricing =
 			pricingType === PricingType.FABRIC
-				? await this.getFabricPriceList(id, d1, d2, moldFabricId)
+				? await this.getFabricPriceList(id, orderDimensions, moldFabricId)
 				: await this.getPriceFromListById(pricingType, id);
 
-		PricingService.checkMaxMinDimensions(d1, d2, pricing);
-		const price = PricingService.getPriceByType(d1, d2, pricing);
+		PricingService.checkMaxMinDimensions(orderDimensions, pricing);
+		const price = PricingService.getPriceByType(orderDimensions, pricing);
 		return { price, description: pricing.description };
 	}
 
@@ -106,82 +105,71 @@ export class PricingService {
 
 	private async getFabricPriceList(
 		id: string,
-		d1: number,
-		d2: number,
+		orderDimensions: OrderDimensions,
 		moldFabricId?: string
 	): Promise<ListPrice> {
 		if (id === fabricIds.labour) {
-			return {
-				id,
-				internalId: '',
-				price: 0,
-				description: 'Estirar tela',
-				type: PricingType.FABRIC,
-				formula: PricingFormula.NONE,
-				areas: [],
-				maxD1: 300,
-				maxD2: 250,
-				priority: 0
-			};
+			return fabricDefaultPricing;
 		}
 
 		if (moldFabricId == null) {
 			throw Error('Mold fabric id is required');
 		}
 
+		const { d1, d2 } = PricingService.cleanAndOrderTotalDimensions(orderDimensions);
 		const moldPrice = await this.getPriceFromListById(PricingType.MOLD, moldFabricId);
-		return {
+		return PricingUtilites.generateCrossbarPricing(
 			id,
-			internalId: '',
-			price: moldPrice.price,
-			description: `Travesaño (${PricingService.getFabricDimension(id, d1, d2)} cm)`,
-			type: PricingType.FABRIC,
-			formula: PricingFormula.NONE,
-			areas: [],
-			maxD1: 300,
-			maxD2: 250,
-			priority: 0
-		};
+			moldPrice.price,
+			moldPrice.description,
+			PricingUtilites.getFabricCrossbarDimension(id, d1, d2),
+			moldPrice.id
+		);
 	}
 
-	private static getPriceByType(d1: number, d2: number, priceInfo: ListPrice): number {
+	private static getPriceByType(orderDimensions: OrderDimensions, priceInfo: ListPrice): number {
 		switch (priceInfo.type) {
 			case PricingType.MOLD:
-				return getMoldPrice(priceInfo.price, d1, d2);
+				return PricingService.getMoldPrice(priceInfo, orderDimensions);
 			case PricingType.FABRIC:
-				return PricingService.getFabricPrice(priceInfo, d1, d2);
+				return PricingService.getFabricPrice(priceInfo, orderDimensions);
 			case PricingType.BACK:
 			case PricingType.GLASS:
 			case PricingType.OTHER:
 			case PricingType.LABOUR:
 			case PricingType.PP:
-				return PricingService.getPriceByFormula(priceInfo, d1, d2);
+				return PricingService.getPriceByFormula(priceInfo, orderDimensions);
 			default:
 				throw Error('Pricing type not supported');
 		}
 	}
 
-	private static getFabricDimension(id: string, d1: number, d2: number): number {
-		return id === fabricIds.long ? Math.max(d1, d2) : Math.min(d1, d2);
+	private static getMoldPrice(priceInfo: ListPrice, orderDimensions: OrderDimensions): number {
+		const { d1, d2 } = PricingService.cleanAndOrderWorkingDimensions(orderDimensions);
+		return getMoldPrice(priceInfo.price, d1, d2);
 	}
 
-	private static getFabricPrice(priceInfo: ListPrice, d1: number, d2: number): number {
+	private static getFabricPrice(priceInfo: ListPrice, orderDimensions: OrderDimensions): number {
+		const { d1, d2 } = PricingService.cleanAndOrderWorkingDimensions(orderDimensions);
+		const { d1: d1t, d2: d2t } = PricingService.cleanAndOrderTotalDimensions(orderDimensions);
 		if (priceInfo.id === fabricIds.labour) {
 			return getFabricPrice(d1, d2);
 		} else {
 			return getCrossbarPrice(
 				priceInfo.price,
-				PricingService.getFabricDimension(priceInfo.id, d1, d2)
+				PricingUtilites.getFabricCrossbarDimension(priceInfo.id, d1t, d2t)
 			);
 		}
 	}
 
-	private static getPriceByFormula(priceInfo: ListPrice, d1: number, d2: number): number {
+	private static getPriceByFormula(priceInfo: ListPrice, orderDimensions: OrderDimensions): number {
+		const { d1, d2 } = PricingService.cleanAndOrderWorkingDimensions(orderDimensions);
+		const { d1: d1t, d2: d2t } = PricingService.cleanAndOrderTotalDimensions(orderDimensions);
 		switch (priceInfo.formula) {
 			case PricingFormula.FORMULA_LEFTOVER:
 				return leftoverPricing(priceInfo.price, d1, d2);
 			case PricingFormula.FORMULA_FIT_AREA:
-				return fitAreaPricing(priceInfo, d1, d2);
+				return fitAreaPricing(priceInfo, d1t, d2t);
 			case PricingFormula.FORMULA_AREA:
 				return areaPricing(priceInfo.price, d1, d2);
 			case PricingFormula.FORMULA_LINEAR:
@@ -221,15 +209,34 @@ export class PricingService {
 		return listPrice;
 	}
 
-	private static cleanAndOrder(d1d: number, d2d: number) {
+	private static cleanAndOrder(d1d: number, d2d: number, floor: boolean = true) {
 		const max = Math.max(d1d, d2d);
 		const min = Math.min(d1d, d2d);
-		return { d1: Math.floor(max), d2: Math.floor(min) };
+		if (floor) {
+			return { d1: Math.floor(max), d2: Math.floor(min) };
+		} else {
+			return { d1: max, d2: min };
+		}
 	}
 
-	private static checkMaxMinDimensions(d1w: number, d2w: number, pricing: ListPrice) {
-		if (pricing.formula === PricingFormula.NONE && pricing.type === PricingType.OTHER) return;
+	private static cleanAndOrderWorkingDimensions(orderDimensions: OrderDimensions) {
+		return PricingService.cleanAndOrder(
+			orderDimensions.workingHeight,
+			orderDimensions.workingWidth
+		);
+	}
 
+	private static cleanAndOrderTotalDimensions(orderDimensions: OrderDimensions) {
+		return PricingService.cleanAndOrder(
+			orderDimensions.totalHeight,
+			orderDimensions.totalWidth,
+			false
+		);
+	}
+
+	private static checkMaxMinDimensions(orderDimensions: OrderDimensions, pricing: ListPrice) {
+		if (pricing.formula === PricingFormula.NONE && pricing.type === PricingType.OTHER) return;
+		const { d1: d1w, d2: d2w } = PricingService.cleanAndOrderWorkingDimensions(orderDimensions);
 		if (pricing.maxD1 != null && pricing.maxD2 != null) {
 			const { d1, d2 } = PricingService.cleanAndOrder(pricing.maxD1, pricing.maxD2);
 			if (d1w > d1 || d2w > d2)

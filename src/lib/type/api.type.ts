@@ -1,4 +1,4 @@
-import type { OrderStatus } from './order.type';
+import type { OrderDimensions, OrderStatus } from './order.type';
 import type { Session } from '@auth/core/types';
 import type { PricingFormula, PricingType } from './pricing.type';
 
@@ -36,8 +36,7 @@ export type PreCalculatedItemPart = {
 
 export type PreCalculatedItemPartRequest = {
 	partToCalculate: PreCalculatedItemPart;
-	width: number;
-	height: number;
+	orderDimensions: OrderDimensions;
 };
 
 export type Order = {
@@ -103,6 +102,10 @@ export type ListPrice = {
 	maxD1?: number;
 	maxD2?: number;
 };
+
+export type ListPriceForm = {
+	moldId?: string
+} & ListPrice
 
 export type UserMetadata = {
 	priceManager?: boolean;

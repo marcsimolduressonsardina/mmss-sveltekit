@@ -18,8 +18,7 @@ export async function POST({ request, locals }) {
 	try {
 		const part = await calculatedItemService.calculatePart(
 			pricingRequest.partToCalculate,
-			pricingRequest.width,
-			pricingRequest.height
+			pricingRequest.orderDimensions
 		);
 
 		return json(part);
