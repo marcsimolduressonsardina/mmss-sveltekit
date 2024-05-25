@@ -158,14 +158,15 @@ export class OrderService {
 		return order;
 	}
 
-	async addCustomerToTemporaryOrder(customer: Customer, order: Order) {
+	async addCustomerToTemporaryOrder(customer: Customer, order: Order): Promise<Order> {
 		if (!isOrderTemp(order)) {
 			throw Error('Order is not temporary');
 		}
-
+		const oldDto = OrderService.toDto(order);
 		order.customer = customer;
-		await this.repository.deleteOrder(tempCustomerUuid, OrderService.toDto(order).timestamp);
-		await this.repository.createOrder(OrderService.toDto(order));
+		const newDto = OrderService.toDto(order);
+		await this.repository.updateFullOrder(oldDto, newDto);
+		return order;
 	}
 
 	async setOrderFullyPaid(order: Order) {

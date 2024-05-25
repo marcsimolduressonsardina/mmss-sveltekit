@@ -68,7 +68,6 @@
 		'Sabe que puede ondular',
 		'No pegar',
 		'Muy delicado',
-		'No recortar',
 		'La obra puede ser dañada por su manipulación'
 	];
 

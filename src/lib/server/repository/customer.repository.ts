@@ -30,4 +30,12 @@ export class CustomerRepository extends DynamoRepository<CustomerDto> {
 
 		await this.put(customer);
 	}
+
+	public async updateName(storeId: string, phone: string, newName: string) {
+		await this.updateField(storeId, 'name', newName, phone)
+	}
+
+	public async updateFullCustomer(oldCustomer: CustomerDto, newCustomer: CustomerDto) {
+		await this.updateFullObject(oldCustomer, newCustomer);
+	}
 }

@@ -1,7 +1,7 @@
 import { OrderService } from '$lib/server/service/order.service';
-import { superValidate } from 'sveltekit-superforms';
+import { superValidate, setError } from 'sveltekit-superforms';
 import type { PageServerLoad } from './$types';
-import { customerSchema } from '$lib/shared/customer.utilities';
+import { linkCustomerSchema } from '$lib/shared/customer.utilities';
 import { zod } from 'sveltekit-superforms/adapters';
 import { isOrderTemp } from '$lib/shared/order.utilities';
 import { fail, redirect } from '@sveltejs/kit';
@@ -18,7 +18,7 @@ export const load = (async ({ params, locals }) => {
 		return redirect(302, `/`);
 	}
 
-	const form = await superValidate(zod(customerSchema));
+	const form = await superValidate(zod(linkCustomerSchema));
 	return { form };
 }) satisfies PageServerLoad;
 
@@ -34,7 +34,7 @@ export const actions = {
 			return fail(404, { missing: true });
 		}
 
-		const form = await superValidate(request, zod(customerSchema));
+		const form = await superValidate(request, zod(linkCustomerSchema));
 
 		if (!form.valid) {
 			return fail(400, { form });
@@ -46,8 +46,12 @@ export const actions = {
 		if (customer != null) {
 			await orderService.addCustomerToTemporaryOrder(customer, order);
 		} else {
-			customer = await customerService.createCustomer(form.data.name, form.data.phone);
-			await orderService.addCustomerToTemporaryOrder(customer, order);
+			if (form.data.name != null && (form.data.name as unknown as string).length >= 3) {
+				customer = await customerService.createCustomer(form.data.name!, form.data.phone);
+				await orderService.addCustomerToTemporaryOrder(customer, order);
+			} else {
+				return setError(form, 'name', 'Name required');
+			}
 		}
 
 		return redirect(302, `/orders/${id}`);
