@@ -42,7 +42,6 @@
 	}
 
 	function updateSelectedId(df: ListPriceForm[]) {
-		console.log(selectedId);
 		if (df && df.length > 0) {
 			selectedId = getId(df[0]);
 		}
