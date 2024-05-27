@@ -42,16 +42,16 @@
 	}
 
 	function updateSelectedId(df: ListPriceForm[]) {
-		if (df && df.length > 0) {
+		if (df && df.length > 0 && selectedId === '') {
 			selectedId = getId(df[0]);
 		}
 	}
 
 	$: defaultPrices = prices.filter((p) => p.priority > 0).sort((a, b) => b.priority - a.priority);
 	$: normalPrices = prices.filter((p) => p.priority === 0 || p.priority == null);
-	$: isButtonDisabled = !selectedId;
 	$: generateMap(prices);
 	$: updateSelectedId(defaultPrices);
+	$: isButtonDisabled = !selectedId;
 </script>
 
 <Spacer title={sectionTitle} />
