@@ -18,7 +18,7 @@ export const fabricDefaultPricing: ListPrice = {
 	areas: [],
 	maxD1: 300,
 	maxD2: 250,
-	priority: 0
+	priority: 1
 };
 
 export type AllPrices = {
@@ -159,7 +159,7 @@ export class PricingUtilites {
 			areas: [],
 			maxD1: 300,
 			maxD2: 250,
-			priority: 0,
+			priority: 1,
 			moldId
 		};
 	}
