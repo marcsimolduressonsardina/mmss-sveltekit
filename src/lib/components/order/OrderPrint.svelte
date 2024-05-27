@@ -41,9 +41,11 @@
 	if (order.amountPayed === calculatedItem.total) {
 		statusInfo.push('PAGADO');
 	} else if (order.amountPayed === 0) {
-		statusInfo.push('PENDIENTE DE PAGO')
+		statusInfo.push('PENDIENTE DE PAGO');
 	} else {
-		statusInfo.push(`PENDIENTE DE PAGO (${(calculatedItem.total - order.amountPayed).toFixed(2)} €)`)
+		statusInfo.push(
+			`PENDIENTE DE PAGO (${(calculatedItem.total - order.amountPayed).toFixed(2)} €)`
+		);
 	}
 
 	const extraColForDiscount = calculatedItem.discount > 0 ? 1 : 0;
@@ -79,7 +81,7 @@
 					<p class="customer-bottom">{OrderUtilites.getOrderPublicId(order)}</p>
 				</div>
 			</td>
-			<td colspan={3 + extraColForDiscount} class="center-text">
+			<td colspan={4 + extraColForDiscount} class="center-text">
 				<img
 					class="logo"
 					src="https://marcsimoldures.com/wp-content/uploads/2017/02/MMlogo111.png"
@@ -98,18 +100,18 @@
 
 		<tr>
 			<th colspan="3">Dependiente</th>
-			<th colspan={1 + extraColForDiscount}>Fecha y hora</th>
+			<th colspan={2 + extraColForDiscount}>Fecha y hora</th>
 		</tr>
 		<tr>
 			<td colspan="3">{order.user.name}</td>
-			<td colspan={1 + extraColForDiscount}
+			<td colspan={2 + extraColForDiscount}
 				>{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy HH:mm')}</td
 			>
 		</tr>
 
 		<tr>
 			<th colspan="2">Moldura</th>
-			<th colspan={1 + extraColForDiscount}>Cristal</th>
+			<th colspan={2 + extraColForDiscount}>Cristal</th>
 			<th>Trasera</th>
 		</tr>
 		<tr>
@@ -118,7 +120,7 @@
 					{mold}<br />
 				{/each}
 			</td>
-			<td colspan={1 + extraColForDiscount}>
+			<td colspan={2 + extraColForDiscount}>
 				{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.GLASS) as glass}
 					{glass}<br />
 				{/each}
@@ -132,7 +134,7 @@
 		<tr>
 			<th colspan={1 + extraColForDiscount}>Medidas</th>
 			<th>Uds</th>
-			<th colspan={2 + extraColForDiscount}>PP / Fondo</th>
+			<th colspan={3 + extraColForDiscount}>PP / Fondo</th>
 		</tr>
 		<tr>
 			<td colspan={1 + extraColForDiscount}>
@@ -144,7 +146,7 @@
 				{/if}
 			</td>
 			<td class="center-text"> {order.item.quantity} </td>
-			<td colspan={2 + extraColForDiscount}>
+			<td colspan={1 + extraColForDiscount}>
 				{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.PP) as pp}
 					{pp}<br />
 				{/each}
@@ -156,13 +158,14 @@
 					Simétrico: {order.item.pp} cm
 				{/if}
 			</td>
+			<td></td>
 		</tr>
 		{#if others.length > 0}
 			<tr>
-				<th colspan={4 + extraColForDiscount}> Otros </th>
+				<th colspan={5 + extraColForDiscount}> Otros </th>
 			</tr>
 			<tr>
-				<td colspan={4 + extraColForDiscount}>
+				<td colspan={5 + extraColForDiscount}>
 					<table class="internal-table">
 						{#each groupInPairs(others) as pair}
 							<tr>
@@ -179,16 +182,16 @@
 			</tr>
 		{/if}
 		<tr>
-			<th colspan={4 + extraColForDiscount}> Descripción </th>
+			<th colspan={5 + extraColForDiscount}> Descripción </th>
 		</tr>
 		<tr>
-			<td colspan={4 + extraColForDiscount}>{order.item.description}</td>
+			<td colspan={5 + extraColForDiscount}>{order.item.description}</td>
 		</tr>
 		<tr>
-			<th colspan={4 + extraColForDiscount}> Observaciones </th>
+			<th colspan={5 + extraColForDiscount}> Observaciones </th>
 		</tr>
 		<tr>
-			<td colspan={4 + extraColForDiscount}>
+			<td colspan={5 + extraColForDiscount}>
 				{order.item.observations}
 				<table class="internal-table">
 					{#each groupInPairs(order.item.predefinedObservations) as pair}
@@ -211,7 +214,7 @@
 			{/if}
 			<th>Uds</th>
 			<th>A cuenta</th>
-			<th>Total {order.hasArrow ? '⬇︎' : ''}</th>
+			<th colspan="2">Total {order.hasArrow ? '⬇︎' : ''}</th>
 		</tr>
 		<tr>
 			<td class="center-text">
@@ -224,11 +227,11 @@
 			{/if}
 			<td class="center-text"> {order.item.quantity} </td>
 			<td class="center-text"> {order.amountPayed.toFixed(2)} €</td>
-			<td class="center-text">{calculatedItem.total.toFixed(2)} €</td>
+			<td class="center-text" colspan="2">{calculatedItem.total.toFixed(2)} €</td>
 		</tr>
 		<tr>
 			<th colspan="1"> Recogida </th>
-			<th colspan={2 + extraColForDiscount}> Cliente </th>
+			<th colspan={3 + extraColForDiscount}> Cliente </th>
 			<th colspan="1"> Teléfono </th>
 		</tr>
 		<tr>
@@ -236,13 +239,13 @@
 				{esWeekDay}
 				{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
 			</td>
-			<td colspan={2 + extraColForDiscount} class="center-text"> {order.customer.name} </td>
+			<td colspan={3 + extraColForDiscount} class="center-text"> {order.customer.name} </td>
 			<td colspan="1" class="center-text"> {order.customer.phone} </td>
 		</tr>
 
 		{#if statusInfo.length > 0}
 			<tr>
-				<td colspan={4 + extraColForDiscount} class="center-text status-info">
+				<td colspan={5 + extraColForDiscount} class="center-text status-info">
 					{statusInfo.join(' | ')}
 				</td>
 			</tr>
@@ -250,8 +253,8 @@
 	</table>
 	<div class="customer-text">
 		<p class="customer-bottom">
-			Una vez pasados <strong>15 días desde la fecha estipulada de entrega</strong>, la empresa <strong>no se hará cargo del
-			material.</strong>
+			Una vez pasados <strong>15 días desde la fecha estipulada de entrega</strong>, la empresa
+			<strong>no se hará cargo del material.</strong>
 		</p>
 		<p class="customer-bottom">
 			<strong>Sin el justificante no se hará entrega del material.</strong>
