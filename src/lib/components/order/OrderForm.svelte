@@ -367,7 +367,7 @@
 	function updateFabricPrices(moldPartsToCalculate: TempParts) {
 		const newPrices = [fabricDefaultPricing];
 		const orderDimensions = getOrderDimensions();
-		const sortedMolds = moldPartsToCalculate.sort()
+		const sortedMolds = moldPartsToCalculate.sort();
 		sortedMolds.forEach((t) => {
 			[fabricIds.long, fabricIds.short].forEach((id) => {
 				newPrices.push(
@@ -394,7 +394,9 @@
 		addedPP = partsToCalulatePreview.some((p) => p.pre.type === PricingType.PP);
 		addedGlass = partsToCalulatePreview.some((p) => p.pre.type === PricingType.GLASS);
 		addedBack = partsToCalulatePreview.some((p) => p.pre.type === PricingType.BACK);
-		addedLabour = partsToCalulatePreview.some((p) => p.pre.type === PricingType.LABOUR);
+		addedLabour = partsToCalulatePreview.some(
+			(p) => p.pre.type === PricingType.LABOUR || PricingType.FABRIC
+		);
 		updatePP(asymetricPP, upPP, downPP, leftPP, rightPP);
 		updateTotalSizes($form.width, $form.height, $form.pp, $form.ppDimensions);
 		updateFabricPrices(partsToCalulatePreview.filter((p) => p.pre.type === PricingType.MOLD));
