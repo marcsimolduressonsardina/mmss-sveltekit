@@ -9,6 +9,7 @@ import type {
 } from '../../type/api.type';
 import { PricingType } from '../../type/pricing.type';
 import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
+import type { OrderDimensions } from '$lib/type/order.type';
 
 export class CalculatedItemService {
 	private calculatedItemRepository: CalculatedItemRepository;
@@ -38,7 +39,7 @@ export class CalculatedItemService {
 			quantity: item.quantity
 		};
 
-		const { workingWidth, workingHeight } = CalculatedItemUtilities.getWorkingDimensions(
+		const orderDimensions = CalculatedItemUtilities.getOrderDimensions(
 			item.width,
 			item.height,
 			item.pp,
@@ -46,7 +47,7 @@ export class CalculatedItemService {
 		);
 
 		const partPromises: Promise<CalculatedItemPart>[] = item.partsToCalculate.map((p) =>
-			this.calculatePart(p, workingWidth, workingHeight)
+			this.calculatePart(p, orderDimensions)
 		);
 
 		const parts = await Promise.all(partPromises);
@@ -58,13 +59,11 @@ export class CalculatedItemService {
 
 	public async calculatePart(
 		partToCalculate: PreCalculatedItemPart,
-		width: number,
-		height: number
+		orderDimensions: OrderDimensions
 	): Promise<CalculatedItemPart> {
 		const pricingResult = await this.pricingProvider.calculatePrice(
 			partToCalculate.type,
-			width,
-			height,
+			orderDimensions,
 			partToCalculate.id,
 			partToCalculate.moldId
 		);

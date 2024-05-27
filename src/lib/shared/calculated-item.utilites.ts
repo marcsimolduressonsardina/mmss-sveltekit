@@ -1,15 +1,16 @@
+import type { OrderDimensions } from '$lib/type/order.type';
 import type { CalculatedItem, PPDimensions } from '../type/api.type';
 
 export const cornersId = 'cantoneras_extra';
 export const otherExtraId = 'other_extra';
 
 export class CalculatedItemUtilities {
-	public static getWorkingDimensions(
+	public static getOrderDimensions(
 		width: number,
 		height: number,
 		pp: number,
 		ppDimensions?: PPDimensions
-	): { workingWidth: number; workingHeight: number } {
+	): OrderDimensions {
 		const { totalWidth, totalHeight } = CalculatedItemUtilities.getTotalDimensions(
 			width,
 			height,
@@ -19,7 +20,14 @@ export class CalculatedItemUtilities {
 
 		const workingWidth = CalculatedItemUtilities.roundUpToNearestGreaterFiveOrTen(totalWidth);
 		const workingHeight = CalculatedItemUtilities.roundUpToNearestGreaterFiveOrTen(totalHeight);
-		return { workingWidth, workingHeight };
+		return {
+			workingWidth,
+			workingHeight,
+			totalHeight,
+			totalWidth,
+			originalHeight: height,
+			originalWidth: width
+		};
 	}
 
 	public static getTotalDimensions(

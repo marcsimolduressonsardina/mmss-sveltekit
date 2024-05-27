@@ -14,7 +14,7 @@ export const load = async ({ locals }) => {
 };
 
 export const actions = {
-	async default({ request, locals }) {
+	async createOrEdit({ request, locals }) {
 		await AuthUtilities.checkAuth(locals, true);
 
 		const form = await superValidate(request, zod(listPriceSchemaNew));

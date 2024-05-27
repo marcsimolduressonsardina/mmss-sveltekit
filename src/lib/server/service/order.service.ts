@@ -158,14 +158,15 @@ export class OrderService {
 		return order;
 	}
 
-	async addCustomerToTemporaryOrder(customer: Customer, order: Order) {
+	async addCustomerToTemporaryOrder(customer: Customer, order: Order): Promise<Order> {
 		if (!isOrderTemp(order)) {
 			throw Error('Order is not temporary');
 		}
-
+		const oldDto = OrderService.toDto(order);
 		order.customer = customer;
-		await this.repository.deleteOrder(tempCustomerUuid, OrderService.toDto(order).timestamp);
-		await this.repository.createOrder(OrderService.toDto(order));
+		const newDto = OrderService.toDto(order);
+		await this.repository.updateFullOrder(oldDto, newDto);
+		return order;
 	}
 
 	async setOrderFullyPaid(order: Order) {
@@ -313,7 +314,7 @@ export class OrderService {
 	private static optimizePartsToCalculate(parts: PreCalculatedItemPart[]): PreCalculatedItemPart[] {
 		const map = new Map<string, PreCalculatedItemPart>();
 		parts.forEach((p) => {
-			const id = `${p.type}_${p.id}`;
+			const id = `${p.type}_${p.id}_${p.moldId ?? ''}`;
 			if (map.has(id)) {
 				const existingPart = map.get(id)!;
 				p.quantity += existingPart.quantity;

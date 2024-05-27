@@ -1,8 +1,8 @@
 <script lang="ts">
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { Icon } from 'svelte-awesome';
-	import plus from 'svelte-awesome/icons/plus';
 	import { superForm } from 'sveltekit-superforms';
+	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 
 	export let data;
 	export let title = 'Crear Cliente';
@@ -37,7 +37,7 @@
 				/>
 			</label>
 			<button class="variant-filled-warning btn w-full" type="submit"
-				><Icon class="mr-2" data={plus} /> {buttonText}</button
+				><Icon class="mr-2" data={faEdit} /> {buttonText}</button
 			>
 		</form>
 	{/if}

@@ -42,6 +42,42 @@ export class CustomerService {
 		return map;
 	}
 
+	public async updateCustomerData(
+		customer: Customer,
+		name?: string,
+		phone?: string
+	): Promise<Customer> {
+		let newName = name;
+		let newPhone = phone;
+
+		if (newName === customer.name) {
+			newName = undefined;
+		}
+
+		if (newPhone === customer.phone) {
+			newPhone = undefined;
+		}
+
+		if (newName == null && newPhone == null) {
+			return customer;
+		}
+
+		if (newName != null && newPhone == null) {
+			customer.name = newName;
+			CustomerService.validate(customer);
+			await this.repository.updateName(customer.storeId, customer.phone, newName);
+			return customer;
+		}
+
+		const oldCustomerDto = CustomerService.toDto(customer);
+		customer.name = newName ?? customer.name;
+		customer.phone = newPhone ?? customer.phone;
+		CustomerService.validate(customer);
+		const newCustomerDto = CustomerService.toDto(customer);
+		await this.repository.updateFullCustomer(oldCustomerDto, newCustomerDto);
+		return customer;
+	}
+
 	public async getCustomerByPhone(phone: string): Promise<Customer | null> {
 		const dto = await this.repository.getCustomerByPhone(this.storeId, phone);
 		return dto ? CustomerService.fromDto(dto) : null;

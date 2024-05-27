@@ -6,6 +6,7 @@
 	import check from 'svelte-awesome/icons/check';
 	import trash from 'svelte-awesome/icons/trash';
 	import plus from 'svelte-awesome/icons/plus';
+	import { enhance as sEnhance } from '$app/forms';
 
 	import { PricingFormula, PricingType } from '$lib/type/pricing.type';
 	import Spacer from '$lib/components/item/Spacer.svelte';
@@ -81,6 +82,8 @@
 		areas = [...map.values()].sort(sortAreas);
 		$form.areas = areas;
 	}
+
+	let formLoading = false;
 </script>
 
 <div class="px-2 pt-1 text-xl font-semibold">
@@ -91,12 +94,13 @@
 	{/if}
 </div>
 
-{#if $submitting}
+{#if $submitting || formLoading}
 	<ProgressBar />
 {:else}
 	<form
 		use:enhance
 		method="post"
+		action="?/createOrEdit"
 		class="flex w-full flex-col place-content-center gap-2 px-2 lg:grid lg:grid-cols-2"
 	>
 		<label class="label" for="id">
@@ -265,4 +269,33 @@
 			><Icon class="mr-2" data={check} /> Guardar</button
 		>
 	</form>
+
+	{#if !isNew}
+		<div class="pb-3 pl-2 pr-2 pt-3">
+			<form
+				class="w-full"
+				method="post"
+				action="?/deletePrice"
+				use:sEnhance={({ cancel }) => {
+					if (
+						!confirm(
+							'Estás seguro que quieres eliminar el precio? Los pedidos ya realizados no se verán afectados'
+						)
+					) {
+						cancel();
+						return;
+					}
+
+					formLoading = true;
+					return async ({ update }) => {
+						await update();
+					};
+				}}
+			>
+				<button class="variant-filled-error btn w-full">
+					<Icon class="mr-1" data={trash} /> Eliminar precio
+				</button>
+			</form>
+		</div>
+	{/if}
 {/if}

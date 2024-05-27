@@ -12,7 +12,9 @@ async function getListPrice(id: string): Promise<ListPrice> {
 	if (id == null) throw fail(400);
 	const pricingService = new PricingService();
 	const pricing = await pricingService.getPriceListByInternalId(id);
-	if (pricing == null) throw fail(404);
+	if (pricing == null) {
+		throw redirect(302, '/prices/list');
+	}
 	return pricing;
 }
 
@@ -34,7 +36,7 @@ export const load = async ({ locals, params }) => {
 };
 
 export const actions = {
-	async default({ request, locals, params }) {
+	async createOrEdit({ request, locals, params }) {
 		await AuthUtilities.checkAuth(locals);
 
 		const form = await superValidate(request, zod(listPriceSchemaEdit));
@@ -67,6 +69,14 @@ export const actions = {
 			return setError(form, '', 'Error actualizando el item. Intente de nuevo.');
 		}
 
+		return redirect(302, `/prices/list?type=${listPrice.type}`);
+	},
+	async deletePrice({ locals, params }) {
+		await AuthUtilities.checkAuth(locals, true);
+		const { id } = params;
+		const listPrice = await getListPrice(id);
+		const pricingService = new PricingService();
+		await pricingService.deleteListPrices(listPrice.type, [listPrice.id]);
 		return redirect(302, `/prices/list?type=${listPrice.type}`);
 	}
 };

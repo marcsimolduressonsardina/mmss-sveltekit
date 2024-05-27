@@ -76,4 +76,8 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 	public async deleteOrder(customerUuid: string, timestamp: number) {
 		await this.batchDelete([{ partitionKey: customerUuid, sortKey: timestamp }]);
 	}
+
+	public async updateFullOrder(oldOrder: OrderDto, newOrder: OrderDto) {
+		await this.updateFullObject(oldOrder, newOrder);
+	}
 }

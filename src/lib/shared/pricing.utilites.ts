@@ -1,4 +1,4 @@
-import type { ListPrice } from '$lib/type/api.type';
+import type { ListPrice, ListPriceForm } from '$lib/type/api.type';
 import { PricingFormula, PricingType } from '$lib/type/pricing.type';
 import { z } from 'zod';
 
@@ -6,6 +6,19 @@ export const fabricIds = {
 	labour: 'fabric',
 	short: 'fabric_short',
 	long: 'fabric_long'
+};
+
+export const fabricDefaultPricing: ListPrice = {
+	id: fabricIds.labour,
+	internalId: '',
+	price: 0,
+	description: 'Estirar tela',
+	type: PricingType.FABRIC,
+	formula: PricingFormula.NONE,
+	areas: [],
+	maxD1: 300,
+	maxD2: 250,
+	priority: 0
 };
 
 export type AllPrices = {
@@ -113,13 +126,41 @@ export const listPriceSchemaEdit = z.object({
 	])
 });
 
-export function getPriceString(price: ListPrice): string {
-	if (price.formula !== PricingFormula.FORMULA_FIT_AREA) {
-		return `${price.price.toFixed(2)}€${formulasStringMap[price.formula]}`;
+export class PricingUtilites {
+	static getPriceString(price: ListPrice): string {
+		if (price.formula !== PricingFormula.FORMULA_FIT_AREA) {
+			return `${price.price.toFixed(2)}€${formulasStringMap[price.formula]}`;
+		}
+
+		const prices = price.areas.map((a) => a.price);
+		const minPrice = Math.min(...prices);
+		const maxPrice = Math.max(...prices);
+		return `${minPrice.toFixed(2)}€ - ${maxPrice.toFixed(2)}€`;
 	}
 
-	const prices = price.areas.map((a) => a.price);
-	const minPrice = Math.min(...prices);
-	const maxPrice = Math.max(...prices);
-	return `${minPrice.toFixed(2)}€ - ${maxPrice.toFixed(2)}€`;
+	static getFabricCrossbarDimension(id: string, d1: number, d2: number): number {
+		return id === fabricIds.long ? Math.max(d1, d2) : Math.min(d1, d2);
+	}
+
+	static generateCrossbarPricing(
+		id: string,
+		price: number,
+		moldDescription: string,
+		dimension: number,
+		moldId: string
+	): ListPriceForm {
+		return {
+			id,
+			internalId: '',
+			price,
+			description: `Travesaño (${moldDescription}) ${dimension}cm`,
+			type: PricingType.FABRIC,
+			formula: PricingFormula.NONE,
+			areas: [],
+			maxD1: 300,
+			maxD2: 250,
+			priority: 0,
+			moldId
+		};
+	}
 }

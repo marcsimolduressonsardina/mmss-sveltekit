@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Icon } from 'svelte-awesome';
 	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
+	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 	import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
 	import { faUser } from '@fortawesome/free-regular-svg-icons/faUser';
 	import plus from 'svelte-awesome/icons/plus';
@@ -42,6 +43,12 @@
 					class="variant-filled btn btn-xl shadow-sm lg:btn-md lg:w-full"
 				>
 					<Icon class="mr-2" data={faBox} /> Ver pedidos
+				</a>
+				<a
+					href="/customers/{customer.id}/edit"
+					class="variant-filled-secondary btn btn-xl shadow-sm lg:btn-md lg:w-full"
+				>
+					<Icon class="mr-2" data={faEdit} /> Editar datos
 				</a>
 				<a
 					href={CustomerUtilites.getWhatsappLink(customer)}

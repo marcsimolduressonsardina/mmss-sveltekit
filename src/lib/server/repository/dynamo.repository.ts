@@ -15,7 +15,9 @@ import {
 	BatchWriteCommand,
 	type UpdateCommandInput,
 	UpdateCommand,
-	type QueryCommandInput
+	type QueryCommandInput,
+	TransactWriteCommand,
+	type TransactWriteCommandInput
 } from '@aws-sdk/lib-dynamodb';
 import _ from 'lodash';
 import type { ItemDto } from './dto/item.dto';
@@ -198,6 +200,10 @@ export abstract class DynamoRepository<T> {
 			[this.partitionKey]: partitionKeyValue
 		};
 
+		if (fieldName === this.partitionKey || fieldName === this.sortKey) {
+			throw Error('PK or SK can not be modified');
+		}
+
 		if (this.sortKey && !sortKeyValue) {
 			throw Error("Sort key value can't be null");
 		}
@@ -236,6 +242,38 @@ export abstract class DynamoRepository<T> {
 			await this.client.send(new PutCommand(input));
 		} catch (error: unknown) {
 			this.logError('put', error);
+			throw error;
+		}
+	}
+
+	// Will remove the object and crate a new one
+	// to be used when PK or SK are modified
+	protected async updateFullObject(oldDto: T, newDto: T) {
+		const deleteParams = {
+			TableName: this.table,
+			Key: this.extractKeyFromDto(oldDto)
+		};
+
+		const putParams = {
+			TableName: this.table,
+			Item: newDto as Record<string, AttributeValue>
+		};
+
+		const params: TransactWriteCommandInput = {
+			TransactItems: [
+				{
+					Delete: deleteParams
+				},
+				{
+					Put: putParams
+				}
+			]
+		};
+
+		try {
+			await this.client.send(new TransactWriteCommand(params));
+		} catch (error) {
+			this.logError('full update', error);
 			throw error;
 		}
 	}
@@ -380,5 +418,25 @@ export abstract class DynamoRepository<T> {
 		if (otherInfo) {
 			console.error(JSON.stringify(otherInfo));
 		}
+	}
+
+	private extractKeyFromDto(dto: T): { [x: string]: string | number } {
+		const key = {
+			[this.partitionKey]: (dto as { [key: string]: string | number })[this.partitionKey] as
+				| string
+				| number
+		};
+
+		if (this.sortKey) {
+			key[this.sortKey] = (dto as { [key: string]: string | number })[this.sortKey] as
+				| string
+				| number;
+
+			if (key[this.sortKey] == null) {
+				throw Error('Sort key not found');
+			}
+		}
+
+		return key;
 	}
 }

@@ -40,6 +40,10 @@
 
 	if (order.amountPayed === calculatedItem.total) {
 		statusInfo.push('PAGADO');
+	} else if (order.amountPayed === 0) {
+		statusInfo.push('PENDIENTE DE PAGO')
+	} else {
+		statusInfo.push(`PENDIENTE DE PAGO (${(calculatedItem.total - order.amountPayed).toFixed(2)} €)`)
 	}
 
 	const extraColForDiscount = calculatedItem.discount > 0 ? 1 : 0;
