@@ -736,7 +736,16 @@
 			<Spacer title={'Otros datos'} />
 
 			<div class="w-full space-x-2 lg:col-span-2">
-				<span class="text-md font-medium">Cantidad: {$form.quantity}</span>
+				<span class="text-md font-medium">
+					Cantidad: <input
+						class="input w-12"
+						type="number"
+						step="1"
+						min="1"
+						bind:value={$form.quantity}
+					/>
+				</span>
+
 				<button
 					type="button"
 					class="variant-filled btn btn-md"

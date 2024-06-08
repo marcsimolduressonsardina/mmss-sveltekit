@@ -98,6 +98,9 @@
 							};
 						}}
 					>
+						<button class="variant-filled-secondary btn btn-sm"
+							><Icon class="mr-1" data={faMoneyBill} />Añadir pago a cuenta</button
+						>
 						<div
 							class="input-group input-group-divider grid-cols-[auto_1fr_auto]"
 							style="height: 32px;"
@@ -105,9 +108,6 @@
 							<div class="input-group-shim">€</div>
 							<input type="number" class="pt-1" name="amount" placeholder="Cantidad" step="0.01" />
 						</div>
-						<button class="variant-filled-secondary btn btn-sm"
-							><Icon class="mr-1" data={faMoneyBill} />Añadir pago a cuenta</button
-						>
 					</form>
 				{/if}
 				<a
