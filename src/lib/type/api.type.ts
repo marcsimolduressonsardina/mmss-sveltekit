@@ -32,6 +32,7 @@ export type PreCalculatedItemPart = {
 	id: string;
 	quantity: number;
 	moldId?: string; // For fabric
+	extraInfo?: string; // For extra pp info
 };
 
 export type PreCalculatedItemPartRequest = {
@@ -104,8 +105,8 @@ export type ListPrice = {
 };
 
 export type ListPriceForm = {
-	moldId?: string
-} & ListPrice
+	moldId?: string;
+} & ListPrice;
 
 export type UserMetadata = {
 	priceManager?: boolean;

@@ -314,7 +314,7 @@ export class OrderService {
 	private static optimizePartsToCalculate(parts: PreCalculatedItemPart[]): PreCalculatedItemPart[] {
 		const map = new Map<string, PreCalculatedItemPart>();
 		parts.forEach((p) => {
-			const id = `${p.type}_${p.id}_${p.moldId ?? ''}`;
+			const id = `${p.type}_${p.id}_${p.moldId ?? ''}_${p.extraInfo ?? ''}`;
 			if (map.has(id)) {
 				const existingPart = map.get(id)!;
 				p.quantity += existingPart.quantity;

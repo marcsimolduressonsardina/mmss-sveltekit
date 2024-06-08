@@ -75,7 +75,8 @@ export class CalculatedItemService {
 			description: CalculatedItemService.getDefaultDescriptionByType(
 				partToCalculate.type,
 				partToCalculate.id,
-				pricingResult.description
+				pricingResult.description,
+				partToCalculate.extraInfo
 			)
 		};
 	}
@@ -118,33 +119,53 @@ export class CalculatedItemService {
 	private static getDefaultDescriptionByType(
 		type: PricingType,
 		id: string,
-		description?: string
+		description?: string,
+		extraInfo?: string
 	): string {
 		switch (type) {
 			case PricingType.MOLD:
 				return CalculatedItemUtilities.getMoldDescription(id);
 			case PricingType.GLASS:
-				return CalculatedItemService.getDefaultDescription(`Cristal ${id}`, description);
+				return CalculatedItemService.getDefaultDescription(`Cristal ${id}`, description, extraInfo);
 			case PricingType.BACK:
-				return CalculatedItemService.getDefaultDescription(`Trasera ${id}`, description);
+				return CalculatedItemService.getDefaultDescription(`Trasera ${id}`, description, extraInfo);
 			case PricingType.PP:
-				return CalculatedItemService.getDefaultDescription(`Passepartout ${id}`, description);
+				return CalculatedItemService.getDefaultDescription(
+					`Passepartout ${id}`,
+					description,
+					extraInfo
+				);
 			case PricingType.LABOUR:
-				return CalculatedItemService.getDefaultDescription(`Montaje ${id}`, description);
+				return CalculatedItemService.getDefaultDescription(`Montaje ${id}`, description, extraInfo);
 			case PricingType.FABRIC:
-				return CalculatedItemService.getDefaultDescription(`Estirar tela ${id}`, description);
+				return CalculatedItemService.getDefaultDescription(
+					`Estirar tela ${id}`,
+					description,
+					extraInfo
+				);
 			case PricingType.OTHER:
-				return CalculatedItemService.getDefaultDescription(`${id}`, description);
+				return CalculatedItemService.getDefaultDescription(`${id}`, description, extraInfo);
 			default:
 				throw Error('Invalid type');
 		}
 	}
 
-	private static getDefaultDescription(df: string, description?: string): string {
+	private static getDefaultDescription(
+		df: string,
+		description?: string,
+		extraInfo?: string
+	): string {
+		let computedDescription;
 		if (!description || description.trim() === '') {
-			return df;
+			computedDescription = df;
+		} else {
+			computedDescription = description;
 		}
 
-		return description;
+		if (extraInfo != null) {
+			computedDescription = `${computedDescription} (${extraInfo})`;
+		}
+
+		return computedDescription;
 	}
 }

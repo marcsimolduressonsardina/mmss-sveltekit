@@ -7,12 +7,19 @@
 
 	export let sectionTitle: string;
 	export let label: string;
-	export let addValue: (pricingType: PricingType, value?: string, moldId?: string) => void;
+	export let addValue: (
+		pricingType: PricingType,
+		value?: string,
+		moldId?: string,
+		extraInfo?: string
+	) => void;
 	export let prices: ListPriceForm[];
 	export let added: boolean;
 	export let canBeAdded: boolean = true;
+	export let showExtraInfo: boolean = false;
 
 	let idElementInput: HTMLSelectElement;
+	let extraInfo: string | undefined = undefined;
 	let selectedId = '';
 
 	function getSelectLabel(price: ListPriceForm): string {
@@ -22,7 +29,7 @@
 	function addFunction() {
 		if (!isButtonDisabled) {
 			const element = pricesMap.get(idElementInput.value)!;
-			addValue(element.type, element.id, element.moldId);
+			addValue(element.type, element.id, element.moldId, showExtraInfo ? extraInfo : undefined);
 		}
 	}
 
@@ -55,32 +62,53 @@
 </script>
 
 <Spacer title={sectionTitle} />
-<label class="label lg:col-span-2">
-	<span>{label}: </span>
-	<div class="space-y-2 lg:grid lg:grid-cols-2 lg:space-x-2 lg:space-y-0">
-		<select
-			class="select"
-			name="moldingId"
-			bind:value={selectedId}
-			bind:this={idElementInput}
-			class:input-success={added}
-		>
-			{#each defaultPrices as price}
-				<option data-mold={price.moldId} value={getId(price)}>{getSelectLabel(price)}</option>
-			{/each}
+<div class="lg:col-span-2">
+	<div class="gap-2 space-y-2 lg:grid lg:grid-cols-2 lg:space-y-0">
+		<label class="label" for="priceId">
+			<span>{label}: </span>
+			<select
+				class="select"
+				name="priceId"
+				bind:value={selectedId}
+				bind:this={idElementInput}
+				class:input-success={added}
+			>
+				{#each defaultPrices as price}
+					<option data-mold={price.moldId} value={getId(price)}>{getSelectLabel(price)}</option>
+				{/each}
 
-			<option></option>
-			{#each normalPrices as price}
-				<option value={getId(price)}>{getSelectLabel(price)}</option>
-			{/each}
-		</select>
-		<button
-			class="variant-filled btn w-full lg:w-auto"
-			type="button"
-			disabled={!canBeAdded}
-			on:click={() => addFunction()}
-		>
-			<Icon class="mr-2" data={plus} /> Añadir a la lista
-		</button>
+				<option></option>
+				{#each normalPrices as price}
+					<option value={getId(price)}>{getSelectLabel(price)}</option>
+				{/each}
+			</select>
+		</label>
+		{#if showExtraInfo}
+			<label class="label" for="extraInfoValue">
+				<span>Otra información: </span>
+				<input class="input" type="text" name="extraInfoValue" bind:value={extraInfo} />
+			</label>
+			<div class="w-full lg:col-span-2 lg:w-auto">
+				<button
+					class="variant-filled btn w-full"
+					type="button"
+					disabled={!canBeAdded}
+					on:click={() => addFunction()}
+				>
+					<Icon class="mr-2" data={plus} /> Añadir a la lista
+				</button>
+			</div>
+		{:else}
+			<div class="mt-auto w-full pt-6 lg:w-auto">
+				<button
+					class="variant-filled btn w-full"
+					type="button"
+					disabled={!canBeAdded}
+					on:click={() => addFunction()}
+				>
+					<Icon class="mr-2" data={plus} /> Añadir a la lista
+				</button>
+			</div>
+		{/if}
 	</div>
-</label>
+</div>

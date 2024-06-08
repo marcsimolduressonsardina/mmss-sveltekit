@@ -174,7 +174,12 @@
 		$form.extraParts = extraParts;
 	}
 
-	async function addFromPricingSelector(pricingType: PricingType, value?: string, moldId?: string) {
+	async function addFromPricingSelector(
+		pricingType: PricingType,
+		value?: string,
+		moldId?: string,
+		extraInfo?: string
+	) {
 		if (value == null) {
 			return;
 		}
@@ -183,7 +188,8 @@
 			id: value,
 			quantity: 1,
 			type: pricingType,
-			moldId
+			moldId,
+			extraInfo
 		};
 
 		await processPartToCalculate(partToCalculate);
@@ -539,6 +545,7 @@
 				prices={pricing.ppPrices}
 				addValue={addFromPricingSelector}
 				added={addedPP}
+				showExtraInfo={true}
 			/>
 
 			<Spacer title={'Medidas de trabajo'} />
