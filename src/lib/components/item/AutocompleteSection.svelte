@@ -14,7 +14,6 @@
 	export let addValue: (pricingType: PricingType, value?: string) => void;
 	export let pricingType: PricingType;
 	export let prices: ListPrice[];
-	export let added: boolean;
 
 	let autocompleteInput = '';
 
@@ -63,7 +62,6 @@
 				bind:value={autocompleteInput}
 				placeholder="Referencia..."
 				use:popup={popupSettings}
-				class:input-success={added}
 			/>
 			<div
 				data-popup="popupAutocomplete"

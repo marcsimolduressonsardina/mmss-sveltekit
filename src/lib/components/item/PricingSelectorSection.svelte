@@ -14,7 +14,6 @@
 		extraInfo?: string
 	) => void;
 	export let prices: ListPriceForm[];
-	export let added: boolean;
 	export let canBeAdded: boolean = true;
 	export let showExtraInfo: boolean = false;
 
@@ -66,13 +65,7 @@
 	<div class="gap-2 space-y-2 lg:grid lg:grid-cols-2 lg:space-y-0">
 		<label class="label" for="priceId">
 			<span>{label}: </span>
-			<select
-				class="select"
-				name="priceId"
-				bind:value={selectedId}
-				bind:this={idElementInput}
-				class:input-success={added}
-			>
+			<select class="select" name="priceId" bind:value={selectedId} bind:this={idElementInput}>
 				{#each defaultPrices as price}
 					<option data-mold={price.moldId} value={getId(price)}>{getSelectLabel(price)}</option>
 				{/each}

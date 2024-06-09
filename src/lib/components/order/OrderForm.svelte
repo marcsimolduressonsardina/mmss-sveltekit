@@ -86,12 +86,6 @@
 	let otherPriceElementInput: HTMLInputElement;
 	let otherQuantityElementInput: HTMLSelectElement;
 
-	let addedPP = false;
-	let addedGlass = false;
-	let addedBack = false;
-	let addedLabour = false;
-	let addedMold = false;
-
 	$form.extraParts = extraParts;
 	$form.partsToCalculate = partsToCalculate;
 	$form.predefinedObservations = predefinedObservations;
@@ -396,13 +390,6 @@
 	}
 
 	$: {
-		addedMold = partsToCalulatePreview.some((p) => p.pre.type === PricingType.MOLD);
-		addedPP = partsToCalulatePreview.some((p) => p.pre.type === PricingType.PP);
-		addedGlass = partsToCalulatePreview.some((p) => p.pre.type === PricingType.GLASS);
-		addedBack = partsToCalulatePreview.some((p) => p.pre.type === PricingType.BACK);
-		addedLabour = partsToCalulatePreview.some(
-			(p) => p.pre.type === PricingType.LABOUR || PricingType.FABRIC
-		);
 		updatePP(asymetricPP, upPP, downPP, leftPP, rightPP);
 		updateTotalSizes($form.width, $form.height, $form.pp, $form.ppDimensions);
 		updateFabricPrices(partsToCalulatePreview.filter((p) => p.pre.type === PricingType.MOLD));
@@ -453,6 +440,14 @@
 					class:input-success={$form.width > 10}
 				/>
 			</label>
+
+			<PricingSelectorSection
+				sectionTitle={'Passepartout'}
+				label={'Tipo de PP'}
+				prices={pricing.ppPrices}
+				addValue={addFromPricingSelector}
+				showExtraInfo={true}
+			/>
 
 			<label class="label" for="pp"
 				><span>Medida PP (cm):</span>
@@ -539,14 +534,67 @@
 				</label>
 			{/if}
 
-			<PricingSelectorSection
-				sectionTitle={'Passepartout'}
-				label={'Tipo de PP'}
-				prices={pricing.ppPrices}
+			<dl class="list-dl lg:col-span-2">
+				{#each partsToCalulatePreview.filter((p) => p.pre.type === PricingType.PP) as part}
+					<CartItem
+						part={part.post}
+						partToDelete={part}
+						deleteExtraPart={deletePrecalculatedPreview}
+					/>
+				{/each}
+			</dl>
+
+			<AutocompleteSection
+				sectionTitle={'Molduras'}
+				label={'Moldura/Marco'}
+				prices={pricing.moldPrices}
 				addValue={addFromPricingSelector}
-				added={addedPP}
-				showExtraInfo={true}
+				pricingType={PricingType.MOLD}
 			/>
+
+			<dl class="list-dl lg:col-span-2">
+				{#each partsToCalulatePreview.filter((p) => p.pre.type === PricingType.MOLD) as part}
+					<CartItem
+						part={part.post}
+						partToDelete={part}
+						deleteExtraPart={deletePrecalculatedPreview}
+					/>
+				{/each}
+			</dl>
+
+			<PricingSelectorSection
+				sectionTitle={'Cristal'}
+				label={'Tipo de cristal'}
+				prices={pricing.glassPrices}
+				addValue={addFromPricingSelector}
+			/>
+
+			<dl class="list-dl lg:col-span-2">
+				{#each partsToCalulatePreview.filter((p) => p.pre.type === PricingType.GLASS) as part}
+					<CartItem
+						part={part.post}
+						partToDelete={part}
+						deleteExtraPart={deletePrecalculatedPreview}
+					/>
+				{/each}
+			</dl>
+
+			<PricingSelectorSection
+				sectionTitle={'Trasera'}
+				label={'Tipo de trasera'}
+				prices={pricing.backPrices}
+				addValue={addFromPricingSelector}
+			/>
+
+			<dl class="list-dl lg:col-span-2">
+				{#each partsToCalulatePreview.filter((p) => p.pre.type === PricingType.BACK) as part}
+					<CartItem
+						part={part.post}
+						partToDelete={part}
+						deleteExtraPart={deletePrecalculatedPreview}
+					/>
+				{/each}
+			</dl>
 
 			<Spacer title={'Medidas de trabajo'} />
 
@@ -596,64 +644,22 @@
 				</label>
 			{/if}
 
-			<Spacer title={'Descripción de la obra'} />
-
-			<label class="label" for="description">
-				<span>Descripción:</span>
-				<textarea
-					class="textarea {$errors.description ? 'input-error' : ''}"
-					name="description"
-					bind:value={$form.description}
-				></textarea>
-			</label>
-
-			<label class="label" for="observations">
-				<span>Observaciones:</span>
-				<textarea
-					class="textarea {$errors.observations ? 'input-error' : ''}"
-					name="observations"
-					bind:value={$form.observations}
-				></textarea>
-			</label>
-
-			<ChipSet
-				observations={defaultObservations}
-				addFunction={addObservation}
-				removeFunction={removeObservation}
-			/>
-
-			<AutocompleteSection
-				sectionTitle={'Molduras'}
-				label={'Moldura/Marco'}
-				prices={pricing.moldPrices}
-				addValue={addFromPricingSelector}
-				pricingType={PricingType.MOLD}
-				added={addedMold}
-			/>
-
-			<PricingSelectorSection
-				sectionTitle={'Trasera'}
-				label={'Tipo de trasera'}
-				prices={pricing.backPrices}
-				addValue={addFromPricingSelector}
-				added={addedBack}
-			/>
-
 			<PricingSelectorSection
 				sectionTitle={'Montajes'}
 				label={'Tipo de montaje'}
 				prices={[...pricing.labourPrices, ...fabricPrices]}
 				addValue={addFromPricingSelector}
-				added={addedLabour}
 			/>
 
-			<PricingSelectorSection
-				sectionTitle={'Cristal'}
-				label={'Tipo de cristal'}
-				prices={pricing.glassPrices}
-				addValue={addFromPricingSelector}
-				added={addedGlass}
-			/>
+			<dl class="list-dl lg:col-span-2">
+				{#each partsToCalulatePreview.filter( (p) => [PricingType.LABOUR, PricingType.FABRIC].includes(p.pre.type) ) as part}
+					<CartItem
+						part={part.post}
+						partToDelete={part}
+						deleteExtraPart={deletePrecalculatedPreview}
+					/>
+				{/each}
+			</dl>
 
 			<Spacer title={'Otros elementos'} />
 			<label class="label" for="predefinedElements">
@@ -691,6 +697,16 @@
 					addPredefinedElement();
 				}}><Icon class="mr-2" data={plus} /> Añadir a la lista</button
 			>
+
+			<dl class="list-dl lg:col-span-2">
+				{#each partsToCalulatePreview.filter((p) => p.pre.type === PricingType.OTHER) as part}
+					<CartItem
+						part={part.post}
+						partToDelete={part}
+						deleteExtraPart={deletePrecalculatedPreview}
+					/>
+				{/each}
+			</dl>
 
 			<Spacer title={'Elementos extra'} />
 
@@ -732,6 +748,38 @@
 					addOtherElement();
 				}}><Icon class="mr-2" data={plus} /> Añadir a la lista</button
 			>
+
+			<dl class="list-dl lg:col-span-2">
+				{#each extraParts as part}
+					<CartItem {part} partToDelete={part} {deleteExtraPart} />
+				{/each}
+			</dl>
+
+			<Spacer title={'Descripción de la obra'} />
+
+			<label class="label" for="description">
+				<span>Descripción:</span>
+				<textarea
+					class="textarea {$errors.description ? 'input-error' : ''}"
+					name="description"
+					bind:value={$form.description}
+				></textarea>
+			</label>
+
+			<label class="label" for="observations">
+				<span>Observaciones:</span>
+				<textarea
+					class="textarea {$errors.observations ? 'input-error' : ''}"
+					name="observations"
+					bind:value={$form.observations}
+				></textarea>
+			</label>
+
+			<ChipSet
+				observations={defaultObservations}
+				addFunction={addObservation}
+				removeFunction={removeObservation}
+			/>
 
 			<Spacer title={'Otros datos'} />
 
