@@ -81,7 +81,7 @@
 					<p class="customer-bottom">{OrderUtilites.getOrderPublicId(order)}</p>
 				</div>
 			</td>
-			<td colspan={4 + extraColForDiscount} class="center-text">
+			<td colspan={3 + extraColForDiscount} class="center-text">
 				<img
 					class="logo"
 					src="https://marcsimoldures.com/wp-content/uploads/2017/02/MMlogo111.png"
@@ -99,28 +99,31 @@
 		</tr>
 
 		<tr>
-			<th colspan="3">Dependiente</th>
-			<th colspan={2 + extraColForDiscount}>Fecha y hora</th>
+			<th colspan="2">Dependiente</th>
+			<th colspan={1 + extraColForDiscount}>Fecha</th>
+			<th>Hora</th>
 		</tr>
 		<tr>
-			<td colspan="3">{order.user.name}</td>
-			<td colspan={2 + extraColForDiscount}
-				>{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy HH:mm')}</td
-			>
+			<td colspan="2">{order.user.name}</td>
+			<td class="center-text" colspan={1 + extraColForDiscount}>
+				{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy')}
+			</td>
+			<td class="center-text">{DateTime.fromJSDate(order.createdAt).toFormat('HH:mm')}</td>
 		</tr>
 
 		<tr>
-			<th colspan="2">Moldura</th>
-			<th colspan={2 + extraColForDiscount}>Cristal</th>
+			<th>Moldura</th>
+			<th>Cristal</th>
 			<th>Trasera</th>
+			<th colspan={1 + extraColForDiscount}>PP / Fondo</th>
 		</tr>
 		<tr>
-			<td colspan="2">
+			<td>
 				{#each OrderUtilites.getOrderMolds(order) as mold}
 					{mold}<br />
 				{/each}
 			</td>
-			<td colspan={2 + extraColForDiscount}>
+			<td>
 				{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.GLASS) as glass}
 					{glass}<br />
 				{/each}
@@ -130,22 +133,6 @@
 					{back}<br />
 				{/each}
 			</td>
-		</tr>
-		<tr>
-			<th colspan={1 + extraColForDiscount}>Medidas</th>
-			<th>Uds</th>
-			<th colspan={3 + extraColForDiscount}>PP / Fondo</th>
-		</tr>
-		<tr>
-			<td colspan={1 + extraColForDiscount}>
-				Obra: {`${order.item.height}x${order.item.width} cm`} <br />
-				Trabajo: {OrderUtilites.getWorkingDimensions(order)}
-				{#if order.item.exteriorHeight || order.item.exteriorWidth}
-					<br />
-					Marco exterior: {`${order.item.exteriorHeight}x${order.item.exteriorWidth} cm`}
-				{/if}
-			</td>
-			<td class="center-text"> {order.item.quantity} </td>
 			<td colspan={1 + extraColForDiscount}>
 				{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.PP) as pp}
 					{pp}<br />
@@ -158,14 +145,30 @@
 					Simétrico: {order.item.pp} cm
 				{/if}
 			</td>
-			<td></td>
+		</tr>
+		<tr>
+			<th>Medidas</th>
+			<th>Uds</th>
+			<th colspan={3 + extraColForDiscount}>Descripción</th>
+		</tr>
+		<tr>
+			<td>
+				Obra: {`${order.item.height}x${order.item.width} cm`} <br />
+				Trabajo: {OrderUtilites.getWorkingDimensions(order)}
+				{#if order.item.exteriorHeight || order.item.exteriorWidth}
+					<br />
+					Marco exterior: {`${order.item.exteriorHeight}x${order.item.exteriorWidth} cm`}
+				{/if}
+			</td>
+			<td class="center-text"> {order.item.quantity} </td>
+			<td colspan={3 + extraColForDiscount}>{order.item.description}</td>
 		</tr>
 		{#if others.length > 0}
 			<tr>
-				<th colspan={5 + extraColForDiscount}> Otros </th>
+				<th colspan={4 + extraColForDiscount}> Otros </th>
 			</tr>
 			<tr>
-				<td colspan={5 + extraColForDiscount}>
+				<td colspan={4 + extraColForDiscount}>
 					<table class="internal-table">
 						{#each groupInPairs(others) as pair}
 							<tr>
@@ -182,16 +185,10 @@
 			</tr>
 		{/if}
 		<tr>
-			<th colspan={5 + extraColForDiscount}> Descripción </th>
+			<th colspan={4 + extraColForDiscount}> Observaciones </th>
 		</tr>
 		<tr>
-			<td colspan={5 + extraColForDiscount}>{order.item.description}</td>
-		</tr>
-		<tr>
-			<th colspan={5 + extraColForDiscount}> Observaciones </th>
-		</tr>
-		<tr>
-			<td colspan={5 + extraColForDiscount}>
+			<td colspan={4 + extraColForDiscount}>
 				{order.item.observations}
 				<table class="internal-table">
 					{#each groupInPairs(order.item.predefinedObservations) as pair}
@@ -214,7 +211,7 @@
 			{/if}
 			<th>Uds</th>
 			<th>A cuenta</th>
-			<th colspan="2">Total {order.hasArrow ? '⬇︎' : ''}</th>
+			<th>Total {order.hasArrow ? '⬇︎' : ''}</th>
 		</tr>
 		<tr>
 			<td class="center-text">
@@ -227,11 +224,11 @@
 			{/if}
 			<td class="center-text"> {order.item.quantity} </td>
 			<td class="center-text"> {order.amountPayed.toFixed(2)} €</td>
-			<td class="center-text" colspan="2">{calculatedItem.total.toFixed(2)} €</td>
+			<td class="center-text">{calculatedItem.total.toFixed(2)} €</td>
 		</tr>
 		<tr>
 			<th colspan="1"> Recogida </th>
-			<th colspan={3 + extraColForDiscount}> Cliente </th>
+			<th colspan={2 + extraColForDiscount}> Cliente </th>
 			<th colspan="1"> Teléfono </th>
 		</tr>
 		<tr>
@@ -239,13 +236,13 @@
 				{esWeekDay}
 				{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
 			</td>
-			<td colspan={3 + extraColForDiscount} class="center-text"> {order.customer.name} </td>
+			<td colspan={2 + extraColForDiscount} class="center-text"> {order.customer.name} </td>
 			<td colspan="1" class="center-text"> {order.customer.phone} </td>
 		</tr>
 
 		{#if statusInfo.length > 0}
 			<tr>
-				<td colspan={5 + extraColForDiscount} class="center-text status-info">
+				<td colspan={4 + extraColForDiscount} class="center-text status-info">
 					{statusInfo.join(' | ')}
 				</td>
 			</tr>
@@ -304,8 +301,9 @@
 	}
 
 	th {
-		background-color: black;
+		background-color: darkgrey;
 		color: white;
+		font-size: xx-small;
 	}
 
 	.center-text {

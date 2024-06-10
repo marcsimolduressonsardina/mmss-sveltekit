@@ -32,7 +32,8 @@ export const actions = {
 			id: part.id,
 			quantity: part.quantity,
 			type: part.type as PricingType,
-			moldId: part.moldId
+			moldId: part.moldId,
+			extraInfo: part.extraInfo
 		}));
 
 		let orderId = '';

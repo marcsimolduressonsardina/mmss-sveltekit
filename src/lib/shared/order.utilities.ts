@@ -86,7 +86,7 @@ export class OrderUtilites {
 			case 25:
 				return '4';
 			case 50:
-				return '5';	
+				return '5';
 			default:
 				return `${discount}%`;
 		}
@@ -125,7 +125,8 @@ const partToCalculateSchema = z.object({
 		PricingType.OTHER,
 		PricingType.FABRIC
 	]),
-	moldId: z.string().optional()
+	moldId: z.string().optional(),
+	extraInfo: z.string().optional()
 });
 
 const ppDimensionsSchema = z.object({
@@ -136,14 +137,8 @@ const ppDimensionsSchema = z.object({
 });
 
 export const itemSchema = z.object({
-	width: z
-		.number()
-		.min(10)
-		.default(0),
-	height: z
-		.number()
-		.min(10)
-		.default(0),
+	width: z.number().min(10).default(0),
+	height: z.number().min(10).default(0),
 	deliveryDate: z.date().min(new Date()),
 	description: z.string().default(''),
 	observations: z.string().default(''),

@@ -14,7 +14,6 @@
 	export let addValue: (pricingType: PricingType, value?: string) => void;
 	export let pricingType: PricingType;
 	export let prices: ListPrice[];
-	export let added: boolean;
 
 	let autocompleteInput = '';
 
@@ -54,7 +53,7 @@
 <Spacer title={sectionTitle} />
 <label class="label lg:col-span-2">
 	<span>{label}: </span>
-	<div class="space-y-2 lg:grid lg:grid-cols-2 lg:space-x-2 lg:space-y-0">
+	<div class="gap-2 space-y-2 lg:grid lg:grid-cols-2 lg:space-y-0">
 		<div class="text-token w-full space-y-2">
 			<input
 				class="autocomplete input"
@@ -63,7 +62,6 @@
 				bind:value={autocompleteInput}
 				placeholder="Referencia..."
 				use:popup={popupSettings}
-				class:input-success={added}
 			/>
 			<div
 				data-popup="popupAutocomplete"
