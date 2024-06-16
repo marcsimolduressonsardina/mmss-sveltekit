@@ -3,8 +3,12 @@ import { setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
 import { PricingService } from '$lib/server/service/pricing.service.js';
-import { listPriceSchemaEdit, type EditablePricingTypes } from '$lib/shared/pricing.utilites';
-import type { ListPrice } from '$lib/type/api.type.js';
+import {
+	PricingUtilites,
+	listPriceSchemaEdit,
+	type EditablePricingTypes
+} from '$lib/shared/pricing.utilites';
+import type { ListPrice, MaxArea, MaxAreaM2 } from '$lib/type/api.type.js';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { PricingFormula } from '$lib/type/pricing.type';
 
@@ -31,6 +35,7 @@ export const load = async ({ locals, params }) => {
 	form.data.areas = listPrice.areas;
 	form.data.maxD1 = listPrice.maxD1;
 	form.data.maxD2 = listPrice.maxD2;
+	form.data.areasM2 = listPrice.areasM2;
 	form.data.priority = listPrice.priority;
 	return { form };
 };
@@ -48,12 +53,18 @@ export const actions = {
 		const listPrice = await getListPrice(id);
 		const pricingService = new PricingService();
 
-		const areas = form.data.formula === PricingFormula.FORMULA_FIT_AREA ? form.data.areas : [];
-		const price = form.data.formula === PricingFormula.FORMULA_FIT_AREA ? 0 : form.data.price;
-		const maxD1 =
-			form.data.formula === PricingFormula.FORMULA_FIT_AREA ? undefined : form.data.maxD1;
-		const maxD2 =
-			form.data.formula === PricingFormula.FORMULA_FIT_AREA ? undefined : form.data.maxD2;
+		const { price, maxD1, maxD2, areas, areasM2 } = PricingUtilites.cleanFormValues(
+			form as unknown as {
+				data: {
+					formula: PricingFormula;
+					areas: MaxArea[];
+					areasM2: MaxAreaM2[];
+					price: number;
+					maxD1: number;
+					maxD2: number;
+				};
+			}
+		);
 
 		try {
 			listPrice.price = price;
@@ -63,6 +74,7 @@ export const actions = {
 			listPrice.areas = areas;
 			listPrice.maxD1 = maxD1;
 			listPrice.maxD2 = maxD2;
+			listPrice.areasM2 = areasM2;
 			listPrice.priority = form.data.priority;
 			await pricingService.updatePricing(listPrice);
 		} catch (error: unknown) {

@@ -1,4 +1,4 @@
-import type { ListPrice, MaxArea } from '$lib/type/api.type';
+import type { ListPrice, MaxArea, MaxAreaM2 } from '$lib/type/api.type';
 import { InvalidSizeError } from '../error/invalid-size.error';
 import { moldMatrix } from './mold-matrix';
 
@@ -31,8 +31,29 @@ export function areaPricing(m2Price: number, d1: number, d2: number): number {
 }
 
 export function linearPricing(mPrice: number, d1: number, d2: number): number {
-	const x = ((d1 / 100) + (d2 / 100)) * 2 * mPrice;
+	const x = (d1 / 100 + d2 / 100) * 2 * mPrice;
 	return Math.ceil(x * 100) / 100;
+}
+
+export function fitAreaM2Pricing(listPrice: ListPrice, d1: number, d2: number): number {
+	const area = Math.ceil((d1 / 100) * (d2 / 100) * 100) / 100;
+	if (listPrice.areasM2.length === 0) {
+		throw new InvalidSizeError(
+			`No se ha encontrado el precio para el tamaño ${d1}x${d2} (${area} m2) - ${listPrice.description}`
+		);
+	}
+
+	const sortedAreas = sortByArea(listPrice.areasM2);
+	let index = 0;
+	while (index < sortedAreas.length) {
+		const areaPrice = sortedAreas[index]!;
+		if (areaPrice.a >= area) return areaPrice.price;
+		index += 1;
+	}
+
+	throw new InvalidSizeError(
+		`No se ha encontrado el precio para el tamaño ${d1}x${d2} (${area} m2) - ${listPrice.description}`
+	);
 }
 
 export function fitAreaPricing(listPrice: ListPrice, d1: number, d2: number): number {
@@ -74,4 +95,8 @@ function sortByAreaAndPerimeter(data: MaxArea[]): MaxArea[] {
 
 	// Return the sorted array
 	return areaAndPerimeter;
+}
+
+function sortByArea(arr: MaxAreaM2[]): MaxAreaM2[] {
+	return arr.sort((x, y) => x.a - y.a);
 }

@@ -112,6 +112,7 @@ export class MoldPriceLoader {
 			type: PricingType.MOLD,
 			formula: PricingFormula.NONE,
 			areas: [],
+			areasM2: [],
 			priority: 0
 		};
 	}

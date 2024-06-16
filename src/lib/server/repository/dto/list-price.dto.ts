@@ -4,6 +4,11 @@ export type MaxAreaDto = {
 	price: number;
 };
 
+export type MaxAreaM2Dto = {
+	a: number;
+	price: number;
+};
+
 export type ListPriceDto = {
 	id: string;
 	uuid: string;
@@ -12,6 +17,7 @@ export type ListPriceDto = {
 	type: string;
 	formula: string;
 	areas: MaxAreaDto[];
+	areasM2?: MaxAreaM2Dto[];
 	maxD1?: number;
 	maxD2?: number;
 	priority?: number;

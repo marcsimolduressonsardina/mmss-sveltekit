@@ -6,14 +6,20 @@ import {
 	getMoldPrice,
 	areaPricing,
 	getCrossbarPrice,
-	linearPricing
+	linearPricing,
+	fitAreaM2Pricing
 } from '../data/static-pricing';
 import type { ListPriceDto } from '../repository/dto/list-price.dto';
 import { ListPricingRepository } from '../repository/list-pricing.repository';
 import { PricingFormula, PricingType } from '../../type/pricing.type';
 import { InvalidSizeError } from '../error/invalid-size.error';
-import type { ListPrice, MaxArea } from '../../type/api.type';
-import { PricingUtilites, fabricDefaultPricing, fabricIds } from '$lib/shared/pricing.utilites';
+import type { ListPrice, MaxArea, MaxAreaM2 } from '../../type/api.type';
+import {
+	PricingUtilites,
+	fabricDefaultPricing,
+	fabricIds,
+	fitFormulas
+} from '$lib/shared/pricing.utilites';
 import type { OrderDimensions } from '$lib/type/order.type';
 
 export class PricingService {
@@ -56,6 +62,7 @@ export class PricingService {
 		type: PricingType,
 		formula: PricingFormula,
 		areas: MaxArea[] = [],
+		areasM2: MaxAreaM2[] = [],
 		priority: number,
 		maxD1?: number,
 		maxD2?: number
@@ -68,6 +75,7 @@ export class PricingService {
 			type,
 			formula,
 			areas,
+			areasM2,
 			maxD1,
 			maxD2,
 			priority
@@ -170,6 +178,8 @@ export class PricingService {
 				return leftoverPricing(priceInfo.price, d1, d2);
 			case PricingFormula.FORMULA_FIT_AREA:
 				return fitAreaPricing(priceInfo, d1t, d2t);
+			case PricingFormula.FORMULA_FIT_AREA_M2:
+				return fitAreaM2Pricing(priceInfo, d1t, d2t);
 			case PricingFormula.FORMULA_AREA:
 				return areaPricing(priceInfo.price, d1, d2);
 			case PricingFormula.FORMULA_LINEAR:
@@ -187,17 +197,32 @@ export class PricingService {
 		}
 
 		if (
-			listPrice.formula !== PricingFormula.FORMULA_FIT_AREA &&
+			listPrice.formula === PricingFormula.FORMULA_FIT_AREA_M2 &&
+			listPrice.areasM2.length === 0
+		) {
+			throw Error('Areas m2 are required for fit area m2 pricing');
+		}
+
+		if (
+			!fitFormulas.includes(listPrice.formula) &&
 			(listPrice.price == null || (listPrice.price <= 0 && listPrice.type !== PricingType.MOLD))
 		) {
 			console.log(listPrice);
 			throw Error('No price provided for this formula');
 		}
 
-		if (listPrice.formula === PricingFormula.FORMULA_FIT_AREA) {
+		if (fitFormulas.includes(listPrice.formula)) {
 			listPrice.price = 0;
+			if (listPrice.formula !== PricingFormula.FORMULA_FIT_AREA) {
+				listPrice.areas = [];
+			}
+
+			if (listPrice.formula !== PricingFormula.FORMULA_FIT_AREA_M2) {
+				listPrice.areasM2 = [];
+			}
 		} else {
 			listPrice.areas = [];
+			listPrice.areasM2 = [];
 		}
 
 		if (listPrice.type === PricingType.MOLD) {
@@ -259,6 +284,7 @@ export class PricingService {
 			type: price.type,
 			formula: price.formula,
 			areas: price.areas,
+			areasM2: price.areasM2,
 			maxD1: price.maxD1,
 			maxD2: price.maxD2,
 			priority: price.priority
@@ -274,6 +300,7 @@ export class PricingService {
 			type: dto.type as PricingType,
 			formula: dto.formula as PricingFormula,
 			areas: dto.areas,
+			areasM2: dto.areasM2 ?? [],
 			maxD1: dto.maxD1,
 			maxD2: dto.maxD2,
 			priority: dto.priority ?? 0

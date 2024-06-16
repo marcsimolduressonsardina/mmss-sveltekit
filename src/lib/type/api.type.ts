@@ -91,6 +91,11 @@ export type MaxArea = {
 	price: number;
 };
 
+export type MaxAreaM2 = {
+	a: number;
+	price: number;
+};
+
 export type ListPrice = {
 	id: string;
 	internalId: string;
@@ -99,6 +104,7 @@ export type ListPrice = {
 	type: PricingType;
 	formula: PricingFormula;
 	areas: MaxArea[];
+	areasM2: MaxAreaM2[];
 	priority: number;
 	maxD1?: number;
 	maxD2?: number;

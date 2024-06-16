@@ -198,7 +198,6 @@
 		partsToCalulatePreview = [...partsToCalulatePreview, { pre: partToCalculate, post: part }];
 		partsToCalculate = [...partsToCalculate, partToCalculate];
 		$form.partsToCalculate = partsToCalculate;
-		showAddedPartToast(part);
 	}
 
 	async function getPartToCalculate(
@@ -283,7 +282,6 @@
 			};
 			extraParts = [part, ...extraParts];
 			$form.extraParts = extraParts;
-			showAddedPartToast(part);
 		}
 
 		// Reset the inputs
@@ -296,14 +294,6 @@
 		if (quantityElement) {
 			quantityElement.value = '1';
 		}
-	}
-
-	function showAddedPartToast(part: CalculatedItemPart) {
-		const price = part.price * part.quantity;
-		toastStore.trigger({
-			message: `${part.description} añadido a la lista. Precio: ${price.toFixed(2)} €.`,
-			background: 'variant-filled'
-		});
 	}
 
 	function updateTotal(

@@ -2,6 +2,7 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { faRuler } from '@fortawesome/free-solid-svg-icons/faRuler';
+	import { faQuestion } from '@fortawesome/free-solid-svg-icons/faQuestion';
 	import Icon from 'svelte-awesome';
 	import check from 'svelte-awesome/icons/check';
 	import trash from 'svelte-awesome/icons/trash';
@@ -11,8 +12,8 @@
 	import { PricingFormula, PricingType } from '$lib/type/pricing.type';
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import type { MaxArea } from '$lib/type/api.type';
-	import { formulasMap, pricingTypesMap } from '$lib/shared/pricing.utilites';
+	import type { MaxArea, MaxAreaM2 } from '$lib/type/api.type';
+	import { fitFormulas, formulasMap, pricingTypesMap } from '$lib/shared/pricing.utilites';
 
 	export let data;
 	export let isNew: boolean;
@@ -23,13 +24,37 @@
 
 	let maxD1Value: number | undefined;
 	let maxD2Value: number | undefined;
+	let maxM2Value: number | undefined;
 	let priceValue: number | undefined;
 
-	let isAreaFit = $form.formula === PricingFormula.FORMULA_FIT_AREA;
+	let isAreaFit = fitFormulas.includes($form.formula);
 	let areas: MaxArea[] = $form.areas;
+	let areasM2: MaxAreaM2[] = $form.areasM2;
 
 	function handleFormulaChange() {
-		isAreaFit = $form.formula === PricingFormula.FORMULA_FIT_AREA;
+		isAreaFit = fitFormulas.includes($form.formula);
+		areas = [];
+		areasM2 = [];
+		$form.areas = [];
+		$form.areasM2 = [];
+	}
+
+	function handleAddAreaM2() {
+		if (maxM2Value && priceValue && maxM2Value > 0 && priceValue >= 0) {
+			const areaM2 = {
+				a: maxM2Value,
+				price: priceValue
+			};
+
+			addAreaM2(areaM2);
+			maxM2Value = undefined;
+			priceValue = undefined;
+		} else {
+			toastStore.trigger({
+				message: 'Algunos campos son incorrectos',
+				background: 'variant-filled-error'
+			});
+		}
 	}
 
 	function handleAddArea() {
@@ -64,6 +89,11 @@
 		$form.areas = areas;
 	}
 
+	function handleAreaM2Delete(area: MaxAreaM2) {
+		areasM2 = areasM2.filter((a) => a !== area);
+		$form.areasM2 = areasM2;
+	}
+
 	function sortAreas(a: MaxArea, b: MaxArea) {
 		if (a.d1 * a.d2 === b.d1 * b.d2) {
 			if (a.d1 === b.d1) {
@@ -81,6 +111,13 @@
 		[...areas, area].forEach((a) => map.set(`${a.d1}x${a.d2}`, a));
 		areas = [...map.values()].sort(sortAreas);
 		$form.areas = areas;
+	}
+
+	function addAreaM2(area: MaxAreaM2) {
+		const map = new Map<string, MaxAreaM2>();
+		[...areasM2, area].forEach((a) => map.set(`${a.a}`, a));
+		areasM2 = [...map.values()].sort((x, y) => x.a - y.a);
+		$form.areasM2 = areasM2;
 	}
 
 	let formLoading = false;
@@ -154,7 +191,6 @@
 					name="formula"
 					bind:value={$form.formula}
 					on:change={handleFormulaChange}
-					disabled={!isNew}
 				>
 					{#each Object.entries(formulasMap) as [p, label]}
 						<option value={p}>{label}</option>
@@ -166,17 +202,99 @@
 		<Spacer title={'Datos del precio'} />
 
 		{#if isAreaFit}
-			<label class="label" for="d1">
-				<span>Dimensión máxima 1:</span>
-				<input class="input" id="d1" type="number" step="0.01" name="d1" bind:value={maxD1Value} />
-			</label>
-			<label class="label" for="d2">
-				<span>Dimensión máxima 2:</span>
-				<input class="input" id="d2" type="number" step="0.01" name="d2" bind:value={maxD2Value} />
-			</label>
-			<label class="label lg:col-span-2">
-				<span>Precio del trozo: </span>
-				<div class="space-y-2 lg:grid lg:grid-cols-2 lg:space-x-2 lg:space-y-0">
+			{#if $form.formula === PricingFormula.FORMULA_FIT_AREA}
+				<label class="label" for="d1">
+					<span>Dimensión máxima 1:</span>
+					<input
+						class="input"
+						id="d1"
+						type="number"
+						step="0.01"
+						name="d1"
+						bind:value={maxD1Value}
+					/>
+				</label>
+				<label class="label" for="d2">
+					<span>Dimensión máxima 2:</span>
+					<input
+						class="input"
+						id="d2"
+						type="number"
+						step="0.01"
+						name="d2"
+						bind:value={maxD2Value}
+					/>
+				</label>
+				<label class="label lg:col-span-2">
+					<span>Precio del trozo: </span>
+					<div class="space-y-2 lg:grid lg:grid-cols-2 lg:space-x-2 lg:space-y-0">
+						<input
+							class="input"
+							id="piecePrice"
+							type="number"
+							step="0.01"
+							name="piecePrice"
+							bind:value={priceValue}
+						/>
+						<button
+							class="variant-filled btn w-full lg:w-auto"
+							type="button"
+							on:click={handleAddArea}
+						>
+							<Icon class="mr-2" data={plus} /> Añadir
+						</button>
+					</div>
+				</label>
+				{#if areas.length > 0}
+					<Spacer title={'Trozos añadidos'} />
+					<dl class="list-dl lg:col-span-2">
+						{#each areas as area}
+							<div>
+								<span class="badge bg-green-200"><Icon data={faRuler} /></span>
+								<span class="flex-auto">
+									<dt>Medidas ≤ {area.d1} x {area.d2}</dt>
+									<dd>{area.price.toFixed(2)} €</dd>
+								</span>
+								<button
+									type="button"
+									class="btn bg-indigo-300"
+									on:click={() => handleAreaDelete(area)}
+									><Icon class="mr-2" data={trash} /> Eliminar</button
+								>
+							</div>
+						{/each}
+					</dl>
+				{/if}
+			{/if}
+			{#if $form.formula === PricingFormula.FORMULA_FIT_AREA_M2}
+				<div class="pb-2 lg:col-span-2">
+					<aside class="alert variant-filled-secondary">
+						<!-- Icon -->
+						<div><Icon scale={3} data={faQuestion} /></div>
+						<!-- Message -->
+						<div class="alert-message">
+							<h4 class="h4">Área mayor o igual que (≥)</h4>
+							<p>
+								No existe la posibilidad de introducir un precio del tipo mayor o igual que, todos
+								deben ser menor o igual que. Para solucionar este problema, introduzca un valor para
+								área máxima lo suficientemente grande para el último trozo (Área ≤ 200 m2).
+							</p>
+						</div>
+					</aside>
+				</div>
+				<label class="label" for="m2">
+					<span>Área máxima :</span>
+					<input
+						class="input"
+						id="m2"
+						type="number"
+						step="0.01"
+						name="m2"
+						bind:value={maxM2Value}
+					/>
+				</label>
+				<label class="label" for="piecePrice">
+					<span>Precio del trozo: </span>
 					<input
 						class="input"
 						id="piecePrice"
@@ -185,35 +303,34 @@
 						name="piecePrice"
 						bind:value={priceValue}
 					/>
-					<button
-						class="variant-filled btn w-full lg:w-auto"
-						type="button"
-						on:click={handleAddArea}
-					>
-						<Icon class="mr-2" data={plus} /> Añadir
-					</button>
-				</div>
-			</label>
-
-			{#if areas.length > 0}
-				<Spacer title={'Trozos añadidos'} />
-				<dl class="list-dl lg:col-span-2">
-					{#each areas as area}
-						<div>
-							<span class="badge bg-green-200"><Icon data={faRuler} /></span>
-							<span class="flex-auto">
-								<dt>Medidas ≤ {area.d1} x {area.d2}</dt>
-								<dd>{area.price.toFixed(2)} €</dd>
-							</span>
-							<button
-								type="button"
-								class="btn bg-indigo-300"
-								on:click={() => handleAreaDelete(area)}
-								><Icon class="mr-2" data={trash} /> Eliminar</button
-							>
-						</div>
-					{/each}
-				</dl>
+				</label>
+				<button
+					class="w-ful variant-filled btn lg:col-span-2"
+					type="button"
+					on:click={handleAddAreaM2}
+				>
+					<Icon class="mr-2" data={plus} /> Añadir
+				</button>
+				{#if areasM2.length > 0}
+					<Spacer title={'Trozos añadidos'} />
+					<dl class="list-dl lg:col-span-2">
+						{#each areasM2 as area}
+							<div>
+								<span class="badge bg-green-200"><Icon data={faRuler} /></span>
+								<span class="flex-auto">
+									<dt>Área ≤ {area.a} m2</dt>
+									<dd>{area.price.toFixed(2)} €</dd>
+								</span>
+								<button
+									type="button"
+									class="btn bg-indigo-300"
+									on:click={() => handleAreaM2Delete(area)}
+									><Icon class="mr-2" data={trash} /> Eliminar</button
+								>
+							</div>
+						{/each}
+					</dl>
+				{/if}
 			{/if}
 		{:else}
 			<label class="label lg:col-span-2" for="price">

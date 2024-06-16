@@ -31,6 +31,10 @@
 
 	const enWeekDay = DateTime.fromJSDate(order.item.deliveryDate).weekdayShort as string;
 	const esWeekDay = weekDayMap[enWeekDay] ?? enWeekDay;
+	const discount =
+		calculatedItem.discount > 0
+			? `(${OrderUtilites.getDiscountRepresentation(calculatedItem.discount)})`
+			: '';
 
 	const statusInfo: string[] = [];
 
@@ -48,8 +52,6 @@
 		);
 	}
 
-	const extraColForDiscount = calculatedItem.discount > 0 ? 1 : 0;
-
 	function groupInPairs(arr: string[]): string[][] {
 		const result: string[][] = [];
 
@@ -66,7 +68,7 @@
 	onMount(() => {
 		if (print) {
 			setTimeout(() => {
-				window.print();
+				// window.print();
 			}, 750);
 		}
 	});
@@ -81,16 +83,14 @@
 					<p class="customer-bottom">{OrderUtilites.getOrderPublicId(order)}</p>
 				</div>
 			</td>
-			<td colspan={3 + extraColForDiscount} class="center-text">
+			<td colspan={3} class="center-text">
 				<img
 					class="logo"
 					src="https://marcsimoldures.com/wp-content/uploads/2017/02/MMlogo111.png"
 					alt="logo"
 				/>
 				<div class="customer-text">
-					<p class="customer-bottom">
-						Polígono de Son Rossinyol - Gremi Hortolans 19 - +34 971666920
-					</p>
+					<p class="customer-bottom">Polígono de Son Rossinyol - Gremi Hortolans 19 - 971666920</p>
 					<p class="customer-bottom">www.marcsimoldures.com - mmss@marcsimoldures.com</p>
 					<p class="customer-bottom">Horario de lunes a viernes de 09:00 a 18:00,</p>
 					<p class="customer-bottom">sábados de 09:30 a 13:15</p>
@@ -100,12 +100,12 @@
 
 		<tr>
 			<th colspan="2">Dependiente</th>
-			<th colspan={1 + extraColForDiscount}>Fecha</th>
+			<th>Fecha</th>
 			<th>Hora</th>
 		</tr>
 		<tr>
 			<td colspan="2">{order.user.name}</td>
-			<td class="center-text" colspan={1 + extraColForDiscount}>
+			<td class="center-text">
 				{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy')}
 			</td>
 			<td class="center-text">{DateTime.fromJSDate(order.createdAt).toFormat('HH:mm')}</td>
@@ -115,7 +115,7 @@
 			<th>Moldura</th>
 			<th>Cristal</th>
 			<th>Trasera</th>
-			<th colspan={1 + extraColForDiscount}>PP / Fondo</th>
+			<th>PP / Fondo</th>
 		</tr>
 		<tr>
 			<td>
@@ -133,7 +133,7 @@
 					{back}<br />
 				{/each}
 			</td>
-			<td colspan={1 + extraColForDiscount}>
+			<td>
 				{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.PP) as pp}
 					{pp}<br />
 				{/each}
@@ -149,7 +149,7 @@
 		<tr>
 			<th>Medidas</th>
 			<th>Uds</th>
-			<th colspan={3 + extraColForDiscount}>Descripción</th>
+			<th colspan={3}>Descripción</th>
 		</tr>
 		<tr>
 			<td>
@@ -161,14 +161,14 @@
 				{/if}
 			</td>
 			<td class="center-text"> {order.item.quantity} </td>
-			<td colspan={3 + extraColForDiscount}>{order.item.description}</td>
+			<td colspan={3}>{order.item.description}</td>
 		</tr>
 		{#if others.length > 0}
 			<tr>
-				<th colspan={4 + extraColForDiscount}> Otros </th>
+				<th colspan={4}> Otros </th>
 			</tr>
 			<tr>
-				<td colspan={4 + extraColForDiscount}>
+				<td colspan={4}>
 					<table class="internal-table">
 						{#each groupInPairs(others) as pair}
 							<tr>
@@ -185,10 +185,10 @@
 			</tr>
 		{/if}
 		<tr>
-			<th colspan={4 + extraColForDiscount}> Observaciones </th>
+			<th colspan={4}> Observaciones </th>
 		</tr>
 		<tr>
-			<td colspan={4 + extraColForDiscount}>
+			<td colspan={4}>
 				{order.item.observations}
 				<table class="internal-table">
 					{#each groupInPairs(order.item.predefinedObservations) as pair}
@@ -206,43 +206,35 @@
 		</tr>
 		<tr>
 			<th>Precio ud</th>
-			{#if calculatedItem.discount > 0}
-				<th></th>
-			{/if}
 			<th>Uds</th>
 			<th>A cuenta</th>
-			<th>Total {order.hasArrow ? '⬇︎' : ''}</th>
+			<th>{discount} Total {order.hasArrow ? '⬇︎' : ''}</th>
 		</tr>
 		<tr>
 			<td class="center-text">
 				{CalculatedItemUtilities.getUnitPriceWithoutDiscount(calculatedItem)} €
 			</td>
-			{#if calculatedItem.discount > 0}
-				<td class="center-text">
-					{OrderUtilites.getDiscountRepresentation(calculatedItem.discount)}
-				</td>
-			{/if}
 			<td class="center-text"> {order.item.quantity} </td>
 			<td class="center-text"> {order.amountPayed.toFixed(2)} €</td>
 			<td class="center-text">{calculatedItem.total.toFixed(2)} €</td>
 		</tr>
 		<tr>
-			<th colspan="1"> Recogida </th>
-			<th colspan={2 + extraColForDiscount}> Cliente </th>
-			<th colspan="1"> Teléfono </th>
+			<th> Recogida </th>
+			<th colspan={2}> Cliente </th>
+			<th> Teléfono </th>
 		</tr>
 		<tr>
-			<td colspan="1" class="center-text">
+			<td class="center-text">
 				{esWeekDay}
 				{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
 			</td>
-			<td colspan={2 + extraColForDiscount} class="center-text"> {order.customer.name} </td>
-			<td colspan="1" class="center-text"> {order.customer.phone} </td>
+			<td colspan={2} class="center-text"> {order.customer.name} </td>
+			<td class="center-text"> {order.customer.phone} </td>
 		</tr>
 
 		{#if statusInfo.length > 0}
 			<tr>
-				<td colspan={4 + extraColForDiscount} class="center-text status-info">
+				<td colspan={4} class="center-text status-info">
 					{statusInfo.join(' | ')}
 				</td>
 			</tr>

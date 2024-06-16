@@ -5,8 +5,8 @@
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { PricingFormula, PricingType } from '$lib/type/pricing.type';
 	import { writable } from 'svelte/store';
-	import { emptyPricing, formulasMap } from '$lib/shared/pricing.utilites';
-	import type { ListPrice, MaxArea } from '$lib/type/api.type';
+	import { emptyPricing, fitFormulas, formulasMap } from '$lib/shared/pricing.utilites';
+	import type { ListPrice, MaxArea, MaxAreaM2 } from '$lib/type/api.type';
 	import { goto } from '$app/navigation';
 
 	export let data: PageData;
@@ -23,8 +23,12 @@
 		tableSource = generatTableSource(selectedType);
 	}
 
-	function getPriceLabel(price: number, formula: PricingFormula, areas: MaxArea[]): string {
-		if (formula === PricingFormula.FORMULA_FIT_AREA) {
+	function getPriceLabel(
+		price: number,
+		formula: PricingFormula,
+		areas: (MaxArea | MaxAreaM2)[]
+	): string {
+		if (fitFormulas.includes(formula)) {
 			const prices = areas.map((a) => a.price);
 			const max = Math.max(...prices);
 			const min = Math.min(...prices);
@@ -67,7 +71,7 @@
 				id: i.id,
 				internalId: i.internalId,
 				description: i.description,
-				price: getPriceLabel(i.price, i.formula, i.areas),
+				price: getPriceLabel(i.price, i.formula, [...i.areas, ...i.areasM2]),
 				formula: formulasMap[i.formula]
 			};
 		});
