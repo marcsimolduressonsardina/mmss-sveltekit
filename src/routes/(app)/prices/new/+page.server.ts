@@ -3,9 +3,10 @@ import { setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 
 import { PricingService } from '$lib/server/service/pricing.service.js';
-import { listPriceSchemaNew } from '$lib/shared/pricing.utilites';
+import { PricingUtilites, listPriceSchemaNew } from '$lib/shared/pricing.utilites';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { PricingFormula } from '$lib/type/pricing.type.js';
+import type { MaxArea, MaxAreaM2 } from '$lib/type/api.type.js';
 
 export const load = async ({ locals }) => {
 	await AuthUtilities.checkAuth(locals, true);
@@ -18,19 +19,25 @@ export const actions = {
 		await AuthUtilities.checkAuth(locals, true);
 
 		const form = await superValidate(request, zod(listPriceSchemaNew));
-		console.log(form.errors);
+		console.log(form);
 		if (!form.valid) {
 			return fail(400, { form });
 		}
 
 		const pricingService = new PricingService();
 		try {
-			const areas = form.data.formula === PricingFormula.FORMULA_FIT_AREA ? form.data.areas : [];
-			const price = form.data.formula === PricingFormula.FORMULA_FIT_AREA ? 0 : form.data.price;
-			const maxD1 =
-				form.data.formula === PricingFormula.FORMULA_FIT_AREA ? undefined : form.data.maxD1;
-			const maxD2 =
-				form.data.formula === PricingFormula.FORMULA_FIT_AREA ? undefined : form.data.maxD2;
+			const { price, maxD1, maxD2, areas, areasM2 } = PricingUtilites.cleanFormValues(
+				form as unknown as {
+					data: {
+						formula: PricingFormula;
+						areas: MaxArea[];
+						areasM2: MaxAreaM2[];
+						price: number;
+						maxD1: number;
+						maxD2: number;
+					};
+				}
+			);
 
 			await pricingService.createPricing(
 				form.data.id,
@@ -39,11 +46,13 @@ export const actions = {
 				form.data.type,
 				form.data.formula,
 				areas,
+				areasM2,
 				form.data.priority,
 				maxD1,
 				maxD2
 			);
 		} catch (error: unknown) {
+			console.log(error);
 			return setError(form, '', 'Error creando el item. Intente de nuevo.');
 		}
 

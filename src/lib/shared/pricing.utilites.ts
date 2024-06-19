@@ -1,4 +1,4 @@
-import type { ListPrice, ListPriceForm } from '$lib/type/api.type';
+import type { ListPrice, ListPriceForm, MaxArea, MaxAreaM2 } from '$lib/type/api.type';
 import { PricingFormula, PricingType } from '$lib/type/pricing.type';
 import { z } from 'zod';
 
@@ -16,6 +16,7 @@ export const fabricDefaultPricing: ListPrice = {
 	type: PricingType.FABRIC,
 	formula: PricingFormula.NONE,
 	areas: [],
+	areasM2: [],
 	maxD1: 300,
 	maxD2: 250,
 	priority: 1
@@ -57,7 +58,8 @@ export const pricingTypesMap: Record<EditablePricingTypes, string> = {
 export const formulasMap: Record<PricingFormula, string> = {
 	[PricingFormula.NONE]: 'Precio unitario sin cálculos',
 	[PricingFormula.FORMULA_AREA]: 'Precio por m2',
-	[PricingFormula.FORMULA_FIT_AREA]: 'Precio por trozos',
+	[PricingFormula.FORMULA_FIT_AREA_M2]: 'Precio por trozos (≤ m2)',
+	[PricingFormula.FORMULA_FIT_AREA]: 'Precio por trozos (≤ d1 x d2)',
 	[PricingFormula.FORMULA_LINEAR]: 'Precio por metro lineal (perímetro)',
 	[PricingFormula.FORMULA_LEFTOVER]: 'Precio con fórmula m2 * precio * IVA * 5 + 2'
 };
@@ -66,13 +68,21 @@ export const formulasStringMap: Record<PricingFormula, string> = {
 	[PricingFormula.NONE]: '',
 	[PricingFormula.FORMULA_AREA]: ' / m2',
 	[PricingFormula.FORMULA_FIT_AREA]: '',
+	[PricingFormula.FORMULA_FIT_AREA_M2]: '',
 	[PricingFormula.FORMULA_LINEAR]: ' / m',
 	[PricingFormula.FORMULA_LEFTOVER]: ' * m2 * IVA * 5 + 2'
 };
 
+export const fitFormulas = [PricingFormula.FORMULA_FIT_AREA, PricingFormula.FORMULA_FIT_AREA_M2];
+
 const areaSchema = z.object({
 	d1: z.number().min(1.0),
 	d2: z.number().min(1.0),
+	price: z.number().min(0)
+});
+
+const areaM2Schema = z.object({
+	a: z.number().min(1.0),
 	price: z.number().min(0)
 });
 
@@ -93,11 +103,13 @@ const listPriceSchema = {
 	formula: z.enum([
 		PricingFormula.FORMULA_LEFTOVER,
 		PricingFormula.FORMULA_FIT_AREA,
+		PricingFormula.FORMULA_FIT_AREA_M2,
 		PricingFormula.FORMULA_AREA,
 		PricingFormula.FORMULA_LINEAR,
 		PricingFormula.NONE
 	]),
 	areas: z.array(areaSchema).default([]),
+	areasM2: z.array(areaM2Schema).default([]),
 	maxD1: z.number().optional(),
 	maxD2: z.number().optional(),
 	priority: z.number().default(0)
@@ -157,10 +169,45 @@ export class PricingUtilites {
 			type: PricingType.FABRIC,
 			formula: PricingFormula.NONE,
 			areas: [],
+			areasM2: [],
 			maxD1: 300,
 			maxD2: 250,
 			priority: 1,
 			moldId
 		};
+	}
+
+	static cleanFormValues(form: {
+		data: {
+			formula: PricingFormula;
+			areas: MaxArea[];
+			areasM2: MaxAreaM2[];
+			price: number;
+			maxD1: number;
+			maxD2: number;
+		};
+	}) {
+		if (fitFormulas.includes(form.data.formula)) {
+			const price = 0;
+			const maxD1 = undefined;
+			const maxD2 = undefined;
+			let areas: MaxArea[] = [];
+			let areasM2: MaxAreaM2[] = [];
+			if (form.data.formula === PricingFormula.FORMULA_FIT_AREA) {
+				areas = form.data.areas;
+			}
+
+			if (form.data.formula === PricingFormula.FORMULA_FIT_AREA_M2) {
+				areasM2 = form.data.areasM2;
+			}
+			return { price, maxD1, maxD2, areas, areasM2 };
+		} else {
+			const price = form.data.price;
+			const maxD1 = form.data.maxD1;
+			const maxD2 = form.data.maxD2;
+			const areas: MaxArea[] = [];
+			const areasM2: MaxAreaM2[] = [];
+			return { price, maxD1, maxD2, areas, areasM2 };
+		}
 	}
 }
