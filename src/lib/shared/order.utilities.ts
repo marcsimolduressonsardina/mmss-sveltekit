@@ -91,6 +91,12 @@ export class OrderUtilites {
 				return `${discount}%`;
 		}
 	}
+
+	public static getYesterday(): Date {
+		const now = DateTime.now();
+		const yesterday = now.minus({ days: 1 });
+		return yesterday.toJSDate();
+	}
 }
 
 export const tempCustomerUuid = 'temp-customer';
@@ -139,7 +145,7 @@ const ppDimensionsSchema = z.object({
 export const itemSchema = z.object({
 	width: z.number().min(10).default(0),
 	height: z.number().min(10).default(0),
-	deliveryDate: z.date().min(new Date()),
+	deliveryDate: z.date().min(OrderUtilites.getYesterday()),
 	description: z.string().default(''),
 	observations: z.string().default(''),
 	quantity: z.number().int().min(1).default(1),

@@ -68,7 +68,7 @@
 	onMount(() => {
 		if (print) {
 			setTimeout(() => {
-				// window.print();
+				window.print();
 			}, 750);
 		}
 	});
@@ -261,7 +261,7 @@
 
 		@page {
 			size: A5 portrait;
-			margin: 0;
+			margin: 0 !important;
 		}
 
 		body {
