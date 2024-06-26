@@ -82,7 +82,7 @@ const areaSchema = z.object({
 });
 
 const areaM2Schema = z.object({
-	a: z.number().min(1.0),
+	a: z.number().min(0),
 	price: z.number().min(0)
 });
 
