@@ -379,6 +379,17 @@
 		fabricPrices = newPrices;
 	}
 
+	// Added vars
+
+	$: addedPP = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.PP).length > 0;
+	$: addedBack = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.BACK).length > 0;
+	$: addedLabour =
+		partsToCalulatePreview.filter((p) =>
+			[PricingType.FABRIC, PricingType.LABOUR].includes(p.pre.type)
+		).length > 0;
+	$: addedMold = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.MOLD).length > 0;
+	$: addedGlass = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.GLASS).length > 0;
+
 	$: {
 		updatePP(asymetricPP, upPP, downPP, leftPP, rightPP);
 		updateTotalSizes($form.width, $form.height, $form.pp, $form.ppDimensions);
@@ -437,6 +448,7 @@
 				prices={pricing.ppPrices}
 				addValue={addFromPricingSelector}
 				showExtraInfo={true}
+				added={addedPP}
 			/>
 
 			<label class="label" for="pp"
@@ -540,6 +552,7 @@
 				prices={pricing.moldPrices}
 				addValue={addFromPricingSelector}
 				pricingType={PricingType.MOLD}
+				added={addedMold}
 			/>
 
 			<dl class="list-dl lg:col-span-2">
@@ -557,6 +570,7 @@
 				label={'Tipo de cristal'}
 				prices={pricing.glassPrices}
 				addValue={addFromPricingSelector}
+				added={addedGlass}
 			/>
 
 			<dl class="list-dl lg:col-span-2">
@@ -574,6 +588,7 @@
 				label={'Tipo de trasera'}
 				prices={pricing.backPrices}
 				addValue={addFromPricingSelector}
+				added={addedBack}
 			/>
 
 			<dl class="list-dl lg:col-span-2">
@@ -639,6 +654,7 @@
 				label={'Tipo de montaje'}
 				prices={[...pricing.labourPrices, ...fabricPrices]}
 				addValue={addFromPricingSelector}
+				added={addedLabour}
 			/>
 
 			<dl class="list-dl lg:col-span-2">
