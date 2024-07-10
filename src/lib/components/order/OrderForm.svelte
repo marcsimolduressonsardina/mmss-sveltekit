@@ -77,7 +77,8 @@
 		'Sabe que puede ondular',
 		'No pegar',
 		'Muy delicado',
-		'La obra puede ser dañada por su manipulación'
+		'La obra puede ser dañada por su manipulación',
+		'El cliente autoriza a publicar su obra en redes'
 	];
 
 	let predefinedElementInput: HTMLSelectElement;
