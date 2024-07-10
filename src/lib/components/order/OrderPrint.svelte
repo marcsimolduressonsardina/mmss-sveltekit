@@ -75,105 +75,134 @@
 </script>
 
 <main>
-	<table border="1" cellpadding="4" style="">
+	<table>
 		<tr>
-			<td colspan="1" class="center-text">
-				<Qr size={85} qrData={order.id}></Qr>
-				<div class="customer-text">
-					<p class="customer-bottom">{OrderUtilites.getOrderPublicId(order)}</p>
-				</div>
-			</td>
-			<td colspan={3} class="center-text">
-				<img
-					class="logo"
-					src="https://marcsimoldures.com/wp-content/uploads/2017/02/MMlogo111.png"
-					alt="logo"
-				/>
-				<div class="customer-text">
-					<p class="customer-bottom">Polígono de Son Rossinyol - Gremi Hortolans 19 - 971666920</p>
-					<p class="customer-bottom">www.marcsimoldures.com - mmss@marcsimoldures.com</p>
-					<p class="customer-bottom">Horario de lunes a viernes de 09:00 a 18:00,</p>
-					<p class="customer-bottom">sábados de 09:30 a 13:15</p>
-				</div>
+			<td class="inner-td">
+				<table class="inner-table">
+					<tr>
+						<td>
+							<Qr size={85} qrData={order.id}></Qr>
+							<div class="customer-text">
+								<p class="customer-bottom">{OrderUtilites.getOrderPublicId(order)}</p>
+							</div>
+						</td>
+						<td>
+							<img
+								class="logo"
+								src="https://marcsimoldures.com/wp-content/uploads/2017/02/MMlogo111.png"
+								alt="logo"
+							/>
+							<div class="customer-text">
+								<p class="customer-bottom">
+									Polígono de Son Rossinyol - Gremi Hortolans 19 - 971666920
+								</p>
+								<p class="customer-bottom">www.marcsimoldures.com - mmss@marcsimoldures.com</p>
+								<p class="customer-bottom">Horario de lunes a viernes de 09:00 a 18:00,</p>
+								<p class="customer-bottom">sábados de 09:30 a 13:15</p>
+							</div>
+						</td>
+					</tr>
+				</table>
 			</td>
 		</tr>
 
 		<tr>
-			<th colspan="2">Dependiente</th>
-			<th>Fecha</th>
-			<th>Hora</th>
-		</tr>
-		<tr>
-			<td colspan="2">{order.user.name}</td>
-			<td class="center-text">
-				{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy')}
+			<td class="inner-td">
+				<table class="inner-table">
+					<tr>
+						<th>Dependiente</th>
+						<th>Fecha</th>
+						<th>Hora</th>
+					</tr>
+					<tr>
+						<td>{order.user.name}</td>
+						<td>
+							{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy')}
+						</td>
+						<td>{DateTime.fromJSDate(order.createdAt).toFormat('HH:mm')}</td>
+					</tr>
+				</table>
 			</td>
-			<td class="center-text">{DateTime.fromJSDate(order.createdAt).toFormat('HH:mm')}</td>
 		</tr>
 
 		<tr>
-			<th>Moldura</th>
-			<th>Cristal</th>
-			<th>Trasera</th>
-			<th>PP / Fondo</th>
-		</tr>
-		<tr>
-			<td>
-				{#each OrderUtilites.getOrderMolds(order) as mold}
-					{mold}<br />
-				{/each}
-			</td>
-			<td>
-				{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.GLASS) as glass}
-					{glass}<br />
-				{/each}
-			</td>
-			<td>
-				{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.BACK) as back}
-					{back}<br />
-				{/each}
-			</td>
-			<td>
-				{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.PP) as pp}
-					{pp}<br />
-				{/each}
+			<td class="inner-td">
+				<table class="inner-table">
+					<tr>
+						<th>Moldura</th>
+						<th>Cristal</th>
+						<th>Trasera</th>
+						<th>PP / Fondo</th>
+					</tr>
+					<tr>
+						<td>
+							{#each OrderUtilites.getOrderMolds(order) as mold}
+								{mold}<br />
+							{/each}
+						</td>
+						<td>
+							{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.GLASS) as glass}
+								{glass}<br />
+							{/each}
+						</td>
+						<td>
+							{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.BACK) as back}
+								{back}<br />
+							{/each}
+						</td>
+						<td>
+							{#if order.item.pp > 0}
+								{order.item.pp}cm
+							{/if}
+							{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.PP) as pp}
+								{pp}<br />
+							{/each}
 
-				{#if order.item.ppDimensions}
-					AR: {order.item.ppDimensions.up}, AB: {order.item.ppDimensions.down}, D: {order.item
-						.ppDimensions.right}, I: {order.item.ppDimensions.left}
-				{:else if order.item.pp > 0}
-					Simétrico: {order.item.pp} cm
-				{/if}
+							{#if order.item.ppDimensions}
+								AR: {order.item.ppDimensions.up}, AB: {order.item.ppDimensions.down}, D: {order.item
+									.ppDimensions.right}, I: {order.item.ppDimensions.left}
+							{/if}
+						</td>
+					</tr>
+				</table>
 			</td>
 		</tr>
+
 		<tr>
-			<th>Medidas</th>
-			<th>Uds</th>
-			<th colspan={3}>Descripción</th>
-		</tr>
-		<tr>
-			<td>
-				Obra: {`${order.item.height}x${order.item.width} cm`} <br />
-				Trabajo: {OrderUtilites.getWorkingDimensions(order)}
-				{#if order.item.exteriorHeight || order.item.exteriorWidth}
-					<br />
-					Marco exterior: {`${order.item.exteriorHeight}x${order.item.exteriorWidth} cm`}
-				{/if}
+			<td class="inner-td">
+				<table class="inner-table">
+					<tr>
+						<th>Medidas</th>
+						<th>Uds</th>
+						<th>Descripción</th>
+					</tr>
+					<tr>
+						<td>
+							Obra: {`${order.item.height}x${order.item.width} cm`} <br />
+							Trabajo: {OrderUtilites.getWorkingDimensions(order)}
+							{#if order.item.exteriorHeight || order.item.exteriorWidth}
+								<br />
+								Marco exterior: {`${order.item.exteriorHeight}x${order.item.exteriorWidth} cm`}
+							{/if}
+						</td>
+						<td> {order.item.quantity} </td>
+						<td>{order.item.description}</td>
+					</tr>
+				</table>
 			</td>
-			<td class="center-text"> {order.item.quantity} </td>
-			<td colspan={3}>{order.item.description}</td>
 		</tr>
+
 		{#if others.length > 0}
 			<tr>
-				<th colspan={4}> Otros </th>
-			</tr>
-			<tr>
-				<td colspan={4}>
-					<table class="internal-table">
+				<td class="inner-td">
+					<table class="inner-table">
+						<tr>
+							<th colspan="2" class="list-th"> Otros </th>
+						</tr>
 						{#each groupInPairs(others) as pair}
 							<tr>
-								<td> {bullCharacter} {pair[0]} </td>
-								<td>
+								<td class="list-td"> {bullCharacter} {pair[0]} </td>
+								<td class="list-td">
 									{#if pair[1].length > 0}
 										{bullCharacter} {pair[1]}
 									{/if}
@@ -184,58 +213,92 @@
 				</td>
 			</tr>
 		{/if}
-		<tr>
-			<th colspan={4}> Observaciones </th>
-		</tr>
-		<tr>
-			<td colspan={4}>
-				{order.item.observations}
-				<table class="internal-table">
-					{#each groupInPairs(order.item.predefinedObservations) as pair}
+
+		{#if order.item.observations.trim().length > 0 || order.item.predefinedObservations.length > 0}
+			<tr>
+				<td class="inner-td">
+					<table class="inner-table">
 						<tr>
-							<td> {bullCharacter} {pair[0]} </td>
-							<td>
-								{#if pair[1].length > 0}
-									{bullCharacter} {pair[1]}
-								{/if}
-							</td>
+							<th colspan="2" class="list-th"> Observaciones </th>
 						</tr>
-					{/each}
+						{#if order.item.observations.trim().length > 0}
+							<tr>
+								<td colspan="2" class="list-td">
+									{order.item.observations}
+								</td>
+							</tr>
+						{/if}
+						{#each groupInPairs(order.item.predefinedObservations) as pair}
+							<tr>
+								<td class="list-td"> {bullCharacter} {pair[0]} </td>
+								<td class="list-td">
+									{#if pair[1].length > 0}
+										{bullCharacter} {pair[1]}
+									{/if}
+								</td>
+							</tr>
+						{/each}
+					</table>
+				</td>
+			</tr>
+		{/if}
+
+		<tr>
+			<td class="inner-td">
+				<table class="inner-table">
+					<tr>
+						<th>Precio ud</th>
+						{#if calculatedItem.discount > 0}
+							<th>Precio dto</th>
+						{/if}
+						<th>Uds</th>
+						<th>A cuenta</th>
+						<th>{discount} Total {order.hasArrow ? '⬇︎' : ''}</th>
+					</tr>
+					<tr>
+						<td>
+							{CalculatedItemUtilities.getUnitPriceWithoutDiscount(calculatedItem)} €
+						</td>
+						{#if calculatedItem.discount > 0}
+							<td>{CalculatedItemUtilities.getUnitPriceWithDiscount(calculatedItem)} €</td>
+						{/if}
+						<td> {order.item.quantity} </td>
+						<td> {order.amountPayed.toFixed(2)} €</td>
+						<td>{calculatedItem.total.toFixed(2)} €</td>
+					</tr>
 				</table>
 			</td>
 		</tr>
-		<tr>
-			<th>Precio ud</th>
-			<th>Uds</th>
-			<th>A cuenta</th>
-			<th>{discount} Total {order.hasArrow ? '⬇︎' : ''}</th>
-		</tr>
-		<tr>
-			<td class="center-text">
-				{CalculatedItemUtilities.getUnitPriceWithoutDiscount(calculatedItem)} €
-			</td>
-			<td class="center-text"> {order.item.quantity} </td>
-			<td class="center-text"> {order.amountPayed.toFixed(2)} €</td>
-			<td class="center-text">{calculatedItem.total.toFixed(2)} €</td>
-		</tr>
-		<tr>
-			<th> Recogida </th>
-			<th colspan={2}> Cliente </th>
-			<th> Teléfono </th>
-		</tr>
-		<tr>
-			<td class="center-text">
-				{esWeekDay}
-				{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
-			</td>
-			<td colspan={2} class="center-text"> {order.customer.name} </td>
-			<td class="center-text"> {order.customer.phone} </td>
-		</tr>
 
+		<tr>
+			<td class="inner-td">
+				<table class="inner-table">
+					<tr>
+						<th> Recogida </th>
+						<th> Cliente </th>
+						<th> Teléfono </th>
+					</tr>
+					<tr>
+						<td>
+							{esWeekDay}
+							{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+						</td>
+						<td> {order.customer.name} </td>
+						<td> {order.customer.phone} </td>
+					</tr>
+				</table>
+			</td>
+		</tr>
 		{#if statusInfo.length > 0}
 			<tr>
-				<td colspan={4} class="center-text status-info">
-					{statusInfo.join(' | ')}
+				<td class="inner-td">
+					<table class="inner-table">
+						<tr>
+							<td class="status-info">
+								{statusInfo.join(' | ')}
+							</td>
+						</tr>
+					</table>
 				</td>
 			</tr>
 		{/if}
@@ -270,9 +333,51 @@
 		}
 	}
 
+	.inner-table {
+		width: 100%;
+		border-collapse: collapse;
+		border: 1px solid black;
+		border-bottom: none;
+	}
+
+	.inner-td {
+		padding: 0;
+	}
+
+	.inner-table th {
+		background-color: darkgrey;
+		padding: 2px 3px 2px 3px;
+		color: white;
+		font-size: xx-small;
+		border: 1px solid black;
+		border-bottom: none;
+	}
+
+	.inner-table td {
+		padding: 3px;
+		text-align: center;
+		border: 1px solid black;
+		border-bottom: none;
+		font-size: x-small;
+	}
+
 	.customer-text {
 		font-family: sans-serif;
 		font-size: x-small;
+	}
+
+	.inner-table .list-td {
+		border: none;
+		text-align: left;
+	}
+
+	.inner-table .list-th {
+		border: 1px solid black;
+	}
+
+	.inner-table .status-info {
+		padding: 4px;
+		border-bottom: 1px solid black;
 	}
 
 	.customer-bottom {
@@ -282,24 +387,8 @@
 
 	table {
 		font-family: monospace;
-		font-size: smaller;
 		border-collapse: collapse;
 		margin: 0 auto;
-	}
-
-	.internal-table {
-		font-size: 11px;
-		width: 100%;
-	}
-
-	th {
-		background-color: darkgrey;
-		color: white;
-		font-size: xx-small;
-	}
-
-	.center-text {
-		text-align: center;
 	}
 
 	.logo {

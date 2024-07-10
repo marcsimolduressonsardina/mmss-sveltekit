@@ -19,7 +19,6 @@ export const actions = {
 		await AuthUtilities.checkAuth(locals, true);
 
 		const form = await superValidate(request, zod(listPriceSchemaNew));
-		console.log(form);
 		if (!form.valid) {
 			return fail(400, { form });
 		}
