@@ -67,7 +67,7 @@ export class MoldPriceLoader {
 		while (count < maxrow) {
 			const internalId = sheet[`A${count}`];
 			const externalId = sheet[`B${count}`];
-			const price = sheet[`H${count}`];
+			const price = sheet[`C${count}`];
 
 			if (internalId && externalId && price) {
 				const id = `${internalId.v}_${externalId.v}`;
