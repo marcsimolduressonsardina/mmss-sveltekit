@@ -54,6 +54,20 @@ export type Order = {
 	customer: Customer;
 };
 
+export enum FileType {
+	VIDEO = 'video',
+	PHOTO = 'photo',
+	OTHER = 'other'
+}
+
+export type File = {
+	orderId: string;
+	id: string;
+	downloadUrl?: string;
+	uploadUrl?: string;
+	type: FileType;
+};
+
 export type PPDimensions = {
 	up: number;
 	down: number;

@@ -12,8 +12,10 @@ export type DynamoTableSet = {
 	orderTable: Table;
 	calculatedItemOrderTable: Table;
 	listPricingTable: Table;
+	fileTable: Table;
 };
 
 export type BucketSet = {
 	moldPricesBucket: Bucket;
+	filesBucket: Bucket;
 };
