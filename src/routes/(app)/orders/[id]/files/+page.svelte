@@ -32,6 +32,25 @@
 		currentImageId = '';
 	}
 
+	function modulo(a: number, b: number): number {
+		return ((a % b) + b) % b;
+	}
+
+	function nextImage(id: string) {
+		const images = files.filter((f) => f.type === FileType.PHOTO);
+		const index = images.findIndex((f) => f.id === id);
+		const newIndex = modulo(index + 1, images.length);
+		showOverlay(images[newIndex]);
+	}
+
+	function previousImage(id: string) {
+		const images = files.filter((f) => f.type === FileType.PHOTO);
+		const index = images.findIndex((f) => f.id === id);
+		const newIndex = modulo(index - 1, images.length);
+		console.log(newIndex);
+		showOverlay(images[newIndex]);
+	}
+
 	async function deleteFile(id: string) {
 		if (!confirm('Estás seguro que quieres eliminar el archivo?')) {
 			return;
@@ -225,6 +244,8 @@
 			onDelete={deleteFile}
 			bind:visible={overlayVisible}
 			onClose={hideOverlay}
+			onNext={nextImage}
+			onPrevious={previousImage}
 		/>
 	{/if}
 </div>

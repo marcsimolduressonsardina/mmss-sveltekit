@@ -31,8 +31,7 @@ export function createBuckets(
 	const filesBucketProps: BucketProps = {
 		bucketName: `mmss-${envName}-files`,
 		cors: [corsRule],
-		blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-		transferAcceleration: true
+		blockPublicAccess: BlockPublicAccess.BLOCK_ALL
 	};
 
 	const moldPricesBucket = new Bucket(scope, `mmss-${envName}-mold-prices`, moldPricesBucketProps);

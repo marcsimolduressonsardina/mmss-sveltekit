@@ -2,15 +2,27 @@
 	import { Icon } from 'svelte-awesome';
 	import trash from 'svelte-awesome/icons/trash';
 	import close from 'svelte-awesome/icons/close';
+	import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
+	import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight';
 
 	export let imageUrl = '';
 	export let id = '';
 	export let visible = false;
 	export let onClose = () => {};
 	export let onDelete = async (id: string) => {};
+	export let onNext = (id: string) => {};
+	export let onPrevious = (id: string) => {};
 
 	async function handleDelete() {
 		await onDelete(id);
+	}
+
+	function handleNext() {
+		onNext(id);
+	}
+
+	function handlePrevious() {
+		onPrevious(id);
 	}
 </script>
 
@@ -31,6 +43,18 @@
 				on:click|stopPropagation={onClose}
 			>
 				<Icon class="mr-1" data={close} /> Cerrar
+			</button>
+			<button
+				class="rounded-full bg-blue-600 p-2 text-white shadow-lg hover:bg-blue-700 focus:outline-none"
+				on:click|stopPropagation={handlePrevious}
+			>
+				<Icon class="mr-1" data={faArrowLeft} />
+			</button>
+			<button
+				class="rounded-full bg-blue-600 p-2 text-white shadow-lg hover:bg-blue-700 focus:outline-none"
+				on:click|stopPropagation={handleNext}
+			>
+				<Icon class="mr-1" data={faArrowRight} />
 			</button>
 		</div>
 		<img
