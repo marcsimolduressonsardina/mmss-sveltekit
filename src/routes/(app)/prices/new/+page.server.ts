@@ -41,6 +41,8 @@ export const actions = {
 			await pricingService.createPricing(
 				form.data.id,
 				price,
+				form.data.minPrice,
+				form.data.discountAllowed,
 				form.data.description,
 				form.data.type,
 				form.data.formula,

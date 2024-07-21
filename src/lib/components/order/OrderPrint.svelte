@@ -12,6 +12,8 @@
 	export let calculatedItem: CalculatedItem;
 	export let print: boolean = false;
 
+	const totalOrder = calculatedItem ? CalculatedItemUtilities.getTotal(calculatedItem) : 0;
+
 	const others = [
 		...OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.FABRIC),
 		...OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.LABOUR),
@@ -42,14 +44,12 @@
 		statusInfo.push('ENTREGADO');
 	}
 
-	if (order.amountPayed === calculatedItem.total) {
+	if (order.amountPayed === totalOrder) {
 		statusInfo.push('PAGADO');
 	} else if (order.amountPayed === 0) {
 		statusInfo.push('PENDIENTE DE PAGO');
 	} else {
-		statusInfo.push(
-			`PENDIENTE DE PAGO (${(calculatedItem.total - order.amountPayed).toFixed(2)} €)`
-		);
+		statusInfo.push(`PENDIENTE DE PAGO (${(totalOrder - order.amountPayed).toFixed(2)} €)`);
 	}
 
 	function groupInPairs(arr: string[]): string[][] {
@@ -247,13 +247,13 @@
 			<td class="inner-td">
 				<table class="inner-table">
 					<tr>
-						<th>Precio ud</th>
+						<th>{discount} Precio ud</th>
 						{#if calculatedItem.discount > 0}
 							<th>Precio dto</th>
 						{/if}
 						<th>Uds</th>
 						<th>A cuenta</th>
-						<th>{discount} Total {order.hasArrow ? '⬇︎' : ''}</th>
+						<th>Total {order.hasArrow ? '⬇︎' : ''}</th>
 					</tr>
 					<tr>
 						<td>
@@ -264,7 +264,7 @@
 						{/if}
 						<td> {order.item.quantity} </td>
 						<td> {order.amountPayed.toFixed(2)} €</td>
-						<td>{calculatedItem.total.toFixed(2)} €</td>
+						<td>{totalOrder.toFixed(2)} €</td>
 					</tr>
 				</table>
 			</td>

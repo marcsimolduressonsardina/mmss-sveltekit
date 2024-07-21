@@ -28,6 +28,13 @@ export function createBuckets(
 		blockPublicAccess: BlockPublicAccess.BLOCK_ALL
 	};
 
+	const filesBucketProps: BucketProps = {
+		bucketName: `mmss-${envName}-files`,
+		cors: [corsRule],
+		blockPublicAccess: BlockPublicAccess.BLOCK_ALL
+	};
+
 	const moldPricesBucket = new Bucket(scope, `mmss-${envName}-mold-prices`, moldPricesBucketProps);
-	return { moldPricesBucket };
+	const filesBucket = new Bucket(scope, `mmss-${envName}-files`, filesBucketProps);
+	return { moldPricesBucket, filesBucket };
 }

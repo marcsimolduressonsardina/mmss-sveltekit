@@ -32,11 +32,13 @@ export const load = async ({ locals, params }) => {
 	form.data.description = listPrice.description;
 	form.data.type = listPrice.type as EditablePricingTypes;
 	form.data.formula = listPrice.formula;
+	form.data.minPrice = listPrice.minPrice;
 	form.data.areas = listPrice.areas;
 	form.data.maxD1 = listPrice.maxD1;
 	form.data.maxD2 = listPrice.maxD2;
 	form.data.areasM2 = listPrice.areasM2;
 	form.data.priority = listPrice.priority;
+	form.data.discountAllowed = listPrice.discountAllowed;
 	return { form };
 };
 
@@ -68,6 +70,7 @@ export const actions = {
 
 		try {
 			listPrice.price = price;
+			listPrice.minPrice = form.data.minPrice;
 			listPrice.description = form.data.description;
 			listPrice.type = form.data.type;
 			listPrice.formula = form.data.formula;
@@ -76,6 +79,7 @@ export const actions = {
 			listPrice.maxD2 = maxD2;
 			listPrice.areasM2 = areasM2;
 			listPrice.priority = form.data.priority;
+			listPrice.discountAllowed = form.data.discountAllowed;
 			await pricingService.updatePricing(listPrice);
 		} catch (error: unknown) {
 			return setError(form, '', 'Error actualizando el item. Intente de nuevo.');

@@ -22,6 +22,7 @@ export interface AppUser extends StaticUser {
 export type CalculatedItemPart = {
 	priceId: string;
 	price: number;
+	discountAllowed: boolean;
 	quantity: number;
 	description: string;
 	log?: string;
@@ -54,6 +55,21 @@ export type Order = {
 	customer: Customer;
 };
 
+export enum FileType {
+	VIDEO = 'video',
+	PHOTO = 'photo',
+	OTHER = 'other'
+}
+
+export type File = {
+	orderId: string;
+	id: string;
+	originalFilename: string;
+	downloadUrl?: string;
+	uploadUrl?: string;
+	type: FileType;
+};
+
 export type PPDimensions = {
 	up: number;
 	down: number;
@@ -81,7 +97,6 @@ export type CalculatedItem = {
 	orderId: string;
 	discount: number;
 	parts: CalculatedItemPart[];
-	total: number;
 	quantity: number;
 };
 
@@ -100,6 +115,8 @@ export type ListPrice = {
 	id: string;
 	internalId: string;
 	price: number;
+	minPrice: number;
+	discountAllowed: boolean;
 	description: string;
 	type: PricingType;
 	formula: PricingFormula;

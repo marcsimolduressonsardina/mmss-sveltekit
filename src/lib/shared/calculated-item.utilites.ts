@@ -1,5 +1,5 @@
 import type { OrderDimensions } from '$lib/type/order.type';
-import type { CalculatedItem, PPDimensions } from '../type/api.type';
+import type { CalculatedItem, CalculatedItemPart, PPDimensions } from '../type/api.type';
 
 export const cornersId = 'cantoneras_extra';
 export const otherExtraId = 'other_extra';
@@ -54,19 +54,40 @@ export class CalculatedItemUtilities {
 	}
 
 	public static getUnitPriceWithoutDiscount(calculatedItem: CalculatedItem): number {
-		const totalWithoutDiscount = calculatedItem.total / (1 - calculatedItem.discount / 100);
-		const unitWithoutDiscount = totalWithoutDiscount / calculatedItem.quantity;
-		return Math.ceil(unitWithoutDiscount * 100) / 100;
+		return CalculatedItemUtilities.calculatePartsCost(calculatedItem.parts, false);
 	}
 
 	public static getUnitPriceWithDiscount(calculatedItem: CalculatedItem): number {
-		const unitWithoutDiscount = calculatedItem.total / calculatedItem.quantity;
-		return Math.ceil(unitWithoutDiscount * 100) / 100;
+		return CalculatedItemUtilities.calculatePartsCost(
+			calculatedItem.parts,
+			true,
+			calculatedItem.discount
+		);
 	}
 
-	public static getPriceWithoutDiscount(calculatedItem: CalculatedItem): number {
-		const totalWithoutDiscount = calculatedItem.total / (1 - calculatedItem.discount / 100);
-		return Math.ceil(totalWithoutDiscount * 100) / 100;
+	public static getTotalWithoutDiscount(calculatedItem: CalculatedItem): number {
+		return (
+			calculatedItem.quantity * CalculatedItemUtilities.getUnitPriceWithoutDiscount(calculatedItem)
+		);
+	}
+
+	public static getTotal(calculatedItem: CalculatedItem): number {
+		return (
+			calculatedItem.quantity * CalculatedItemUtilities.getUnitPriceWithDiscount(calculatedItem)
+		);
+	}
+
+	public static calculatePartsCost(
+		parts: CalculatedItemPart[],
+		applyDiscount: boolean,
+		discount: number = 0
+	): number {
+		const discountFactor = applyDiscount ? 1 - discount / 100 : 1;
+		const prices = parts.map(
+			(p) => p.price * p.quantity * (p.discountAllowed ? discountFactor : 1)
+		);
+		const total = prices.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+		return Math.ceil(total * 100) / 100;
 	}
 
 	private static roundUpToNearestGreaterFiveOrTen(value: number): number {

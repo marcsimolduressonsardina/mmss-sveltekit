@@ -54,7 +54,13 @@
 	let partsToCalculate: PreCalculatedItemPart[] = [];
 	let partsToCalulatePreview: TempParts = [];
 	let extraParts: CalculatedItemPart[] = [
-		{ description: 'Cantoneras', price: 2.5, quantity: 1, priceId: cornersId }
+		{
+			description: 'Cantoneras',
+			price: 2.5,
+			quantity: 1,
+			priceId: cornersId,
+			discountAllowed: true
+		}
 	];
 
 	// Fabric vars
@@ -279,7 +285,8 @@
 				description: name,
 				price,
 				quantity,
-				priceId: otherExtraId
+				priceId: otherExtraId,
+				discountAllowed: true
 			};
 			extraParts = [part, ...extraParts];
 			$form.extraParts = extraParts;
@@ -303,18 +310,10 @@
 		discount: number,
 		quantity: number
 	) {
-		let compTotal = parts.reduce((acc, part) => {
-			return acc + part.post.price * part.post.quantity;
-		}, 0);
-
-		compTotal += eParts.reduce((acc, part) => {
-			return acc + part.price * part.quantity;
-		}, 0);
-
-		totalPerUnitWithoutDiscount = compTotal;
-		totalPerUnit = totalPerUnitWithoutDiscount * (1 - discount / 100);
+		const allParts = [...eParts, ...parts.map((p) => p.post)];
+		totalPerUnitWithoutDiscount = CalculatedItemUtilities.calculatePartsCost(allParts, false);
+		totalPerUnit = CalculatedItemUtilities.calculatePartsCost(allParts, true, discount);
 		totalPerUnitDiscount = totalPerUnitWithoutDiscount - totalPerUnit;
-
 		totalWithoutDiscount = totalPerUnitWithoutDiscount * quantity;
 		total = totalPerUnit * quantity;
 		totalDiscount = totalPerUnitDiscount * quantity;
@@ -382,6 +381,7 @@
 
 	// Added vars
 
+	$: addedOther = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.OTHER).length > 0;
 	$: addedPP = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.PP).length > 0;
 	$: addedBack = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.BACK).length > 0;
 	$: addedLabour =
@@ -675,6 +675,7 @@
 					class="select"
 					name="predefinedElements"
 					id="predefinedElements"
+					class:input-success={addedOther}
 					bind:this={predefinedElementInput}
 				>
 					{#each pricing.otherPrices.sort((a, b) => b.priority - a.priority) as otherPrice}

@@ -1,5 +1,4 @@
-import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { S3Client } from '@aws-sdk/client-s3';
 import {
 	MOLD_PRICES_BUCKET,
 	AWS_REGION,
@@ -12,6 +11,7 @@ import { read } from 'xlsx';
 import { PricingFormula, PricingType } from '$lib/type/pricing.type';
 import { PricingService } from '../service/pricing.service';
 import type { ListPrice } from '$lib/type/api.type';
+import { S3Util } from './s3.util';
 
 export class MoldPriceLoader {
 	private service: PricingService;
@@ -29,15 +29,13 @@ export class MoldPriceLoader {
 
 	public async generateFileUploadUrl(): Promise<{ filename: string; url: string }> {
 		const filename = `${uuidv4()}.xlsx`;
-		const params = {
-			Bucket: MOLD_PRICES_BUCKET,
-			Key: filename,
-			ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-		};
-
-		const url = await getSignedUrl(this.s3Client, new PutObjectCommand(params), {
-			expiresIn: 350
-		});
+		const url = await S3Util.getPresignedUploadUrl(
+			this.s3Client,
+			MOLD_PRICES_BUCKET,
+			filename,
+			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			350
+		);
 		return { filename, url };
 	}
 
@@ -108,6 +106,8 @@ export class MoldPriceLoader {
 			id,
 			internalId: uuidv4(),
 			price,
+			minPrice: 0,
+			discountAllowed: true,
 			description: `${externalId} UBI: ${internalId}`,
 			type: PricingType.MOLD,
 			formula: PricingFormula.NONE,
@@ -118,14 +118,12 @@ export class MoldPriceLoader {
 	}
 
 	private async getExcelFromS3(fileName: string): Promise<ArrayBuffer> {
-		const params = {
-			Bucket: MOLD_PRICES_BUCKET,
-			Key: fileName
-		};
-
-		const url = await getSignedUrl(this.s3Client, new GetObjectCommand(params), {
-			expiresIn: 3600
-		});
+		const url = await S3Util.getPresignedDownloadUrl(
+			this.s3Client,
+			MOLD_PRICES_BUCKET,
+			fileName,
+			3600
+		);
 
 		try {
 			// Using fetch instead of S3Client since it does not work on Cloudflare Pages
