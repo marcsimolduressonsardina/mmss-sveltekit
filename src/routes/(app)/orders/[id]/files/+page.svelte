@@ -6,7 +6,6 @@
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import UploadedFile from '$lib/components/order/UploadedFile.svelte';
 	import { Icon } from 'svelte-awesome';
-	import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons/faCloudArrowUp';
 	import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
 	import { goto } from '$app/navigation';
 
@@ -168,11 +167,7 @@
 		<span class="mt-4 border-b border-gray-300 pb-1 text-xl font-semibold text-gray-700">
 			Carga de archivos
 		</span>
-		<input class="input" type="file" multiple bind:this={inputFile} />
-		<button class="variant-filled-warning btn shadow-sm" on:click={loadFile}>
-			<Icon class="mr-1" data={faCloudArrowUp} /> Cargar archivo
-		</button>
-
+		<input class="input" type="file" multiple bind:this={inputFile} on:change={loadFile} />
 		{#if files}
 			{#if files.filter((f) => f.type === FileType.PHOTO).length > 0}
 				<span class="mt-4 border-b border-gray-300 pb-1 text-xl font-semibold text-gray-700">
