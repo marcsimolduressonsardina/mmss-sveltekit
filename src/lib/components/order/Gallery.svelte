@@ -33,29 +33,29 @@
 	>
 		<div class="absolute right-4 top-4 flex space-x-2">
 			<button
-				class="flex items-center justify-center rounded-full bg-red-600 p-2 text-white shadow-lg hover:bg-red-700 focus:outline-none"
+				class="flex items-center justify-center rounded-full bg-red-600 p-3 text-white shadow-lg hover:bg-red-700 focus:outline-none"
 				on:click|stopPropagation={handleDelete}
 			>
 				<Icon class="mr-1" data={trash} /> Eliminar
 			</button>
 			<button
-				class="flex items-center justify-center rounded-full bg-gray-600 p-2 text-white shadow-lg hover:bg-gray-700 focus:outline-none"
+				class="flex items-center justify-center rounded-full bg-gray-600 p-3 text-white shadow-lg hover:bg-gray-700 focus:outline-none"
 				on:click|stopPropagation={onClose}
 			>
 				<Icon class="mr-1" data={close} /> Cerrar
 			</button>
 		</div>
 		<button
-			class="absolute left-4 top-1/2 flex -translate-y-1/2 transform items-center justify-center rounded-full bg-blue-600 p-2 text-white shadow-lg hover:bg-blue-700 focus:outline-none"
+			class="absolute left-4 top-1/2 flex -translate-y-1/2 transform items-center justify-center rounded-full bg-blue-600 p-3 text-white shadow-lg hover:bg-blue-700 focus:outline-none"
 			on:click|stopPropagation={handlePrevious}
 		>
-			<Icon data={faArrowLeft} />
+			<Icon class="text-3xl" data={faArrowLeft} />
 		</button>
 		<button
-			class="absolute right-4 top-1/2 flex -translate-y-1/2 transform items-center justify-center rounded-full bg-blue-600 p-2 text-white shadow-lg hover:bg-blue-700 focus:outline-none"
+			class="absolute right-4 top-1/2 flex -translate-y-1/2 transform items-center justify-center rounded-full bg-blue-600 p-3 text-white shadow-lg hover:bg-blue-700 focus:outline-none"
 			on:click|stopPropagation={handleNext}
 		>
-			<Icon data={faArrowRight} />
+			<Icon class="text-3xl" data={faArrowRight} />
 		</button>
 		<img
 			src={imageUrl}
