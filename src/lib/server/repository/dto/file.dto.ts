@@ -3,4 +3,5 @@ export type FileDto = {
 	fileUuid: string;
 	type: string;
 	key: string;
+	originalFilename: string;
 };

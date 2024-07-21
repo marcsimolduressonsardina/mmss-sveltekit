@@ -9,6 +9,7 @@
 	import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
 	import { faMoneyBill } from '@fortawesome/free-solid-svg-icons/faMoneyBill';
 	import { faTruckPickup } from '@fortawesome/free-solid-svg-icons/faTruckPickup';
+	import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons/faCloudArrowUp';
 	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
 	import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint';
 	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
@@ -201,6 +202,14 @@
 					}}
 					><Icon class="mr-1" data={faBox} /> Pedidos del día
 				</button>
+
+				<button
+					class="btn btn-sm w-full bg-[#f77f00] text-white hover:bg-[#d16b00] focus:outline-none focus:ring-2 focus:ring-[#f77f00] focus:ring-offset-2"
+					on:click={() => {
+						goto(`/orders/${data?.order?.id}/files`);
+					}}
+					><Icon class="mr-1" data={faCloudArrowUp} /> Archivos y fotos
+				</button>
 			</div>
 		{/if}
 
@@ -332,8 +341,8 @@
 					};
 				}}
 			>
-				<button class="variant-filled-error btn btn-sm w-full"
-					><Icon class="mr-1" data={trash} />Eliminar pedido</button
+				<button class="variant-filled-error btn btn-sm w-full">
+					<Icon class="mr-1" data={trash} /> Eliminar pedido</button
 				>
 			</form>
 		</div>

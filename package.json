@@ -69,6 +69,7 @@
 		"html5-qrcode": "2.3.8",
 		"luxon": "3.4.4",
 		"mime-types": "2.1.35",
+		"photoswipe": "5.4.4",
 		"source-map-support": "0.5.21",
 		"svelte": "4.2.15",
 		"svelte-awesome": "3.3.1",

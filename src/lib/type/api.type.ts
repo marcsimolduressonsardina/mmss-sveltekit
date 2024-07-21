@@ -63,6 +63,7 @@ export enum FileType {
 export type File = {
 	orderId: string;
 	id: string;
+	originalFilename: string;
 	downloadUrl?: string;
 	uploadUrl?: string;
 	type: FileType;

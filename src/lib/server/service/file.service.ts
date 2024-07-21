@@ -36,7 +36,8 @@ export class FileService {
 		const file: File = {
 			orderId,
 			id,
-			type
+			type,
+			originalFilename: fileName
 		};
 		const storageKey = FileService.generateStorageKey(file, fileName);
 		const fileDto = FileService.toDto(file, storageKey);
@@ -91,7 +92,7 @@ export class FileService {
 			this.s3Client,
 			FILES_BUCKET,
 			fileDto.key,
-			300
+			600
 		);
 		return FileService.fromDto(fileDto, downloadUrl);
 	}
@@ -101,6 +102,7 @@ export class FileService {
 			orderUuid: file.orderId,
 			fileUuid: file.id,
 			type: file.type,
+			originalFilename: file.originalFilename,
 			key
 		};
 	}
@@ -110,6 +112,7 @@ export class FileService {
 			orderId: fileDto.orderUuid,
 			id: fileDto.fileUuid,
 			type: fileDto.type as FileType,
+			originalFilename: fileDto.originalFilename,
 			downloadUrl
 		};
 	}
@@ -128,6 +131,6 @@ export class FileService {
 		const lastDotIndex = fileName.lastIndexOf('.');
 		const extension =
 			lastDotIndex === -1 || lastDotIndex === 0 ? '' : fileName.substring(lastDotIndex + 1);
-		return `${file.orderId}/${file.type}/${file.id}${extension}`;
+		return `${file.orderId}/${file.type}/${file.id}.${extension.toLowerCase()}`;
 	}
 }
