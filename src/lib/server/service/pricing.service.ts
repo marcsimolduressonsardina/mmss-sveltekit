@@ -59,6 +59,7 @@ export class PricingService {
 		id: string,
 		price: number,
 		minPrice: number,
+		discountAllowed: boolean,
 		description: string,
 		type: PricingType,
 		formula: PricingFormula,
@@ -73,6 +74,7 @@ export class PricingService {
 			internalId: uuidv4(),
 			price,
 			minPrice,
+			discountAllowed,
 			description,
 			type,
 			formula,
@@ -93,7 +95,7 @@ export class PricingService {
 		orderDimensions: OrderDimensions,
 		id: string,
 		moldFabricId?: string
-	): Promise<{ price: number; description: string }> {
+	): Promise<{ price: number; description: string; discountAllowed: boolean }> {
 		const pricing =
 			pricingType === PricingType.FABRIC
 				? await this.getFabricPriceList(id, orderDimensions, moldFabricId)
@@ -101,7 +103,11 @@ export class PricingService {
 
 		PricingService.checkMaxMinDimensions(orderDimensions, pricing);
 		const price = PricingService.getPriceByType(orderDimensions, pricing);
-		return { price: Math.max(price, pricing.minPrice), description: pricing.description };
+		return {
+			price: Math.max(price, pricing.minPrice),
+			description: pricing.description,
+			discountAllowed: pricing.discountAllowed
+		};
 	}
 
 	public async getPriceFromListById(pricingType: PricingType, id: string): Promise<ListPrice> {
@@ -290,7 +296,8 @@ export class PricingService {
 			maxD1: price.maxD1,
 			maxD2: price.maxD2,
 			priority: price.priority,
-			minPrice: price.minPrice
+			minPrice: price.minPrice,
+			discountAllowed: price.discountAllowed
 		};
 	}
 
@@ -307,7 +314,8 @@ export class PricingService {
 			maxD1: dto.maxD1,
 			maxD2: dto.maxD2,
 			priority: dto.priority ?? 0,
-			minPrice: dto.minPrice ?? 0
+			minPrice: dto.minPrice ?? 0,
+			discountAllowed: dto.discountAllowed ?? true
 		};
 	}
 }

@@ -26,6 +26,9 @@
 	let formLoading = false;
 
 	export let data: PageData;
+	const totalOrder = data.calculatedItem
+		? CalculatedItemUtilities.getTotal(data.calculatedItem)
+		: 0;
 </script>
 
 <div class="space flex w-full flex-col p-3">
@@ -53,7 +56,7 @@
 					href={`/orders/${data.order.id}/print`}
 					><Icon class="mr-1" data={faPrint} /> Imprimir
 				</a>
-				{#if data.order.amountPayed === data.calculatedItem?.total}
+				{#if data.order.amountPayed === totalOrder}
 					<form
 						class="w-full"
 						method="post"
@@ -221,17 +224,15 @@
 			{#if data.calculatedItem}
 				<div class="flex w-full flex-col gap-1">
 					<hr class="mb-3 mt-2 border-t border-gray-200 lg:col-span-2" />
-					<span class="variant-ghost badge text-lg"
-						>Total {data.calculatedItem.total.toFixed(2)} €</span
-					>
+					<span class="variant-ghost badge text-lg">Total {totalOrder.toFixed(2)} €</span>
 					{#if data.order.amountPayed === 0}
 						<span class="variant-ghost-warning badge text-lg"> No pagado </span>
-					{:else if data.order.amountPayed === data.calculatedItem.total}
+					{:else if data.order.amountPayed === totalOrder}
 						<span class="variant-ghost-success badge text-lg"> Pagado </span>
 					{:else}
 						<span class="variant-ghost-secondary badge text-lg">
 							{data.order.amountPayed.toFixed(2)}€ pagado - {(
-								data.calculatedItem.total - data.order.amountPayed
+								totalOrder - data.order.amountPayed
 							).toFixed(2)}€ pendiente
 						</span>
 					{/if}
@@ -316,9 +317,9 @@
 				{/if}
 				{#if data.calculatedItem.discount > 0}
 					<span class="variant-ghost badge"
-						>Total sin descuento {CalculatedItemUtilities.getPriceWithoutDiscount(
+						>Total sin descuento {CalculatedItemUtilities.getTotalWithoutDiscount(
 							data.calculatedItem
-						)} €</span
+						).toFixed(2)} €</span
 					>
 					<span class="variant-ghost badge"> Descuento {data.calculatedItem.discount}% </span>
 				{/if}

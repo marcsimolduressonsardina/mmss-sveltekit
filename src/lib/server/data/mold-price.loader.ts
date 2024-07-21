@@ -107,6 +107,7 @@ export class MoldPriceLoader {
 			internalId: uuidv4(),
 			price,
 			minPrice: 0,
+			discountAllowed: true,
 			description: `${externalId} UBI: ${internalId}`,
 			type: PricingType.MOLD,
 			formula: PricingFormula.NONE,

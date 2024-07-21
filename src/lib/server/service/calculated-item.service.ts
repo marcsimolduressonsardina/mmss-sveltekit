@@ -35,7 +35,6 @@ export class CalculatedItemService {
 			orderId: order.id,
 			discount,
 			parts: [],
-			total: 0,
 			quantity: item.quantity
 		};
 
@@ -53,7 +52,6 @@ export class CalculatedItemService {
 		const parts = await Promise.all(partPromises);
 		calculatedItem.parts.push(...parts);
 		calculatedItem.parts.push(...extraParts);
-		calculatedItem.total = CalculatedItemService.getTotalPrice(calculatedItem);
 		return calculatedItem;
 	}
 
@@ -71,6 +69,7 @@ export class CalculatedItemService {
 		return {
 			priceId: partToCalculate.id,
 			price: pricingResult.price,
+			discountAllowed: pricingResult.discountAllowed,
 			quantity: partToCalculate.quantity,
 			description: CalculatedItemService.getDefaultDescriptionByType(
 				partToCalculate.type,
@@ -100,8 +99,7 @@ export class CalculatedItemService {
 		return {
 			orderId: dto.orderUuid,
 			discount: dto.discount,
-			parts: dto.parts,
-			total: dto.total,
+			parts: dto.parts.map((p) => ({ ...p, discountAllowed: p.discountAllowed ?? true })),
 			quantity: dto.quantity
 		};
 	}
@@ -111,7 +109,6 @@ export class CalculatedItemService {
 			orderUuid: calculatedItem.orderId,
 			discount: calculatedItem.discount,
 			parts: calculatedItem.parts,
-			total: calculatedItem.total,
 			quantity: calculatedItem.quantity
 		};
 	}

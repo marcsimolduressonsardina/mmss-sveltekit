@@ -22,6 +22,7 @@ export interface AppUser extends StaticUser {
 export type CalculatedItemPart = {
 	priceId: string;
 	price: number;
+	discountAllowed: boolean;
 	quantity: number;
 	description: string;
 	log?: string;
@@ -96,7 +97,6 @@ export type CalculatedItem = {
 	orderId: string;
 	discount: number;
 	parts: CalculatedItemPart[];
-	total: number;
 	quantity: number;
 };
 
@@ -116,6 +116,7 @@ export type ListPrice = {
 	internalId: string;
 	price: number;
 	minPrice: number;
+	discountAllowed: boolean;
 	description: string;
 	type: PricingType;
 	formula: PricingFormula;

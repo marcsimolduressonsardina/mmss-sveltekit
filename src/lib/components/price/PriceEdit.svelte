@@ -394,6 +394,10 @@
 				bind:value={$form.minPrice}
 			/>
 		</label>
+		<label class="label" for="discontAllowed">
+			<span>Descuento permitido:</span>
+			<input class="checkbox" type="checkbox" bind:checked={$form.discountAllowed} />
+		</label>
 		<button class="variant-filled-warning btn lg:col-span-2" type="submit"
 			><Icon class="mr-2" data={check} /> Guardar</button
 		>

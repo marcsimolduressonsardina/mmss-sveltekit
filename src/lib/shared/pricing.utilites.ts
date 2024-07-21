@@ -13,6 +13,7 @@ export const fabricDefaultPricing: ListPrice = {
 	internalId: '',
 	price: 0,
 	minPrice: 0,
+	discountAllowed: true,
 	description: 'Estirar tela',
 	type: PricingType.FABRIC,
 	formula: PricingFormula.NONE,
@@ -94,6 +95,7 @@ const listPriceSchema = {
 		.min(1),
 	price: z.number().min(0),
 	minPrice: z.number().min(0),
+	discountAllowed: z.boolean().default(true),
 	description: z.string().min(1),
 	type: z.enum([
 		PricingType.GLASS,
@@ -168,6 +170,7 @@ export class PricingUtilites {
 			internalId: '',
 			price,
 			minPrice: 0,
+			discountAllowed: true,
 			description: `Travesaño (${moldDescription}) ${dimension}cm`,
 			type: PricingType.FABRIC,
 			formula: PricingFormula.NONE,

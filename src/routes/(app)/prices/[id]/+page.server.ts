@@ -38,6 +38,7 @@ export const load = async ({ locals, params }) => {
 	form.data.maxD2 = listPrice.maxD2;
 	form.data.areasM2 = listPrice.areasM2;
 	form.data.priority = listPrice.priority;
+	form.data.discountAllowed = listPrice.discountAllowed;
 	return { form };
 };
 
@@ -78,6 +79,7 @@ export const actions = {
 			listPrice.maxD2 = maxD2;
 			listPrice.areasM2 = areasM2;
 			listPrice.priority = form.data.priority;
+			listPrice.discountAllowed = form.data.discountAllowed;
 			await pricingService.updatePricing(listPrice);
 		} catch (error: unknown) {
 			return setError(form, '', 'Error actualizando el item. Intente de nuevo.');
