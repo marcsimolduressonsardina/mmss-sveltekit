@@ -44,23 +44,23 @@
 			>
 				<Icon class="mr-1" data={close} /> Cerrar
 			</button>
-			<button
-				class="rounded-full bg-blue-600 p-2 text-white shadow-lg hover:bg-blue-700 focus:outline-none"
-				on:click|stopPropagation={handlePrevious}
-			>
-				<Icon class="mr-1" data={faArrowLeft} />
-			</button>
-			<button
-				class="rounded-full bg-blue-600 p-2 text-white shadow-lg hover:bg-blue-700 focus:outline-none"
-				on:click|stopPropagation={handleNext}
-			>
-				<Icon class="mr-1" data={faArrowRight} />
-			</button>
 		</div>
+		<button
+			class="absolute left-4 top-1/2 -translate-y-1/2 transform rounded-full bg-blue-600 p-2 text-white shadow-lg hover:bg-blue-700 focus:outline-none"
+			on:click|stopPropagation={handlePrevious}
+		>
+			<Icon class="mr-1" data={faArrowLeft} />
+		</button>
+		<button
+			class="absolute right-4 top-1/2 -translate-y-1/2 transform rounded-full bg-blue-600 p-2 text-white shadow-lg hover:bg-blue-700 focus:outline-none"
+			on:click|stopPropagation={handleNext}
+		>
+			<Icon class="mr-1" data={faArrowRight} />
+		</button>
 		<img
 			src={imageUrl}
 			alt="Overlay Image"
-			class="max-w-90% max-h-90% shadow-lg"
+			class="max-h-full max-w-full object-contain shadow-lg"
 			on:click|stopPropagation
 		/>
 	</div>

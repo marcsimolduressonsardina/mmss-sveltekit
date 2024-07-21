@@ -47,7 +47,6 @@
 		const images = files.filter((f) => f.type === FileType.PHOTO);
 		const index = images.findIndex((f) => f.id === id);
 		const newIndex = modulo(index - 1, images.length);
-		console.log(newIndex);
 		showOverlay(images[newIndex]);
 	}
 
@@ -195,10 +194,14 @@
 				<div class="flex flex-wrap gap-2">
 					{#each files.filter((f) => f.type === FileType.PHOTO) as image}
 						<div
-							class="w-20 cursor-pointer overflow-hidden rounded-lg"
+							class="h-20 w-20 cursor-pointer overflow-hidden rounded-lg"
 							on:click={() => showOverlay(image)}
 						>
-							<img src={image.downloadUrl ?? ''} alt={image.originalFilename} />
+							<img
+								src={image.downloadUrl ?? ''}
+								alt={image.originalFilename}
+								class="h-full w-full object-cover"
+							/>
 						</div>
 					{/each}
 				</div>
