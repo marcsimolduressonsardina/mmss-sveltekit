@@ -172,8 +172,7 @@
 		<ProgressBar />
 	{:else}
 		<!-- Title and Button Container -->
-		<div class="flex items-center justify-between pb-2">
-			<span class="text-2xl text-gray-700">Archivos</span>
+		<div class="flex items-center pb-2">
 			<button
 				on:click={goBackToOrder}
 				class="flex items-center rounded-lg bg-gray-200 px-4 py-1 font-bold text-gray-700 hover:bg-gray-300"

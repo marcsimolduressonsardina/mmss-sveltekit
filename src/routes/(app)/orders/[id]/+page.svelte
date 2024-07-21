@@ -9,7 +9,7 @@
 	import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
 	import { faMoneyBill } from '@fortawesome/free-solid-svg-icons/faMoneyBill';
 	import { faTruckPickup } from '@fortawesome/free-solid-svg-icons/faTruckPickup';
-	import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons/faCloudArrowUp';
+	import { faCamera } from '@fortawesome/free-solid-svg-icons/faCamera';
 	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
 	import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint';
 	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
@@ -205,14 +205,6 @@
 					}}
 					><Icon class="mr-1" data={faBox} /> Pedidos del día
 				</button>
-
-				<button
-					class="btn btn-sm w-full bg-[#f77f00] text-white hover:bg-[#d16b00] focus:outline-none focus:ring-2 focus:ring-[#f77f00] focus:ring-offset-2"
-					on:click={() => {
-						goto(`/orders/${data?.order?.id}/files`);
-					}}
-					><Icon class="mr-1" data={faCloudArrowUp} /> Archivos y fotos
-				</button>
 			</div>
 		{/if}
 
@@ -221,6 +213,16 @@
 		{/if}
 
 		<div class="flex w-full flex-col gap-1">
+			<div class="flex w-full flex-col gap-1">
+				<hr class="mb-3 mt-2 border-t border-gray-200 lg:col-span-2" />
+				<button
+					class="btn btn-sm w-full bg-[#f77f00] text-lg text-white hover:bg-[#d16b00] focus:outline-none focus:ring-2 focus:ring-[#f77f00] focus:ring-offset-2"
+					on:click={() => {
+						goto(`/orders/${data?.order?.id}/files`);
+					}}
+					><Icon class="mr-1" data={faCamera} /> Cámara
+				</button>
+			</div>
 			{#if data.calculatedItem}
 				<div class="flex w-full flex-col gap-1">
 					<hr class="mb-3 mt-2 border-t border-gray-200 lg:col-span-2" />
