@@ -32,6 +32,7 @@ export const load = async ({ locals, params }) => {
 	form.data.description = listPrice.description;
 	form.data.type = listPrice.type as EditablePricingTypes;
 	form.data.formula = listPrice.formula;
+	form.data.minPrice = listPrice.minPrice;
 	form.data.areas = listPrice.areas;
 	form.data.maxD1 = listPrice.maxD1;
 	form.data.maxD2 = listPrice.maxD2;
@@ -68,6 +69,7 @@ export const actions = {
 
 		try {
 			listPrice.price = price;
+			listPrice.minPrice = form.data.minPrice;
 			listPrice.description = form.data.description;
 			listPrice.type = form.data.type;
 			listPrice.formula = form.data.formula;

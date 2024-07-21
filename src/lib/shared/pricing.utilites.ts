@@ -12,6 +12,7 @@ export const fabricDefaultPricing: ListPrice = {
 	id: fabricIds.labour,
 	internalId: '',
 	price: 0,
+	minPrice: 0,
 	description: 'Estirar tela',
 	type: PricingType.FABRIC,
 	formula: PricingFormula.NONE,
@@ -92,6 +93,7 @@ const listPriceSchema = {
 		.regex(/^[^\s]*$/, 'id should not contain spaces')
 		.min(1),
 	price: z.number().min(0),
+	minPrice: z.number().min(0),
 	description: z.string().min(1),
 	type: z.enum([
 		PricingType.GLASS,
@@ -165,6 +167,7 @@ export class PricingUtilites {
 			id,
 			internalId: '',
 			price,
+			minPrice: 0,
 			description: `Travesaño (${moldDescription}) ${dimension}cm`,
 			type: PricingType.FABRIC,
 			formula: PricingFormula.NONE,

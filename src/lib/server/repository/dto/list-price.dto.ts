@@ -13,6 +13,7 @@ export type ListPriceDto = {
 	id: string;
 	uuid: string;
 	price: number;
+	minPrice?: number;
 	description: string;
 	type: string;
 	formula: string;

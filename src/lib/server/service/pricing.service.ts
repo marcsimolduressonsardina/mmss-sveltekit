@@ -58,6 +58,7 @@ export class PricingService {
 	public async createPricing(
 		id: string,
 		price: number,
+		minPrice: number,
 		description: string,
 		type: PricingType,
 		formula: PricingFormula,
@@ -71,6 +72,7 @@ export class PricingService {
 			id,
 			internalId: uuidv4(),
 			price,
+			minPrice,
 			description,
 			type,
 			formula,
@@ -99,7 +101,7 @@ export class PricingService {
 
 		PricingService.checkMaxMinDimensions(orderDimensions, pricing);
 		const price = PricingService.getPriceByType(orderDimensions, pricing);
-		return { price, description: pricing.description };
+		return { price: Math.max(price, pricing.minPrice), description: pricing.description };
 	}
 
 	public async getPriceFromListById(pricingType: PricingType, id: string): Promise<ListPrice> {
@@ -287,7 +289,8 @@ export class PricingService {
 			areasM2: price.areasM2,
 			maxD1: price.maxD1,
 			maxD2: price.maxD2,
-			priority: price.priority
+			priority: price.priority,
+			minPrice: price.minPrice
 		};
 	}
 
@@ -303,7 +306,8 @@ export class PricingService {
 			areasM2: dto.areasM2 ?? [],
 			maxD1: dto.maxD1,
 			maxD2: dto.maxD2,
-			priority: dto.priority ?? 0
+			priority: dto.priority ?? 0,
+			minPrice: dto.minPrice ?? 0
 		};
 	}
 }

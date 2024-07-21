@@ -115,6 +115,7 @@ export type ListPrice = {
 	id: string;
 	internalId: string;
 	price: number;
+	minPrice: number;
 	description: string;
 	type: PricingType;
 	formula: PricingFormula;
