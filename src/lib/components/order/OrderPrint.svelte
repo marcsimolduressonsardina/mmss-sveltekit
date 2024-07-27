@@ -7,6 +7,7 @@
 	import type { CalculatedItem, Order } from '$lib/type/api.type';
 	import { OrderStatus } from '$lib/type/order.type';
 	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
+	import { otherForPrintPricingTypes } from '$lib/shared/pricing.utilites';
 
 	export let order: Order;
 	export let calculatedItem: CalculatedItem;
@@ -15,9 +16,9 @@
 	const totalOrder = calculatedItem ? CalculatedItemUtilities.getTotal(calculatedItem) : 0;
 
 	const others = [
-		...OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.FABRIC),
-		...OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.LABOUR),
-		...OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.OTHER),
+		...otherForPrintPricingTypes
+			.map((t) => OrderUtilites.getOrderElementByPricingType(order, calculatedItem, t))
+			.flat(),
 		...OrderUtilites.getExtras(calculatedItem)
 	];
 
@@ -151,12 +152,17 @@
 							{/each}
 						</td>
 						<td>
-							{#if order.item.pp > 0}
-								{order.item.pp}cm
+							{#if OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.PP).length > 0}
+								{OrderUtilites.getOrderElementByPricingType(
+									order,
+									calculatedItem,
+									PricingType.PP
+								)[0]}
+								{order.item.pp}cm <br />
+								{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.PP).slice(1) as pp}
+									{pp}<br />
+								{/each}
 							{/if}
-							{#each OrderUtilites.getOrderElementByPricingType(order, calculatedItem, PricingType.PP) as pp}
-								{pp}<br />
-							{/each}
 
 							{#if order.item.ppDimensions}
 								AR: {order.item.ppDimensions.up}, AB: {order.item.ppDimensions.down}, D: {order.item
