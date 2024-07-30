@@ -5,6 +5,8 @@ export enum PricingType {
 	PP = 'pp',
 	FABRIC = 'fabric',
 	LABOUR = 'labour',
+	TRANSPORT = 'transport',
+	HANGER = 'hanger',
 	OTHER = 'other'
 }
 

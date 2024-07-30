@@ -5,7 +5,12 @@
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { PricingFormula, PricingType } from '$lib/type/pricing.type';
 	import { writable } from 'svelte/store';
-	import { emptyPricing, fitFormulas, formulasMap } from '$lib/shared/pricing.utilites';
+	import {
+		emptyPricing,
+		fitFormulas,
+		formulasMap,
+		pricingTypesMap
+	} from '$lib/shared/pricing.utilites';
 	import type { ListPrice, MaxArea, MaxAreaM2 } from '$lib/type/api.type';
 	import { goto } from '$app/navigation';
 
@@ -55,6 +60,10 @@
 				return sortPricing(pricing.otherPrices);
 			case PricingType.LABOUR:
 				return sortPricing(pricing.labourPrices);
+			case PricingType.TRANSPORT:
+				return sortPricing(pricing.transportPrices);
+			case PricingType.HANGER:
+				return sortPricing(pricing.hangerPrices);
 			default:
 				return [];
 		}
@@ -111,18 +120,27 @@
 	{:then pricing}
 		<RadioGroup display="flex" class="w-full">
 			<RadioItem bind:group={selectedType} name="justify" value={PricingType.MOLD}>Marco</RadioItem>
-			<RadioItem bind:group={selectedType} name="justify" value={PricingType.OTHER}>Otros</RadioItem
-			>
-			<RadioItem bind:group={selectedType} name="justify" value={PricingType.BACK}
-				>Trasera</RadioItem
-			>
-			<RadioItem bind:group={selectedType} name="justify" value={PricingType.GLASS}
-				>Cristal</RadioItem
-			>
-			<RadioItem bind:group={selectedType} name="justify" value={PricingType.PP}>PP</RadioItem>
-			<RadioItem bind:group={selectedType} name="justify" value={PricingType.LABOUR}
-				>Montajes</RadioItem
-			>
+			<RadioItem bind:group={selectedType} name="justify" value={PricingType.OTHER}>
+				{pricingTypesMap[PricingType.OTHER]}
+			</RadioItem>
+			<RadioItem bind:group={selectedType} name="justify" value={PricingType.BACK}>
+				{pricingTypesMap[PricingType.BACK]}
+			</RadioItem>
+			<RadioItem bind:group={selectedType} name="justify" value={PricingType.GLASS}>
+				{pricingTypesMap[PricingType.GLASS]}
+			</RadioItem>
+			<RadioItem bind:group={selectedType} name="justify" value={PricingType.PP}>
+				{pricingTypesMap[PricingType.PP]}
+			</RadioItem>
+			<RadioItem bind:group={selectedType} name="justify" value={PricingType.LABOUR}>
+				{pricingTypesMap[PricingType.LABOUR]}
+			</RadioItem>
+			<RadioItem bind:group={selectedType} name="justify" value={PricingType.TRANSPORT}>
+				{pricingTypesMap[PricingType.TRANSPORT]}
+			</RadioItem>
+			<RadioItem bind:group={selectedType} name="justify" value={PricingType.HANGER}>
+				{pricingTypesMap[PricingType.HANGER]}
+			</RadioItem>
 		</RadioGroup>
 
 		<Table interactive={true} source={tableSource} on:selected={handleSelected} />

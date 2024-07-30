@@ -18,6 +18,7 @@ import { PricingType } from '$lib/type/pricing.type';
 import { InvalidDataError } from '../error/invalid-data.error';
 import { isOrderTemp, tempCustomerUuid } from '$lib/shared/order.utilities';
 import { OrderStatus } from '$lib/type/order.type';
+import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 
 export class OrderService {
 	private readonly storeId: string;
@@ -172,19 +173,21 @@ export class OrderService {
 	async setOrderFullyPaid(order: Order) {
 		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
 		if (calculatedItem == null) return;
-		order.amountPayed = calculatedItem.total;
-		await this.setOrderPartiallyPaid(order, calculatedItem.total);
+		const total = CalculatedItemUtilities.getTotal(calculatedItem);
+		order.amountPayed = total;
+		await this.setOrderPartiallyPaid(order, total);
 	}
 
 	async setOrderPartiallyPaid(order: Order, amount: number) {
 		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
 		if (calculatedItem == null) return;
+		const total = CalculatedItemUtilities.getTotal(calculatedItem);
 		if (amount < 0) {
 			throw new InvalidDataError('Invalid amount');
 		}
 
-		if (amount > calculatedItem.total) {
-			order.amountPayed = calculatedItem.total;
+		if (amount > total) {
+			order.amountPayed = total;
 		} else {
 			order.amountPayed = amount;
 		}
@@ -205,10 +208,11 @@ export class OrderService {
 			throw new InvalidDataError('Invalid amount');
 		}
 
+		const calculatedTotal = CalculatedItemUtilities.getTotal(calculatedItem);
 		const total = order.amountPayed + amount;
 
-		if (total > calculatedItem.total) {
-			order.amountPayed = calculatedItem.total;
+		if (total > calculatedTotal) {
+			order.amountPayed = calculatedTotal;
 		} else {
 			order.amountPayed = total;
 		}

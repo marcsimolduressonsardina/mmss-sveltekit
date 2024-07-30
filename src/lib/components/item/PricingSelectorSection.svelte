@@ -15,6 +15,7 @@
 	) => void;
 	export let prices: ListPriceForm[];
 	export let canBeAdded: boolean = true;
+	export let priorityFirst: boolean = true;
 	export let showExtraInfo: boolean = false;
 	export let added: boolean;
 
@@ -49,7 +50,7 @@
 	}
 
 	function updateSelectedId(df: ListPriceForm[]) {
-		if (df && df.length > 0 && selectedId === '') {
+		if (priorityFirst && df && df.length > 0 && selectedId === '') {
 			selectedId = getId(df[0]);
 		}
 	}
@@ -73,11 +74,17 @@
 				bind:this={idElementInput}
 				class:input-success={added}
 			>
-				{#each defaultPrices as price}
-					<option data-mold={price.moldId} value={getId(price)}>{getSelectLabel(price)}</option>
-				{/each}
-
-				<option></option>
+				{#if priorityFirst}
+					{#each defaultPrices as price}
+						<option data-mold={price.moldId} value={getId(price)}>{getSelectLabel(price)}</option>
+					{/each}
+					<option></option>
+				{:else}
+					<option></option>
+					{#each defaultPrices as price}
+						<option data-mold={price.moldId} value={getId(price)}>{getSelectLabel(price)}</option>
+					{/each}
+				{/if}
 				{#each normalPrices as price}
 					<option value={getId(price)}>{getSelectLabel(price)}</option>
 				{/each}

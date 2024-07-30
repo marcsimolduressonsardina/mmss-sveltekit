@@ -10,7 +10,7 @@ import {
 } from '$lib/shared/pricing.utilites';
 import type { ListPrice, MaxArea, MaxAreaM2 } from '$lib/type/api.type.js';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
-import { PricingFormula } from '$lib/type/pricing.type';
+import { PricingFormula, PricingType } from '$lib/type/pricing.type';
 
 async function getListPrice(id: string): Promise<ListPrice> {
 	if (id == null) throw fail(400);
@@ -72,7 +72,7 @@ export const actions = {
 			listPrice.price = price;
 			listPrice.minPrice = form.data.minPrice;
 			listPrice.description = form.data.description;
-			listPrice.type = form.data.type;
+			listPrice.type = form.data.type as PricingType;
 			listPrice.formula = form.data.formula;
 			listPrice.areas = areas;
 			listPrice.maxD1 = maxD1;

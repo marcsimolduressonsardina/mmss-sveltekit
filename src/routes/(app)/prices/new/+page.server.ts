@@ -5,7 +5,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { PricingService } from '$lib/server/service/pricing.service.js';
 import { PricingUtilites, listPriceSchemaNew } from '$lib/shared/pricing.utilites';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
-import { PricingFormula } from '$lib/type/pricing.type.js';
+import { PricingFormula, PricingType } from '$lib/type/pricing.type.js';
 import type { MaxArea, MaxAreaM2 } from '$lib/type/api.type.js';
 
 export const load = async ({ locals }) => {
@@ -44,7 +44,7 @@ export const actions = {
 				form.data.minPrice,
 				form.data.discountAllowed,
 				form.data.description,
-				form.data.type,
+				form.data.type as PricingType,
 				form.data.formula,
 				areas,
 				areasM2,

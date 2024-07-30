@@ -9,6 +9,7 @@
 
 	import type {
 		CalculatedItemPart,
+		ListPrice,
 		ListPriceForm,
 		PPDimensions,
 		PreCalculatedItemPart,
@@ -23,6 +24,7 @@
 	import { PricingType } from '$lib/type/pricing.type';
 	import CartItem from '$lib/components/item/CartItem.svelte';
 	import PricingSelectorSection from '$lib/components/item/PricingSelectorSection.svelte';
+	import PricingSelectorWithQuantitySection from '$lib/components/item/PricingSelectorWithQuantitySection.svelte';
 	import AutocompleteSection from '$lib/components/item/AutocompleteSection.svelte';
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import ChipSet from '$lib/components/item/ChipSet.svelte';
@@ -43,6 +45,10 @@
 		dataType: 'json'
 	});
 	const proxyDate = dateProxy(form, 'deliveryDate', { format: 'date' });
+
+	$form.height = '';
+	$form.width = '';
+	$form.pp = '';
 
 	let total = 0.0;
 	let totalPerUnit = 0.0;
@@ -68,10 +74,10 @@
 
 	// PP vars
 	let asymetricPP = false;
-	let upPP = 0;
-	let downPP = 0;
-	let leftPP = 0;
-	let rightPP = 0;
+	let upPP: number | string = '';
+	let downPP: number | string = '';
+	let leftPP: number | string = '';
+	let rightPP: number | string = '';
 	$form.ppDimensions = undefined;
 
 	// Size vars
@@ -87,8 +93,6 @@
 		'El cliente autoriza a publicar su obra en redes'
 	];
 
-	let predefinedElementInput: HTMLSelectElement;
-	let predefinedQuantityElementInput: HTMLSelectElement;
 	let otherNameElementInput: HTMLInputElement;
 	let otherPriceElementInput: HTMLInputElement;
 	let otherQuantityElementInput: HTMLSelectElement;
@@ -144,6 +148,19 @@
 		$form.predefinedObservations = predefinedObservations;
 	}
 
+	function extractNumber(input: string | number): number {
+		if (typeof input === 'number') {
+			return input;
+		}
+
+		const parsedNumber = Number(input);
+		if (isNaN(parsedNumber)) {
+			return 0;
+		}
+
+		return parsedNumber;
+	}
+
 	function getOrderDimensions() {
 		const width = $form.width;
 		const height = $form.height;
@@ -152,10 +169,10 @@
 			return CalculatedItemUtilities.getOrderDimensions(width, height, $form.pp);
 		} else {
 			return CalculatedItemUtilities.getOrderDimensions(width, height, 0, {
-				up: upPP,
-				down: downPP,
-				left: leftPP,
-				right: rightPP
+				up: extractNumber(upPP),
+				down: extractNumber(downPP),
+				left: extractNumber(leftPP),
+				right: extractNumber(rightPP)
 			});
 		}
 	}
@@ -247,28 +264,26 @@
 		return part;
 	}
 
-	async function addPredefinedElement() {
-		const inputElement = predefinedElementInput;
-		const value = inputElement ? inputElement.value : null;
-		const quantityElement = predefinedQuantityElementInput;
-		const quantity = quantityElement ? Number(quantityElement.value) : null;
+	async function addOtherElementsFromSelector(id: string, quantity: number) {
+		const pricing = await data.pricing;
+		await addElementWithQuantity(id, quantity, pricing.otherPrices);
+	}
 
-		if (value && quantity) {
-			const pricing = await data.pricing;
-			const selected = pricing.otherPrices.find((price) => price.id === value);
-			if (selected) {
-				const partToCalculate = {
-					id: selected.id,
-					quantity: quantity,
-					type: selected.type
-				};
+	async function addHangerElementsFromSelector(id: string, quantity: number) {
+		const pricing = await data.pricing;
+		await addElementWithQuantity(id, quantity, pricing.hangerPrices);
+	}
 
-				await processPartToCalculate(partToCalculate);
-			}
-		}
+	async function addElementWithQuantity(id: string, quantity: number, list: ListPrice[]) {
+		const selected = list.find((price) => price.id === id);
+		if (selected) {
+			const partToCalculate = {
+				id: selected.id,
+				quantity: quantity,
+				type: selected.type
+			};
 
-		if (quantityElement) {
-			quantityElement.value = '1';
+			await processPartToCalculate(partToCalculate);
 		}
 	}
 
@@ -330,10 +345,10 @@
 			};
 		} else {
 			$form.ppDimensions = undefined;
-			upPP = 0;
-			downPP = 0;
-			leftPP = 0;
-			rightPP = 0;
+			upPP = '';
+			downPP = '';
+			leftPP = '';
+			rightPP = '';
 		}
 	}
 
@@ -350,6 +365,7 @@
 			ppDimensions
 		);
 
+		console.log(typeof totalHeight);
 		totalHeightBox = totalHeight;
 		totalWidthBox = totalWidth;
 	}
@@ -383,6 +399,10 @@
 
 	$: addedOther = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.OTHER).length > 0;
 	$: addedPP = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.PP).length > 0;
+	$: addedHanger =
+		partsToCalulatePreview.filter((p) => p.pre.type === PricingType.HANGER).length > 0;
+	$: addedTransport =
+		partsToCalulatePreview.filter((p) => p.pre.type === PricingType.TRANSPORT).length > 0;
 	$: addedBack = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.BACK).length > 0;
 	$: addedLabour =
 		partsToCalulatePreview.filter((p) =>
@@ -392,8 +412,19 @@
 	$: addedGlass = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.GLASS).length > 0;
 
 	$: {
-		updatePP(asymetricPP, upPP, downPP, leftPP, rightPP);
-		updateTotalSizes($form.width, $form.height, $form.pp, $form.ppDimensions);
+		updatePP(
+			asymetricPP,
+			extractNumber(upPP),
+			extractNumber(downPP),
+			extractNumber(leftPP),
+			extractNumber(rightPP)
+		);
+		updateTotalSizes(
+			extractNumber($form.width),
+			extractNumber($form.height),
+			extractNumber($form.pp),
+			$form.ppDimensions
+		);
 		updateFabricPrices(partsToCalulatePreview.filter((p) => p.pre.type === PricingType.MOLD));
 		updateTotal(partsToCalulatePreview, extraParts, $form.discount, $form.quantity);
 		if (!exteriorDimensions) $form.exteriorHeight = undefined;
@@ -444,7 +475,7 @@
 			</label>
 
 			<PricingSelectorSection
-				sectionTitle={'Passepartout'}
+				sectionTitle={'PP / Fondo'}
 				label={'Tipo de PP'}
 				prices={pricing.ppPrices}
 				addValue={addFromPricingSelector}
@@ -490,7 +521,7 @@
 						name="upPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={upPP}
-						class:input-success={upPP > 0}
+						class:input-success={extractNumber(upPP) > 0}
 					/>
 				</label>
 
@@ -504,7 +535,7 @@
 						name="downPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={downPP}
-						class:input-success={downPP > 0}
+						class:input-success={extractNumber(downPP) > 0}
 					/>
 				</label>
 
@@ -518,7 +549,7 @@
 						name="leftPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={leftPP}
-						class:input-success={leftPP > 0}
+						class:input-success={extractNumber(leftPP) > 0}
 					/>
 				</label>
 
@@ -532,7 +563,7 @@
 						name="rightPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={rightPP}
-						class:input-success={rightPP > 0}
+						class:input-success={extractNumber(rightPP) > 0}
 					/>
 				</label>
 			{/if}
@@ -652,6 +683,7 @@
 
 			<PricingSelectorSection
 				sectionTitle={'Montajes'}
+				priorityFirst={false}
 				label={'Tipo de montaje'}
 				prices={[...pricing.labourPrices, ...fabricPrices]}
 				addValue={addFromPricingSelector}
@@ -668,46 +700,52 @@
 				{/each}
 			</dl>
 
-			<Spacer title={'Otros elementos'} />
-			<label class="label" for="predefinedElements">
-				<span>Elemento:</span>
-				<select
-					class="select"
-					name="predefinedElements"
-					id="predefinedElements"
-					class:input-success={addedOther}
-					bind:this={predefinedElementInput}
-				>
-					{#each pricing.otherPrices.sort((a, b) => b.priority - a.priority) as otherPrice}
-						<option value={otherPrice.id}
-							>{otherPrice.description} ({otherPrice.price.toFixed(2)} €)</option
-						>
-					{/each}
-				</select>
-			</label>
-			<label class="label">
-				<span>Cantidad</span>
-				<select
-					class="select"
-					name="predefinedQuantityElements"
-					bind:this={predefinedQuantityElementInput}
-				>
-					{#each Array(10) as _, i (i)}
-						<option value={i + 1}>{i + 1}</option>
-					{/each}
-				</select>
-			</label>
+			<PricingSelectorWithQuantitySection
+				added={addedHanger}
+				sectionTitle={'Colgadores'}
+				label={'Colgador'}
+				prices={pricing.hangerPrices}
+				addItem={addHangerElementsFromSelector}
+			/>
 
-			<button
-				class="variant-filled btn lg:col-span-2"
-				type="button"
-				on:click={() => {
-					addPredefinedElement();
-				}}><Icon class="mr-2" data={plus} /> Añadir a la lista</button
-			>
+			<dl class="list-dl lg:col-span-2">
+				{#each partsToCalulatePreview.filter((p) => p.pre.type === PricingType.HANGER) as part}
+					<CartItem
+						part={part.post}
+						partToDelete={part}
+						deleteExtraPart={deletePrecalculatedPreview}
+					/>
+				{/each}
+			</dl>
+
+			<PricingSelectorWithQuantitySection
+				added={addedOther}
+				sectionTitle={'Suministros'}
+				label={'Elemento'}
+				prices={pricing.otherPrices}
+				addItem={addOtherElementsFromSelector}
+			/>
 
 			<dl class="list-dl lg:col-span-2">
 				{#each partsToCalulatePreview.filter((p) => p.pre.type === PricingType.OTHER) as part}
+					<CartItem
+						part={part.post}
+						partToDelete={part}
+						deleteExtraPart={deletePrecalculatedPreview}
+					/>
+				{/each}
+			</dl>
+
+			<PricingSelectorSection
+				sectionTitle={'Transporte'}
+				label={'Tipo de transporte'}
+				prices={pricing.transportPrices}
+				addValue={addFromPricingSelector}
+				added={addedTransport}
+			/>
+
+			<dl class="list-dl lg:col-span-2">
+				{#each partsToCalulatePreview.filter((p) => p.pre.type === PricingType.TRANSPORT) as part}
 					<CartItem
 						part={part.post}
 						partToDelete={part}

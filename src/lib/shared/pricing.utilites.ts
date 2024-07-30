@@ -31,6 +31,8 @@ export type AllPrices = {
 	backPrices: ListPrice[];
 	labourPrices: ListPrice[];
 	otherPrices: ListPrice[];
+	transportPrices: ListPrice[];
+	hangerPrices: ListPrice[];
 };
 
 export const emptyPricing: AllPrices = {
@@ -39,7 +41,9 @@ export const emptyPricing: AllPrices = {
 	ppPrices: [],
 	backPrices: [],
 	otherPrices: [],
-	labourPrices: []
+	labourPrices: [],
+	transportPrices: [],
+	hangerPrices: []
 };
 
 export type EditablePricingTypes =
@@ -47,14 +51,46 @@ export type EditablePricingTypes =
 	| PricingType.GLASS
 	| PricingType.PP
 	| PricingType.LABOUR
+	| PricingType.TRANSPORT
+	| PricingType.HANGER
 	| PricingType.OTHER;
+
+export const newEditablePricingTypes = [
+	PricingType.BACK,
+	PricingType.GLASS,
+	PricingType.PP,
+	PricingType.LABOUR,
+	PricingType.TRANSPORT,
+	PricingType.HANGER,
+	PricingType.OTHER
+];
+
+export const editablePricingTypes = [...newEditablePricingTypes, PricingType.MOLD];
+
+export const allPricingTypes = [...editablePricingTypes, PricingType.FABRIC];
+
+export const otherForPrintPricingTypes = [
+	PricingType.FABRIC,
+	PricingType.LABOUR,
+	PricingType.TRANSPORT,
+	PricingType.HANGER,
+	PricingType.OTHER
+];
+
+export const noDimensionCheckPricingTypes = [
+	PricingType.OTHER,
+	PricingType.TRANSPORT,
+	PricingType.HANGER
+];
 
 export const pricingTypesMap: Record<EditablePricingTypes, string> = {
 	[PricingType.GLASS]: 'Cristal',
-	[PricingType.PP]: 'PP',
-	[PricingType.OTHER]: 'Otro',
+	[PricingType.PP]: 'PP / Fondo',
+	[PricingType.OTHER]: 'Suministros',
 	[PricingType.BACK]: 'Trasera',
-	[PricingType.LABOUR]: 'Montajes'
+	[PricingType.LABOUR]: 'Montajes',
+	[PricingType.TRANSPORT]: 'Transportes',
+	[PricingType.HANGER]: 'Colgadores'
 };
 
 export const formulasMap: Record<PricingFormula, string> = {
@@ -97,13 +133,7 @@ const listPriceSchema = {
 	minPrice: z.number().min(0),
 	discountAllowed: z.boolean().default(true),
 	description: z.string().min(1),
-	type: z.enum([
-		PricingType.GLASS,
-		PricingType.PP,
-		PricingType.BACK,
-		PricingType.OTHER,
-		PricingType.LABOUR
-	]),
+	type: z.enum(newEditablePricingTypes as [string, ...string[]]),
 	formula: z.enum([
 		PricingFormula.FORMULA_LEFTOVER,
 		PricingFormula.FORMULA_FIT_AREA,
@@ -121,25 +151,12 @@ const listPriceSchema = {
 
 export const listPriceSchemaNew = z.object({
 	...listPriceSchema,
-	type: z.enum([
-		PricingType.GLASS,
-		PricingType.PP,
-		PricingType.BACK,
-		PricingType.OTHER,
-		PricingType.LABOUR
-	])
+	type: z.enum(newEditablePricingTypes as [string, ...string[]])
 });
 
 export const listPriceSchemaEdit = z.object({
 	...listPriceSchema,
-	type: z.enum([
-		PricingType.GLASS,
-		PricingType.PP,
-		PricingType.BACK,
-		PricingType.OTHER,
-		PricingType.LABOUR,
-		PricingType.MOLD
-	])
+	type: z.enum(editablePricingTypes as [string, ...string[]])
 });
 
 export class PricingUtilites {

@@ -5,6 +5,7 @@ import { PricingType } from '$lib/type/pricing.type';
 import { DateTime } from 'luxon';
 import { z } from 'zod';
 import { CalculatedItemUtilities, otherExtraId } from './calculated-item.utilites';
+import { allPricingTypes } from './pricing.utilites';
 
 export class OrderUtilites {
 	public static getOrderPublicId(order: Order): string {
@@ -116,21 +117,14 @@ const extraPartSchema = z.object({
 	priceId: z.string().default(otherExtraId),
 	price: z.number().min(0).default(0),
 	quantity: z.number().int().min(1).default(1),
+	discountAllowed: z.boolean().default(true),
 	description: z.string().default('')
 });
 
 const partToCalculateSchema = z.object({
 	id: z.string(),
 	quantity: z.number().int().min(1).default(1),
-	type: z.enum([
-		PricingType.MOLD,
-		PricingType.GLASS,
-		PricingType.PP,
-		PricingType.LABOUR,
-		PricingType.BACK,
-		PricingType.OTHER,
-		PricingType.FABRIC
-	]),
+	type: z.enum(allPricingTypes as [string, ...string[]]),
 	moldId: z.string().optional(),
 	extraInfo: z.string().optional()
 });
@@ -143,13 +137,13 @@ const ppDimensionsSchema = z.object({
 });
 
 export const itemSchema = z.object({
-	width: z.number().min(10).default(0),
-	height: z.number().min(10).default(0),
+	width: z.number().min(15),
+	height: z.number().min(15),
 	deliveryDate: z.date().min(OrderUtilites.getYesterday()),
 	description: z.string().default(''),
 	observations: z.string().default(''),
 	quantity: z.number().int().min(1).default(1),
-	pp: z.number().min(0).default(0),
+	pp: z.coerce.number().min(0).default(0),
 	ppDimensions: ppDimensionsSchema.optional(),
 	discount: z.number().min(0).default(0),
 	extraParts: z.array(extraPartSchema),

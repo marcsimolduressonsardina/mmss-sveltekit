@@ -18,7 +18,8 @@ import {
 	PricingUtilites,
 	fabricDefaultPricing,
 	fabricIds,
-	fitFormulas
+	fitFormulas,
+	noDimensionCheckPricingTypes
 } from '$lib/shared/pricing.utilites';
 import type { OrderDimensions } from '$lib/type/order.type';
 
@@ -152,6 +153,8 @@ export class PricingService {
 			case PricingType.BACK:
 			case PricingType.GLASS:
 			case PricingType.OTHER:
+			case PricingType.TRANSPORT:
+			case PricingType.HANGER:
 			case PricingType.LABOUR:
 			case PricingType.PP:
 				return PricingService.getPriceByFormula(priceInfo, orderDimensions);
@@ -268,7 +271,11 @@ export class PricingService {
 	}
 
 	private static checkMaxMinDimensions(orderDimensions: OrderDimensions, pricing: ListPrice) {
-		if (pricing.formula === PricingFormula.NONE && pricing.type === PricingType.OTHER) return;
+		if (
+			pricing.formula === PricingFormula.NONE &&
+			noDimensionCheckPricingTypes.includes(pricing.type)
+		)
+			return;
 		const { d1: d1w, d2: d2w } = PricingService.cleanAndOrderWorkingDimensions(orderDimensions);
 		if (pricing.maxD1 != null && pricing.maxD2 != null) {
 			const { d1, d2 } = PricingService.cleanAndOrder(pricing.maxD1, pricing.maxD2);

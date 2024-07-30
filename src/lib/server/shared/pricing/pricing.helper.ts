@@ -11,15 +11,36 @@ export class PricingHelper {
 		const backPricesPromise = pricingProvider.getPricingList(PricingType.BACK);
 		const labourPricesPromise = pricingProvider.getPricingList(PricingType.LABOUR);
 		const otherPricesPromise = pricingProvider.getPricingList(PricingType.OTHER);
-		const [moldPrices, glassPrices, ppPrices, backPrices, otherPrices, labourPrices] =
-			await Promise.all([
-				moldPricesPromise,
-				glassPromise,
-				ppPricesPromise,
-				backPricesPromise,
-				otherPricesPromise,
-				labourPricesPromise
-			]);
-		return { moldPrices, glassPrices, ppPrices, backPrices, otherPrices, labourPrices };
+		const transportPricesPromise = pricingProvider.getPricingList(PricingType.TRANSPORT);
+		const hangerPricesPromise = pricingProvider.getPricingList(PricingType.HANGER);
+		const [
+			moldPrices,
+			glassPrices,
+			ppPrices,
+			backPrices,
+			otherPrices,
+			labourPrices,
+			transportPrices,
+			hangerPrices
+		] = await Promise.all([
+			moldPricesPromise,
+			glassPromise,
+			ppPricesPromise,
+			backPricesPromise,
+			otherPricesPromise,
+			labourPricesPromise,
+			transportPricesPromise,
+			hangerPricesPromise
+		]);
+		return {
+			moldPrices,
+			glassPrices,
+			ppPrices,
+			backPrices,
+			otherPrices,
+			labourPrices,
+			transportPrices,
+			hangerPrices
+		};
 	}
 }

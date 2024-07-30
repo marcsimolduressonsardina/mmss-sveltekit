@@ -141,6 +141,8 @@ export class CalculatedItemService {
 					extraInfo
 				);
 			case PricingType.OTHER:
+			case PricingType.HANGER:
+			case PricingType.TRANSPORT:
 				return CalculatedItemService.getDefaultDescription(`${id}`, description, extraInfo);
 			default:
 				throw Error('Invalid type');
