@@ -46,6 +46,10 @@
 	});
 	const proxyDate = dateProxy(form, 'deliveryDate', { format: 'date' });
 
+	$form.height = '';
+	$form.width = '';
+	$form.pp = '';
+
 	let total = 0.0;
 	let totalPerUnit = 0.0;
 	let totalPerUnitWithoutDiscount = 0.0;
@@ -70,10 +74,10 @@
 
 	// PP vars
 	let asymetricPP = false;
-	let upPP = 0;
-	let downPP = 0;
-	let leftPP = 0;
-	let rightPP = 0;
+	let upPP: number | string = '';
+	let downPP: number | string = '';
+	let leftPP: number | string = '';
+	let rightPP: number | string = '';
 	$form.ppDimensions = undefined;
 
 	// Size vars
@@ -144,6 +148,19 @@
 		$form.predefinedObservations = predefinedObservations;
 	}
 
+	function extractNumber(input: string | number): number {
+		if (typeof input === 'number') {
+			return input;
+		}
+
+		const parsedNumber = Number(input);
+		if (isNaN(parsedNumber)) {
+			return 0;
+		}
+
+		return parsedNumber;
+	}
+
 	function getOrderDimensions() {
 		const width = $form.width;
 		const height = $form.height;
@@ -152,10 +169,10 @@
 			return CalculatedItemUtilities.getOrderDimensions(width, height, $form.pp);
 		} else {
 			return CalculatedItemUtilities.getOrderDimensions(width, height, 0, {
-				up: upPP,
-				down: downPP,
-				left: leftPP,
-				right: rightPP
+				up: extractNumber(upPP),
+				down: extractNumber(downPP),
+				left: extractNumber(leftPP),
+				right: extractNumber(rightPP)
 			});
 		}
 	}
@@ -328,10 +345,10 @@
 			};
 		} else {
 			$form.ppDimensions = undefined;
-			upPP = 0;
-			downPP = 0;
-			leftPP = 0;
-			rightPP = 0;
+			upPP = '';
+			downPP = '';
+			leftPP = '';
+			rightPP = '';
 		}
 	}
 
@@ -348,6 +365,7 @@
 			ppDimensions
 		);
 
+		console.log(typeof totalHeight);
 		totalHeightBox = totalHeight;
 		totalWidthBox = totalWidth;
 	}
@@ -394,8 +412,19 @@
 	$: addedGlass = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.GLASS).length > 0;
 
 	$: {
-		updatePP(asymetricPP, upPP, downPP, leftPP, rightPP);
-		updateTotalSizes($form.width, $form.height, $form.pp, $form.ppDimensions);
+		updatePP(
+			asymetricPP,
+			extractNumber(upPP),
+			extractNumber(downPP),
+			extractNumber(leftPP),
+			extractNumber(rightPP)
+		);
+		updateTotalSizes(
+			extractNumber($form.width),
+			extractNumber($form.height),
+			extractNumber($form.pp),
+			$form.ppDimensions
+		);
 		updateFabricPrices(partsToCalulatePreview.filter((p) => p.pre.type === PricingType.MOLD));
 		updateTotal(partsToCalulatePreview, extraParts, $form.discount, $form.quantity);
 		if (!exteriorDimensions) $form.exteriorHeight = undefined;
@@ -492,7 +521,7 @@
 						name="upPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={upPP}
-						class:input-success={upPP > 0}
+						class:input-success={extractNumber(upPP) > 0}
 					/>
 				</label>
 
@@ -506,7 +535,7 @@
 						name="downPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={downPP}
-						class:input-success={downPP > 0}
+						class:input-success={extractNumber(downPP) > 0}
 					/>
 				</label>
 
@@ -520,7 +549,7 @@
 						name="leftPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={leftPP}
-						class:input-success={leftPP > 0}
+						class:input-success={extractNumber(leftPP) > 0}
 					/>
 				</label>
 
@@ -534,7 +563,7 @@
 						name="rightPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={rightPP}
-						class:input-success={rightPP > 0}
+						class:input-success={extractNumber(rightPP) > 0}
 					/>
 				</label>
 			{/if}
