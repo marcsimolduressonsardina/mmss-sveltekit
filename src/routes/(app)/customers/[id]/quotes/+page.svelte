@@ -8,7 +8,7 @@
 </script>
 
 <div class="p-3 text-xl font-medium">
-	Presupuesto de {data.customer?.name}
+	Presupuestos de {data.customer?.name}
 </div>
 
 <div
