@@ -5,22 +5,17 @@
 	import { Icon } from 'svelte-awesome';
 	import { faCamera } from '@fortawesome/free-solid-svg-icons/faCamera';
 	import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint';
-	import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
-	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
-	import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
-	import { faUserLarge } from '@fortawesome/free-solid-svg-icons/faUserLarge';
 	import trash from 'svelte-awesome/icons/trash';
 
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { OrderUtilites, isOrderTemp } from '$lib/shared/order.utilities';
+	import { isOrderTemp } from '$lib/shared/order.utilities';
 	import { OrderStatus } from '$lib/type/order.type';
 	import OrderButtons from '$lib/components/order/OrderButtons.svelte';
 	import QuoteButtons from '$lib/components/order/QuoteButtons.svelte';
-	import Box from '$lib/components/Box.svelte';
 	import OrderStatusInfo from '$lib/components/order/OrderStatusInfo.svelte';
 	import OrderInfo from '$lib/components/order/OrderInfo.svelte';
 	import OrderElements from '$lib/components/order/OrderElements.svelte';
-	import { DateTime } from 'luxon';
+	import OrderHeader from '$lib/components/order/OrderHeader.svelte';
 
 	let formLoading = false;
 
@@ -40,29 +35,7 @@
 		{:else if isOrderTemp(info.order)}
 			{goto(`/orders/${info.order.id}/link`)}
 		{:else}
-			<Box
-				title={info.order.status === OrderStatus.QUOTE
-					? 'Información del Presupuesto'
-					: 'Información del Pedido'}
-			>
-				<div class="space-y-2">
-					<div class="flex items-center text-lg text-gray-700">
-						<Icon class="mr-2 text-blue-600" data={faUserLarge} />
-						<span>{info.order.customer.name}</span>
-					</div>
-					<div class="text-md flex items-center text-gray-700">
-						<Icon
-							class="mr-2 text-green-600"
-							data={info.order.status === OrderStatus.QUOTE ? faClipboardList : faBox}
-						/>
-						<span>{OrderUtilites.getOrderPublicId(info.order)}</span>
-					</div>
-					<div class="text-md flex items-center text-gray-700">
-						<Icon class="mr-2 text-gray-600" data={faClock} />
-						<span>{DateTime.fromJSDate(info.order.createdAt).toFormat('dd/MM/yyyy HH:mm')}</span>
-					</div>
-				</div>
-			</Box>
+			<OrderHeader order={info.order}></OrderHeader>
 
 			{#if !formLoading}
 				<div
@@ -111,14 +84,12 @@
 					></OrderStatusInfo>
 				{/if}
 
-				<hr class="mb-3 mt-2 border-t border-gray-200 lg:col-span-2" />
-
-				<OrderInfo order={info.order}></OrderInfo>
-
-				<hr class="mb-3 mt-2 border-t border-gray-200 lg:col-span-2" />
+				<span class="pt-4"> <OrderInfo order={info.order}></OrderInfo> </span>
 
 				{#if info.calculatedItem}
-					<OrderElements order={info.order} calculatedItem={info.calculatedItem}></OrderElements>
+					<span class="pt-4">
+						<OrderElements order={info.order} calculatedItem={info.calculatedItem}></OrderElements>
+					</span>
 				{/if}
 
 				<form
