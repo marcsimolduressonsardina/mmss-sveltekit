@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { DateTime } from 'luxon';
 	import { goto } from '$app/navigation';
 	import { enhance } from '$app/forms';
 	import { Icon } from 'svelte-awesome';
@@ -8,16 +7,21 @@
 	import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint';
 	import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
 	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
+	import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
 	import { faUserLarge } from '@fortawesome/free-solid-svg-icons/faUserLarge';
 	import trash from 'svelte-awesome/icons/trash';
 
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { OrderUtilites, isOrderTemp, orderStatusMap } from '$lib/shared/order.utilities';
-	import Spacer from '$lib/components/item/Spacer.svelte';
 	import { OrderStatus } from '$lib/type/order.type';
 	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 	import OrderButtons from '$lib/components/order/OrderButtons.svelte';
 	import QuoteButtons from '$lib/components/order/QuoteButtons.svelte';
+	import Box from '$lib/components/Box.svelte';
+	import OrderStatusInfo from '$lib/components/order/OrderStatusInfo.svelte';
+	import OrderInfo from '$lib/components/order/OrderInfo.svelte';
+	import OrderElements from '$lib/components/order/OrderElements.svelte';
+	import { DateTime } from 'luxon';
 
 	let formLoading = false;
 
@@ -37,29 +41,36 @@
 	{:else if isOrderTemp(data.order)}
 		{goto(`/orders/${data.order.id}/link`)}
 	{:else}
-		<p class="pb-1 text-lg text-gray-700">
-			<Icon class="mr-1" data={faUserLarge} />
-			{data.order.customer.name}
-		</p>
-		<p class="text-md pb-1 text-gray-700">
-			{#if data.order.status === OrderStatus.QUOTE}
-				<Icon class="mr-1" data={faClipboardList} />
-				Presupuesto
-			{:else}
-				<Icon class="mr-1" data={faBox} />
-			{/if}
-			{OrderUtilites.getOrderPublicId(data.order)}
-		</p>
+		<Box title="Información del Pedido">
+			<div class="space-y-2">
+				<div class="flex items-center text-lg text-gray-700">
+					<Icon class="mr-2 text-blue-600" data={faUserLarge} />
+					<span>{data.order.customer.name}</span>
+				</div>
+				<div class="text-md flex items-center text-gray-700">
+					<Icon
+						class="mr-2 text-green-600"
+						data={data.order.status === OrderStatus.QUOTE ? faClipboardList : faBox}
+					/>
+					<span>{OrderUtilites.getOrderPublicId(data.order)}</span>
+				</div>
+				<div class="text-md flex items-center text-gray-700">
+					<Icon class="mr-2 text-gray-600" data={faClock} />
+					<span>{DateTime.fromJSDate(data.order.createdAt).toFormat('dd/MM/yyyy HH:mm')}</span>
+				</div>
+			</div>
+		</Box>
 
 		{#if !formLoading}
 			<div
-				class="flex w-full flex-col place-content-center items-center justify-center gap-1 md:grid md:grid-cols-2 lg:grid-cols-3"
+				class="flex w-full flex-col place-content-center items-center justify-center gap-1 pt-4 md:grid md:grid-cols-2 lg:grid-cols-3"
 			>
 				<a
-					class="variant-ghost-warning btn btn-sm w-full"
+					class="flex w-full items-center justify-center rounded-md bg-yellow-500 px-4 py-2 text-white shadow hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-offset-2"
 					target="_blank"
 					href={`/orders/${data.order.id}/print`}
-					><Icon class="mr-1" data={faPrint} /> Imprimir
+				>
+					<Icon class="mr-2" data={faPrint} /> Imprimir
 				</a>
 
 				{#if data.order.status === OrderStatus.QUOTE}
@@ -76,127 +87,34 @@
 		{/if}
 
 		{#if formLoading}
-			<ProgressBar text={'Aplicando cambios...'} />
+			<span class="pt-4"> <ProgressBar text={'Aplicando cambios...'} /> </span>
 		{/if}
 
 		<div class="flex w-full flex-col gap-1">
-			<div class="flex w-full flex-col gap-1">
-				<hr class="mb-3 mt-2 border-t border-gray-200 lg:col-span-2" />
+			<hr class="mb-3 mt-2 border-t border-gray-200 lg:col-span-2" />
+			<div class="flex w-full flex-col gap-2">
 				<button
-					class="btn btn-sm w-full bg-[#f77f00] text-lg text-white hover:bg-[#d16b00] focus:outline-none focus:ring-2 focus:ring-[#f77f00] focus:ring-offset-2"
+					class="w-full rounded-md bg-orange-500 px-4 py-2 text-lg text-white shadow hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600 focus:ring-offset-2"
 					on:click={() => {
 						goto(`/orders/${data?.order?.id}/files`);
 					}}
-					><Icon class="mr-1" data={faCamera} /> Cámara
+				>
+					<Icon class="mr-2" data={faCamera} /> Cámara
 				</button>
 			</div>
+
 			{#if data.calculatedItem}
-				<div class="flex w-full flex-col gap-1">
-					<hr class="mb-3 mt-2 border-t border-gray-200 lg:col-span-2" />
-					<span class="variant-ghost badge text-lg">Total {totalOrder.toFixed(2)} €</span>
-
-					{#if data.order.status !== OrderStatus.QUOTE}
-						{#if data.order.amountPayed === 0}
-							<span class="variant-ghost-warning badge text-lg"> No pagado </span>
-						{:else if data.order.amountPayed === totalOrder}
-							<span class="variant-ghost-success badge text-lg"> Pagado </span>
-						{:else}
-							<span class="variant-ghost-secondary badge text-lg">
-								{data.order.amountPayed.toFixed(2)}€ pagado - {(
-									totalOrder - data.order.amountPayed
-								).toFixed(2)}€ pendiente
-							</span>
-						{/if}
-					{/if}
-
-					<span
-						class="badge text-lg"
-						class:variant-ghost={OrderStatus.PENDING === data.order.status}
-						class:variant-ghost-primary={OrderStatus.FINISHED === data.order.status}
-						class:variant-ghost-secondary={OrderStatus.QUOTE === data.order.status}
-						class:variant-ghost-tertiary={OrderStatus.PICKED_UP === data.order.status}
-					>
-						{orderStatusMap[data.order.status] +
-							' - ' +
-							DateTime.fromJSDate(data.order.statusUpdated).toFormat('dd/MM/yyyy HH:mm')}
-					</span>
-				</div>
+				<OrderStatusInfo order={data.order} {totalOrder}></OrderStatusInfo>
 			{/if}
 
-			<Spacer title={`Datos del pedido ${data.order.hasArrow ? '⬇︎' : ''}`} />
+			<hr class="mb-3 mt-2 border-t border-gray-200 lg:col-span-2" />
 
-			<span class="text-md text-gray-700"
-				><span class="font-semibold">Dependiente:</span> {data.order.user.name}</span
-			>
-			<span class="text-md text-gray-700">
-				<span class="font-semibold">Fecha y hora:</span>
-				{DateTime.fromJSDate(data.order.createdAt).toFormat('dd/MM/yyyy HH:mm')}
-			</span>
-			<span class="text-md text-gray-700">
-				<span class="font-semibold">Fecha de recogida:</span>
-				{DateTime.fromJSDate(data.order.item.deliveryDate).toFormat('dd/MM/yyyy')}
-			</span>
-			<span class="text-md text-gray-700">
-				<span class="font-semibold">Medidas de la obra:</span>
-				{`${data.order.item.height}x${data.order.item.width} cm`}
-			</span>
-			<span class="text-md text-gray-700">
-				<span class="font-semibold">Medidas de trabajo:</span>
-				{OrderUtilites.getWorkingDimensions(data.order)}
-			</span>
-			{#if data.order.item.exteriorHeight || data.order.item.exteriorWidth}
-				<span class="text-md text-gray-700">
-					<span class="font-semibold">Medidas exteriores del marco:</span>
-					{`${data.order.item.exteriorHeight}x${data.order.item.exteriorWidth} cm`}
-				</span>
-			{/if}
-			<span class="text-md text-gray-700">
-				<span class="font-semibold">Descripción:</span>
-				{data.order.item.description}
-			</span>
-			<span class="text-md text-gray-700">
-				<span class="font-semibold">Observaciones:</span>
-				{data.order.item.observations}
-			</span>
-			{#each data.order.item.predefinedObservations as obv}
-				<span class="text-md text-gray-700">- {obv}</span>
-			{/each}
-			<Spacer title={'Elementos'} />
+			<OrderInfo order={data.order}></OrderInfo>
+
+			<hr class="mb-3 mt-2 border-t border-gray-200 lg:col-span-2" />
+
 			{#if data.calculatedItem}
-				{#each data.calculatedItem.parts as part}
-					<span class="text-md text-gray-700">
-						- {part.description}
-						<span class="variant-ghost badge">{part.price.toFixed(2)}€</span>
-						{#if part.quantity > 1}
-							<span class="variant-ghost badge">x{part.quantity} </span>
-						{/if}
-					</span>
-				{/each}
-				{#if data.calculatedItem.quantity > 1}
-					<span class="text-md text-gray-700"
-						>Unidades: <span class="variant-ghost badge">{data.order.item.quantity}</span>
-					</span>
-					<span class="text-md text-gray-700">
-						Precio unitario: <span class="variant-ghost badge">
-							{CalculatedItemUtilities.getUnitPriceWithoutDiscount(data.calculatedItem)} €
-						</span>
-					</span>
-					{#if data.calculatedItem.discount > 0}
-						<span class="text-md text-gray-700">
-							Precio unitario con descuento: <span class="variant-ghost badge">
-								{CalculatedItemUtilities.getUnitPriceWithDiscount(data.calculatedItem)} €</span
-							>
-						</span>
-					{/if}
-				{/if}
-				{#if data.calculatedItem.discount > 0}
-					<span class="variant-ghost badge"
-						>Total sin descuento {CalculatedItemUtilities.getTotalWithoutDiscount(
-							data.calculatedItem
-						).toFixed(2)} €</span
-					>
-					<span class="variant-ghost badge"> Descuento {data.calculatedItem.discount}% </span>
-				{/if}
+				<OrderElements order={data.order} calculatedItem={data.calculatedItem}></OrderElements>
 			{/if}
 
 			<form
@@ -220,13 +138,12 @@
 					};
 				}}
 			>
-				<button class="variant-filled-error btn btn-sm w-full">
-					<Icon class="mr-1" data={trash} />
-					{#if data.order.status !== OrderStatus.QUOTE}
-						Eliminar pedido
-					{:else}
-						Eliminar presupuesto
-					{/if}
+				<button
+					class="flex w-full items-center justify-center rounded-md bg-red-700 px-4 py-2 text-white shadow hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-800 focus:ring-offset-2"
+					type="submit"
+				>
+					<Icon class="mr-2" data={trash} />
+					{data.order.status !== OrderStatus.QUOTE ? 'Eliminar pedido' : 'Eliminar presupuesto'}
 				</button>
 			</form>
 		</div>

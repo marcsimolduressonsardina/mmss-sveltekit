@@ -24,6 +24,7 @@
 	const totalOrder = calculatedItem ? CalculatedItemUtilities.getTotal(calculatedItem) : 0;
 </script>
 
+<!-- Payment Buttons -->
 {#if order.amountPayed === totalOrder}
 	<form
 		class="w-full"
@@ -37,9 +38,12 @@
 			};
 		}}
 	>
-		<button class="variant-filled-secondary btn btn-sm w-full" disabled={formLoading}
-			><Icon class="mr-1" data={faMoneyBill} />Marcar como no pagado</button
+		<button
+			class="flex w-full items-center justify-center rounded-md bg-amber-600 px-4 py-2 text-white shadow hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-700 focus:ring-offset-2"
+			disabled={formLoading}
 		>
+			<Icon class="mr-2" data={faMoneyBill} /> Marcar como no pagado
+		</button>
 	</form>
 {:else}
 	<form
@@ -54,12 +58,14 @@
 			};
 		}}
 	>
-		<button class="variant-filled-secondary btn btn-sm w-full"
-			><Icon class="mr-1" data={faMoneyBill} />Marcar como pagado</button
+		<button
+			class="flex w-full items-center justify-center rounded-md bg-teal-600 px-4 py-2 text-white shadow hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700 focus:ring-offset-2"
 		>
+			<Icon class="mr-2" data={faMoneyBill} /> Marcar como pagado
+		</button>
 	</form>
 	<form
-		class="grid w-full grid-cols-2 gap-1"
+		class="grid w-full grid-cols-2 gap-2"
 		method="post"
 		action="?/payOrderPartially"
 		use:enhance={() => {
@@ -70,25 +76,37 @@
 			};
 		}}
 	>
-		<button class="variant-filled-secondary btn btn-sm"
-			><Icon class="mr-1" data={faMoneyBill} />Añadir pago a cuenta</button
+		<button
+			class="flex w-full items-center justify-center rounded-md bg-yellow-600 px-4 py-2 text-white shadow hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-700 focus:ring-offset-2"
 		>
-		<div class="input-group input-group-divider grid-cols-[auto_1fr_auto]" style="height: 32px;">
-			<div class="input-group-shim">€</div>
-			<input type="number" class="pt-1" name="amount" placeholder="Cantidad" step="0.01" />
+			<Icon class="mr-2" data={faMoneyBill} /> Pago a cuenta
+		</button>
+		<div class="flex items-center space-x-2">
+			<div class="rounded-md bg-gray-200 px-3 py-2 text-gray-700">€</div>
+			<input
+				type="number"
+				class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm"
+				name="amount"
+				placeholder="Cantidad"
+				step="0.01"
+			/>
 		</div>
 	</form>
 {/if}
+
+<!-- Whatsapp Button -->
 <a
-	class="variant-filled-success btn btn-sm w-full"
+	class="flex w-full items-center justify-center rounded-md bg-green-600 px-4 py-2 text-white shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-offset-2"
 	target="_blank"
 	href={CustomerUtilites.getWhatsappLink(
 		order.customer,
 		OrderUtilites.getWhatsappTicketText(order)
 	)}
-	><Icon class="mr-1" data={faWhatsapp} /> Enviar resguardo a cliente
+>
+	<Icon class="mr-2" data={faWhatsapp} /> Enviar resguardo a cliente
 </a>
 
+<!-- Order Status Buttons -->
 {#if order.status !== OrderStatus.FINISHED}
 	<form
 		class="w-full"
@@ -102,15 +120,17 @@
 			};
 		}}
 	>
-		<button class="variant-ghost-primary btn btn-sm w-full"
-			><Icon class="mr-1" data={faCheck} />Marcar como finalizado</button
+		<button
+			class="flex w-full items-center justify-center rounded-md bg-lime-600 px-4 py-2 text-white shadow hover:bg-lime-700 focus:outline-none focus:ring-2 focus:ring-lime-700 focus:ring-offset-2"
 		>
+			<Icon class="mr-2" data={faCheck} /> Marcar como finalizado
+		</button>
 	</form>
 {/if}
 
 {#if order.status === OrderStatus.FINISHED}
 	<a
-		class="variant-filled-success btn btn-sm w-full"
+		class="flex w-full items-center justify-center rounded-md bg-green-600 px-4 py-2 text-white shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-offset-2"
 		target="_blank"
 		aria-disabled="true"
 		href={CustomerUtilites.getWhatsappLink(
@@ -118,7 +138,7 @@
 			OrderUtilites.getWhatsappFinishedText([order])
 		)}
 	>
-		<Icon class="mr-1" data={faWhatsapp} /> Enviar mensaje finalizado
+		<Icon class="mr-2" data={faWhatsapp} /> Enviar mensaje finalizado
 	</a>
 {/if}
 
@@ -135,11 +155,14 @@
 			};
 		}}
 	>
-		<button class="variant-ghost btn btn-sm w-full"
-			><Icon class="mr-1" data={faClockRotateLeft} />Marcar como pendiente</button
+		<button
+			class="flex w-full items-center justify-center rounded-md bg-gray-600 px-4 py-2 text-white shadow hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2"
 		>
+			<Icon class="mr-2" data={faClockRotateLeft} /> Marcar como pendiente
+		</button>
 	</form>
 {/if}
+
 {#if order.status !== OrderStatus.PICKED_UP}
 	<form
 		class="w-full"
@@ -153,18 +176,27 @@
 			};
 		}}
 	>
-		<button class="variant-ghost-tertiary btn btn-sm w-full"
-			><Icon class="mr-1" data={faTruckPickup} />Marcar como recogido</button
+		<button
+			class="flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-white shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2"
 		>
+			<Icon class="mr-2" data={faTruckPickup} /> Marcar como recogido
+		</button>
 	</form>
 {/if}
-<a class="variant-filled-warning btn btn-sm w-full" href="/customers/{order.customer.id}"
-	><Icon class="mr-1" data={faUser} />Ver cliente</a
+
+<!-- View Customer and Day Orders Buttons -->
+<a
+	class="flex w-full items-center justify-center rounded-md bg-yellow-600 px-4 py-2 text-white shadow hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-700 focus:ring-offset-2"
+	href="/customers/{order.customer.id}"
 >
+	<Icon class="mr-2" data={faUser} /> Ver cliente
+</a>
+
 <button
-	class="variant-filled btn btn-sm w-full"
+	class="flex w-full items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-700 focus:ring-offset-2"
 	on:click={() => {
 		goto(`/orders/${order.id}/day`);
 	}}
-	><Icon class="mr-1" data={faBox} /> Pedidos del día
+>
+	<Icon class="mr-2" data={faBox} /> Pedidos del día
 </button>

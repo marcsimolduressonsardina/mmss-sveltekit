@@ -7,6 +7,7 @@
 	import { CustomerUtilites } from '$lib/shared/customer.utilities';
 	import { OrderUtilites } from '$lib/shared/order.utilities';
 	import { OrderStatus } from '$lib/type/order.type';
+	import Box from '$lib/components/Box.svelte';
 
 	export let data: PageData;
 </script>
@@ -15,30 +16,32 @@
 	{#await data.orders}
 		<ProgressBar />
 	{:then orders}
-		<span class="pb-1 text-xl text-gray-700">Pedidos del mismo día | {orders[0].customer.name}</span
-		>
-
-		<div class="flex w-full flex-col place-content-center items-center justify-center gap-1">
-			{#if orders.filter((order) => order.status === OrderStatus.FINISHED).length > 0}
-				<a
-					class="variant-filled-success btn btn-sm w-full"
-					target="_blank"
-					aria-disabled="true"
-					href={CustomerUtilites.getWhatsappLink(
-						orders[0].customer,
-						OrderUtilites.getWhatsappFinishedText(
-							orders.filter((order) => order.status === OrderStatus.FINISHED)
-						)
-					)}
-				>
-					<Icon class="mr-1" data={faWhatsapp} /> Enviar mensaje finalizado (Sólo acabados)
-				</a>
-			{:else}
-				<button class="variant-ghost-success btn btn-sm w-full" disabled>
-					<Icon class="mr-1" data={faWhatsapp} /> Enviar mensaje finalizado (Sólo acabados)
-				</button>
-			{/if}
-		</div>
+		<Box title={`Pedidos del mismo día | ${orders[0].customer.name}`}>
+			<div class="flex w-full flex-col place-content-center items-center justify-center gap-2">
+				{#if orders.filter((order) => order.status === OrderStatus.FINISHED).length > 0}
+					<a
+						class="flex w-full items-center justify-center rounded-md bg-green-600 px-4 py-2 text-white shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-offset-2"
+						target="_blank"
+						aria-disabled="true"
+						href={CustomerUtilites.getWhatsappLink(
+							orders[0].customer,
+							OrderUtilites.getWhatsappFinishedText(
+								orders.filter((order) => order.status === OrderStatus.FINISHED)
+							)
+						)}
+					>
+						<Icon class="mr-2" data={faWhatsapp} /> Enviar mensaje finalizado (Sólo acabados)
+					</a>
+				{:else}
+					<button
+						class="flex w-full cursor-not-allowed items-center justify-center rounded-md bg-gray-300 px-4 py-2 text-gray-600 shadow focus:outline-none"
+						disabled
+					>
+						<Icon class="mr-2" data={faWhatsapp} /> Enviar mensaje finalizado (Sólo acabados)
+					</button>
+				{/if}
+			</div>
+		</Box>
 
 		<div class="flex w-full flex-col gap-3 lg:grid lg:grid-cols-4">
 			{#each orders as order (order.id)}
