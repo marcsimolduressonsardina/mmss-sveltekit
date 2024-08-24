@@ -3,6 +3,7 @@
 	import type { Order } from '$lib/type/api.type';
 	import { DateTime } from 'luxon';
 	import Box from '$lib/components/Box.svelte';
+	import { OrderStatus } from '$lib/type/order.type';
 
 	export let order: Order;
 </script>
@@ -14,10 +15,12 @@
 			<span>{order.user.name}</span>
 		</div>
 
-		<div class="flex justify-between">
-			<span class="font-semibold">Fecha de recogida:</span>
-			<span>{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}</span>
-		</div>
+		{#if order.status !== OrderStatus.QUOTE}
+			<div class="flex justify-between">
+				<span class="font-semibold">Fecha de recogida:</span>
+				<span>{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}</span>
+			</div>
+		{/if}
 
 		<div class="flex justify-between">
 			<span class="font-semibold">Medidas de la obra:</span>
