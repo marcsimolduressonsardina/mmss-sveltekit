@@ -30,6 +30,7 @@
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import ChipSet from '$lib/components/item/ChipSet.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
+	import Box from '$lib/components/Box.svelte';
 	import {
 		PricingUtilites,
 		fabricDefaultPricing,
@@ -434,10 +435,10 @@
 
 <div class="px-2 pt-1 text-2xl font-semibold">Nuevo Pedido / Presupuesto</div>
 {#if $submitting}
-	<ProgressBar text={'Guardando'} />
+	<Box title={''}><ProgressBar text={'Guardando'} /></Box>
 {:else}
 	{#await data.pricing}
-		<ProgressBar text={'Cargando precios'} />
+		<Box title={''}><ProgressBar text={'Cargando precios'} /></Box>
 	{:then pricing}
 		<form
 			use:enhance
