@@ -63,28 +63,25 @@
 		</Box>
 	{:then orders}
 		<Box title={`${getStatus(data.status)}`}>
-			<div
-				class="flex w-full flex-col place-content-center items-center justify-center gap-3 md:grid md:grid-cols-3"
-			>
-				<a
-					class="w-full rounded-md bg-green-700 px-4 py-2 text-center font-semibold text-white shadow hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-					href={`/orders/list?status=${OrderStatus.FINISHED}`}
+			{#if data.status !== OrderStatus.QUOTE}
+				<div
+					class="flex w-full flex-col place-content-center items-center justify-center gap-3 md:grid md:grid-cols-2"
 				>
-					<Icon class="mr-1" data={faCheck} /> Ver pedidos finalizados
-				</a>
-				<a
-					class="w-full rounded-md bg-gray-700 px-4 py-2 text-center font-semibold text-white shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-					href={`/orders/list?status=${OrderStatus.PENDING}`}
-				>
-					<Icon class="mr-1" data={faClockRotateLeft} /> Ver pedidos pendientes
-				</a>
-				<a
-					class="w-full rounded-md bg-purple-700 px-4 py-2 text-center font-semibold text-white shadow hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
-					href={`/orders/list?status=${OrderStatus.QUOTE}`}
-				>
-					<Icon class="mr-1" data={faClipboardList} /> Ver presupuestos
-				</a>
-			</div>
+					<a
+						class="w-full rounded-md bg-green-700 px-4 py-2 text-center font-semibold text-white shadow hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+						href={`/orders/list?status=${OrderStatus.FINISHED}`}
+					>
+						<Icon class="mr-1" data={faCheck} /> Ver pedidos finalizados
+					</a>
+					<a
+						class="w-full rounded-md bg-gray-700 px-4 py-2 text-center font-semibold text-white shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+						href={`/orders/list?status=${OrderStatus.PENDING}`}
+					>
+						<Icon class="mr-1" data={faClockRotateLeft} /> Ver pedidos pendientes
+					</a>
+				</div>
+			{/if}
+
 			<div class="mt-4">
 				<input
 					bind:value={searchValue}
