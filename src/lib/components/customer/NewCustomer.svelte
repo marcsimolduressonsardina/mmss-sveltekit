@@ -1,9 +1,10 @@
 <script lang="ts">
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { Icon } from 'svelte-awesome';
 	import { superForm } from 'sveltekit-superforms';
 	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 	import Box from '$lib/components/Box.svelte';
+	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
+	import { NEUTRAL_ACTION_COLORS } from '$lib/ui/ui.constants';
 
 	export let data;
 	export let title = 'Crear Cliente';
@@ -41,13 +42,11 @@
 					/>
 				</div>
 
-				<button
-					class="w-full rounded-md bg-yellow-500 px-4 py-2 font-semibold text-white shadow hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
-					type="submit"
-				>
-					<Icon class="mr-2" data={faEdit} />
-					{buttonText}
-				</button>
+				<SubmitButton
+					icon={faEdit}
+					text={buttonText}
+					colorClasses={NEUTRAL_ACTION_COLORS}
+				></SubmitButton>
 			</form>
 		{/if}
 	</div>

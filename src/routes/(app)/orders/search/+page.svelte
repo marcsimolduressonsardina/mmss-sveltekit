@@ -4,6 +4,8 @@
 	import search from 'svelte-awesome/icons/search';
 	import { superForm } from 'sveltekit-superforms';
 	import Box from '$lib/components/Box.svelte';
+	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
+	import { NEUTRAL_ACTION_COLORS } from '$lib/ui/ui.constants';
 
 	export let data;
 	const { form, errors, enhance, submitting } = superForm(data.form);
@@ -27,13 +29,7 @@
 				/>
 			</div>
 
-			<button
-				class="w-full rounded-md bg-yellow-500 px-4 py-2 font-semibold text-white shadow hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
-				type="submit"
-			>
-				<Icon class="mr-2" data={search} />
-				Buscar
-			</button>
+			<SubmitButton text="Buscar" icon={search} colorClasses={NEUTRAL_ACTION_COLORS}></SubmitButton>
 		</form>
 	{/if}
 </Box>

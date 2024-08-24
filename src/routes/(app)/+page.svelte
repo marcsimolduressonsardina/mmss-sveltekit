@@ -1,55 +1,48 @@
 <script lang="ts">
 	import { faQrcode } from '@fortawesome/free-solid-svg-icons/faQrcode';
-	import { faImage } from '@fortawesome/free-solid-svg-icons/faImage';
+	import { faFileCirclePlus } from '@fortawesome/free-solid-svg-icons/faFileCirclePlus';
 	import { faList } from '@fortawesome/free-solid-svg-icons/faList';
 	import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
-	import Icon from 'svelte-awesome';
-	import plus from 'svelte-awesome/icons/plus';
 	import search from 'svelte-awesome/icons/search';
+	import HomeButton from '$lib/components/button/HomeButton.svelte';
+	import { NEUTRAL_ACTION_COLORS } from '$lib/ui/ui.constants';
 </script>
 
 <div
 	class="flex w-full flex-col place-content-center items-center justify-center gap-4 p-6 md:grid md:grid-cols-2 lg:grid-cols-3"
 >
-	<a
-		href="/orders/new"
-		class="w-full rounded-lg bg-blue-600 px-6 py-4 text-lg font-semibold text-white shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-400"
-	>
-		<Icon class="mr-2" data={faImage} /> Crear presupuesto
-	</a>
+	<HomeButton
+		icon={faFileCirclePlus}
+		text="Formulario"
+		link={'/orders/new'}
+		colorClasses="bg-fuchsia-600 hover:bg-fuchsia-700 focus:bg-fuchsia-400"
+	></HomeButton>
 
-	<a
-		href="/customers/new"
-		class="w-full rounded-lg bg-yellow-600 px-6 py-4 text-lg font-semibold text-white shadow-lg hover:bg-yellow-700 focus:outline-none focus:ring-4 focus:ring-yellow-400"
-	>
-		<Icon class="mr-2" data={plus} /> Crear cliente
-	</a>
+	<HomeButton
+		icon={search}
+		text="Buscar cliente"
+		link="/customers/search"
+		colorClasses={NEUTRAL_ACTION_COLORS}
+	></HomeButton>
 
-	<a
-		href="/customers/search"
-		class="w-full rounded-lg bg-gray-600 px-6 py-4 text-lg font-semibold text-white shadow-lg hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-400"
-	>
-		<Icon class="mr-2" data={search} /> Buscar cliente
-	</a>
+	<HomeButton
+		icon={faQrcode}
+		text="Escanear resguardo"
+		link="/orders/scan"
+		colorClasses="bg-neutral-800 hover:bg-neutral-950 focus:bg-neutral-700"
+	></HomeButton>
 
-	<a
-		href="/orders/scan"
-		class="w-full rounded-lg bg-green-600 px-6 py-4 text-lg font-semibold text-white shadow-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-400"
-	>
-		<Icon class="mr-2" data={faQrcode} /> Escanear / Buscar
-	</a>
+	<HomeButton
+		icon={faList}
+		text="Listado pedidos"
+		link="/orders/list"
+		colorClasses="bg-yellow-500 hover:bg-yellow-600 focus:bg-yellow-400"
+	></HomeButton>
 
-	<a
-		href="/orders/list"
-		class="w-full rounded-lg bg-purple-600 px-6 py-4 text-lg font-semibold text-white shadow-lg hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-400"
-	>
-		<Icon class="mr-2" data={faList} /> Listado de pedidos
-	</a>
-
-	<a
-		href="/orders/list?status=quote"
-		class="w-full rounded-lg bg-indigo-600 px-6 py-4 text-lg font-semibold text-white shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-400"
-	>
-		<Icon class="mr-2" data={faClipboardList} /> Listado de presupuestos
-	</a>
+	<HomeButton
+		icon={faClipboardList}
+		text="Listado de presupuestos"
+		link="/orders/list?status=quote"
+		colorClasses="bg-purple-600 hover:bg-purple-700 focus:bg-purple-500"
+	></HomeButton>
 </div>
