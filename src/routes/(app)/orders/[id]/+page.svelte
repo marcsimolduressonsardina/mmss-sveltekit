@@ -41,7 +41,11 @@
 	{:else if isOrderTemp(data.order)}
 		{goto(`/orders/${data.order.id}/link`)}
 	{:else}
-		<Box title="Información del Pedido">
+		<Box
+			title={data.order.status === OrderStatus.QUOTE
+				? 'Información del Presupuesto'
+				: 'Información del Pedido'}
+		>
 			<div class="space-y-2">
 				<div class="flex items-center text-lg text-gray-700">
 					<Icon class="mr-2 text-blue-600" data={faUserLarge} />
