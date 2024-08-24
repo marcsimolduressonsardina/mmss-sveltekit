@@ -13,6 +13,8 @@
 	} from '$lib/shared/pricing.utilites';
 	import type { ListPrice, MaxArea, MaxAreaM2 } from '$lib/type/api.type';
 	import { goto } from '$app/navigation';
+	import { Icon } from 'svelte-awesome';
+	import plus from 'svelte-awesome/icons/plus';
 
 	export let data: PageData;
 	let pricingData = writable(emptyPricing);
@@ -113,7 +115,16 @@
 	}
 </script>
 
-<div class="px-2 pt-1 text-xl font-semibold">Listado de precios</div>
+<div class="flex items-center px-2 pt-1">
+	<h2 class="text-xl font-semibold">Listado de precios</h2>
+	<a
+		class="ml-2 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-700 text-white shadow hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-800 focus:ring-offset-2"
+		aria-label="Añadir nuevo precio"
+		href="/prices/new"
+	>
+		<Icon data={plus} class="h-3 w-3" />
+	</a>
+</div>
 <div class="flex w-full flex-col place-content-center items-center justify-center space-y-2 p-4">
 	{#await data.pricing}
 		<ProgressBar />
