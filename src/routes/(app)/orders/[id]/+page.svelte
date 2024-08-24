@@ -4,14 +4,9 @@
 	import { goto } from '$app/navigation';
 	import { enhance } from '$app/forms';
 	import { Icon } from 'svelte-awesome';
-	import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
-	import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
-	import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
-	import { faMoneyBill } from '@fortawesome/free-solid-svg-icons/faMoneyBill';
-	import { faTruckPickup } from '@fortawesome/free-solid-svg-icons/faTruckPickup';
 	import { faCamera } from '@fortawesome/free-solid-svg-icons/faCamera';
-	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
 	import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint';
+	import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
 	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
 	import { faUserLarge } from '@fortawesome/free-solid-svg-icons/faUserLarge';
 	import trash from 'svelte-awesome/icons/trash';
@@ -21,9 +16,14 @@
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import { OrderStatus } from '$lib/type/order.type';
 	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
-	import { CustomerUtilites } from '$lib/shared/customer.utilities';
+	import OrderButtons from '$lib/components/order/OrderButtons.svelte';
+	import QuoteButtons from '$lib/components/order/QuoteButtons.svelte';
 
 	let formLoading = false;
+
+	function setFormLoading(value: boolean) {
+		formLoading = value;
+	}
 
 	export let data: PageData;
 	const totalOrder = data.calculatedItem
@@ -42,7 +42,12 @@
 			{data.order.customer.name}
 		</p>
 		<p class="text-md pb-1 text-gray-700">
-			<Icon class="mr-1" data={faBox} />
+			{#if data.order.status === OrderStatus.QUOTE}
+				<Icon class="mr-1" data={faClipboardList} />
+				Presupuesto
+			{:else}
+				<Icon class="mr-1" data={faBox} />
+			{/if}
 			{OrderUtilites.getOrderPublicId(data.order)}
 		</p>
 
@@ -56,155 +61,17 @@
 					href={`/orders/${data.order.id}/print`}
 					><Icon class="mr-1" data={faPrint} /> Imprimir
 				</a>
-				{#if data.order.amountPayed === totalOrder}
-					<form
-						class="w-full"
-						method="post"
-						action="?/unpayOrder"
-						use:enhance={() => {
-							formLoading = true;
-							return async ({ update }) => {
-								await update();
-								formLoading = false;
-							};
-						}}
-					>
-						<button class="variant-filled-secondary btn btn-sm w-full" disabled={formLoading}
-							><Icon class="mr-1" data={faMoneyBill} />Marcar como no pagado</button
-						>
-					</form>
+
+				{#if data.order.status === OrderStatus.QUOTE}
+					<QuoteButtons order={data.order}></QuoteButtons>
 				{:else}
-					<form
-						class="w-full"
-						method="post"
-						action="?/payOrderFull"
-						use:enhance={() => {
-							formLoading = true;
-							return async ({ update }) => {
-								await update();
-								formLoading = false;
-							};
-						}}
-					>
-						<button class="variant-filled-secondary btn btn-sm w-full"
-							><Icon class="mr-1" data={faMoneyBill} />Marcar como pagado</button
-						>
-					</form>
-					<form
-						class="grid w-full grid-cols-2 gap-1"
-						method="post"
-						action="?/payOrderPartially"
-						use:enhance={() => {
-							formLoading = true;
-							return async ({ update }) => {
-								await update();
-								formLoading = false;
-							};
-						}}
-					>
-						<button class="variant-filled-secondary btn btn-sm"
-							><Icon class="mr-1" data={faMoneyBill} />Añadir pago a cuenta</button
-						>
-						<div
-							class="input-group input-group-divider grid-cols-[auto_1fr_auto]"
-							style="height: 32px;"
-						>
-							<div class="input-group-shim">€</div>
-							<input type="number" class="pt-1" name="amount" placeholder="Cantidad" step="0.01" />
-						</div>
-					</form>
+					<OrderButtons
+						order={data.order}
+						calculatedItem={data.calculatedItem}
+						{formLoading}
+						{setFormLoading}
+					></OrderButtons>
 				{/if}
-				<a
-					class="variant-filled-success btn btn-sm w-full"
-					target="_blank"
-					href={CustomerUtilites.getWhatsappLink(
-						data.order.customer,
-						OrderUtilites.getWhatsappTicketText(data.order)
-					)}
-					><Icon class="mr-1" data={faWhatsapp} /> Enviar resguardo a cliente
-				</a>
-
-				{#if data.order.status !== OrderStatus.FINISHED}
-					<form
-						class="w-full"
-						method="post"
-						action="?/setOrderFinished"
-						use:enhance={() => {
-							formLoading = true;
-							return async ({ update }) => {
-								await update();
-								formLoading = false;
-							};
-						}}
-					>
-						<button class="variant-ghost-primary btn btn-sm w-full"
-							><Icon class="mr-1" data={faCheck} />Marcar como finalizado</button
-						>
-					</form>
-				{/if}
-
-				{#if data.order.status === OrderStatus.FINISHED}
-					<a
-						class="variant-filled-success btn btn-sm w-full"
-						target="_blank"
-						aria-disabled="true"
-						href={CustomerUtilites.getWhatsappLink(
-							data.order.customer,
-							OrderUtilites.getWhatsappFinishedText([data.order])
-						)}
-					>
-						<Icon class="mr-1" data={faWhatsapp} /> Enviar mensaje finalizado
-					</a>
-				{/if}
-
-				{#if data.order.status !== OrderStatus.PENDING}
-					<form
-						class="w-full"
-						method="post"
-						action="?/setOrderPending"
-						use:enhance={() => {
-							formLoading = true;
-							return async ({ update }) => {
-								await update();
-								formLoading = false;
-							};
-						}}
-					>
-						<button class="variant-ghost btn btn-sm w-full"
-							><Icon class="mr-1" data={faClockRotateLeft} />Marcar como pendiente</button
-						>
-					</form>
-				{/if}
-				{#if data.order.status !== OrderStatus.PICKED_UP}
-					<form
-						class="w-full"
-						method="post"
-						action="?/setOrderPickedUp"
-						use:enhance={() => {
-							formLoading = true;
-							return async ({ update }) => {
-								await update();
-								formLoading = false;
-							};
-						}}
-					>
-						<button class="variant-ghost-tertiary btn btn-sm w-full"
-							><Icon class="mr-1" data={faTruckPickup} />Marcar como recogido</button
-						>
-					</form>
-				{/if}
-				<a
-					class="variant-filled-warning btn btn-sm w-full"
-					href="/customers/{data.order.customer.id}"
-					><Icon class="mr-1" data={faUser} />Ver cliente</a
-				>
-				<button
-					class="variant-filled btn btn-sm w-full"
-					on:click={() => {
-						goto(`/orders/${data?.order?.id}/day`);
-					}}
-					><Icon class="mr-1" data={faBox} /> Pedidos del día
-				</button>
 			</div>
 		{/if}
 
@@ -227,21 +94,26 @@
 				<div class="flex w-full flex-col gap-1">
 					<hr class="mb-3 mt-2 border-t border-gray-200 lg:col-span-2" />
 					<span class="variant-ghost badge text-lg">Total {totalOrder.toFixed(2)} €</span>
-					{#if data.order.amountPayed === 0}
-						<span class="variant-ghost-warning badge text-lg"> No pagado </span>
-					{:else if data.order.amountPayed === totalOrder}
-						<span class="variant-ghost-success badge text-lg"> Pagado </span>
-					{:else}
-						<span class="variant-ghost-secondary badge text-lg">
-							{data.order.amountPayed.toFixed(2)}€ pagado - {(
-								totalOrder - data.order.amountPayed
-							).toFixed(2)}€ pendiente
-						</span>
+
+					{#if data.order.status !== OrderStatus.QUOTE}
+						{#if data.order.amountPayed === 0}
+							<span class="variant-ghost-warning badge text-lg"> No pagado </span>
+						{:else if data.order.amountPayed === totalOrder}
+							<span class="variant-ghost-success badge text-lg"> Pagado </span>
+						{:else}
+							<span class="variant-ghost-secondary badge text-lg">
+								{data.order.amountPayed.toFixed(2)}€ pagado - {(
+									totalOrder - data.order.amountPayed
+								).toFixed(2)}€ pendiente
+							</span>
+						{/if}
 					{/if}
+
 					<span
 						class="badge text-lg"
 						class:variant-ghost={OrderStatus.PENDING === data.order.status}
 						class:variant-ghost-primary={OrderStatus.FINISHED === data.order.status}
+						class:variant-ghost-secondary={OrderStatus.QUOTE === data.order.status}
 						class:variant-ghost-tertiary={OrderStatus.PICKED_UP === data.order.status}
 					>
 						{orderStatusMap[data.order.status] +
@@ -332,7 +204,11 @@
 				method="post"
 				action="?/deleteOrder"
 				use:enhance={({ cancel }) => {
-					if (!confirm('Estás seguro que quieres eliminar el pedido?')) {
+					if (
+						!confirm(
+							`Estás seguro que quieres eliminar el ${data.order?.status !== OrderStatus.QUOTE ? 'pedido' : 'presupuesto'}?`
+						)
+					) {
 						cancel();
 						return;
 					}
@@ -345,8 +221,13 @@
 				}}
 			>
 				<button class="variant-filled-error btn btn-sm w-full">
-					<Icon class="mr-1" data={trash} /> Eliminar pedido</button
-				>
+					<Icon class="mr-1" data={trash} />
+					{#if data.order.status !== OrderStatus.QUOTE}
+						Eliminar pedido
+					{:else}
+						Eliminar presupuesto
+					{/if}
+				</button>
 			</form>
 		</div>
 	{/if}

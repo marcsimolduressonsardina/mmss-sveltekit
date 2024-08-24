@@ -13,7 +13,8 @@ export class OrderUtilites {
 		const dateStr = date.toFormat('ddMMyyyy');
 		const phoneWithoutPlus = order.customer.phone.replace('+', '');
 		const middle = (order.shortId.charAt(0) + order.id.charAt(0)).toUpperCase();
-		return `${dateStr}/${middle}/${phoneWithoutPlus}`;
+		const quote = order.status === OrderStatus.QUOTE ? 'P-' : '';
+		return `${quote}${dateStr}/${middle}/${phoneWithoutPlus}`;
 	}
 
 	public static getOrderMolds(order: Order): string[] {
@@ -50,12 +51,17 @@ export class OrderUtilites {
 			item.ppDimensions
 		);
 
-		return `${totalHeight}x${totalWidth} cm`;
+		return `${OrderUtilites.formatNumber(totalHeight)}x${OrderUtilites.formatNumber(totalWidth)} cm`;
 	}
 
 	public static getWhatsappTicketText(order: Order): string {
 		const url = `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
 		return `Su pedido ${OrderUtilites.getOrderPublicId(order)} ha sido registrado correctamente, puede consultar aquí su resguardo ${url} . Marcs i Moldures Son Sardina.`;
+	}
+
+	public static getWhatsappQuoteText(order: Order): string {
+		const url = `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
+		return `Aquí tiene una copia de su presupuesto ${OrderUtilites.getOrderPublicId(order)} :  ${url} . Marcs i Moldures Son Sardina.`;
 	}
 
 	public static getWhatsappFinishedText(orders: Order[]): string {
@@ -98,6 +104,17 @@ export class OrderUtilites {
 		const yesterday = now.minus({ days: 1 });
 		return yesterday.toJSDate();
 	}
+
+	private static formatNumber(num: number): string | number {
+		// Check if the number has decimals
+		if (num % 1 !== 0) {
+			// If it has decimals, format it to one decimal place
+			return num.toFixed(1);
+		}
+
+		// If no decimals, return the number as it is
+		return num;
+	}
 }
 
 export const tempCustomerUuid = 'temp-customer';
@@ -110,6 +127,7 @@ export const orderStatusMap: Record<OrderStatus, string> = {
 	[OrderStatus.FINISHED]: 'Finalizado',
 	[OrderStatus.PICKED_UP]: 'Recogido',
 	[OrderStatus.PENDING]: 'Pendiente',
+	[OrderStatus.QUOTE]: 'Presupuesto',
 	[OrderStatus.DELETED]: 'Eliminado'
 };
 
@@ -136,10 +154,9 @@ const ppDimensionsSchema = z.object({
 	right: z.number().min(0)
 });
 
-export const itemSchema = z.object({
+export const baseOderSchema = z.object({
 	width: z.number().min(15),
 	height: z.number().min(15),
-	deliveryDate: z.date().min(OrderUtilites.getYesterday()),
 	description: z.string().default(''),
 	observations: z.string().default(''),
 	quantity: z.number().int().min(1).default(1),
@@ -154,7 +171,14 @@ export const itemSchema = z.object({
 	exteriorHeight: z.number().optional()
 });
 
-export const smsTemplates = {
-	orderCreated: 'Su pedido #param1# ha sido creado correctamente. Puede consultarlo en #param2#',
-	orderFinished: 'Su pedido #param1# ha sido finalizado. Puede pasar a recogerlo.'
-};
+export const orderSchema = baseOderSchema.extend({
+	deliveryDate: z.date().min(OrderUtilites.getYesterday())
+});
+
+export const promoteOrderSchema = z.object({
+	deliveryDate: z.date().min(OrderUtilites.getYesterday())
+});
+
+export const quoteSchema = baseOderSchema.extend({
+	deliveryDate: z.date().optional()
+});

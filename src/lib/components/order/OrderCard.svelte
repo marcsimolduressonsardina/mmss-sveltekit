@@ -3,13 +3,14 @@
 	import { goto } from '$app/navigation';
 	import type { Order } from '$lib/type/api.type';
 	import { Icon } from 'svelte-awesome';
-	import { faEye } from '@fortawesome/free-solid-svg-icons/faEye';
-	import { faSignHanging } from '@fortawesome/free-solid-svg-icons/faSignHanging';
-	import { faTruck } from '@fortawesome/free-solid-svg-icons/faTruck';
-	import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
-	import { faChain } from '@fortawesome/free-solid-svg-icons/faChain';
-	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
-	import { faUserLarge } from '@fortawesome/free-solid-svg-icons/faUserLarge';
+	import {
+		faEye,
+		faSignHanging,
+		faTruck,
+		faClock,
+		faChain,
+		faUserLarge
+	} from '@fortawesome/free-solid-svg-icons';
 	import { OrderUtilites, orderStatusMap, tempCustomerUuid } from '$lib/shared/order.utilities';
 	import { OrderStatus } from '$lib/type/order.type';
 
@@ -17,54 +18,107 @@
 	export let showCustomer: boolean = true;
 </script>
 
-<div
-	class="w-full rounded-lg bg-gray-300 p-3 shadow-sm md:p-5"
-	class:bg-gray-300={OrderStatus.PENDING === order.status}
-	class:bg-lime-300={OrderStatus.FINISHED === order.status}
-	class:bg-blue-300={OrderStatus.PICKED_UP === order.status}
->
-	<div>
-		<span class="variant-ghost badge">
-			<Icon class="mr-1" data={faSignHanging} />
-			{orderStatusMap[order.status].toUpperCase()}
-		</span>
+<div class="mx-auto w-full overflow-hidden rounded-lg bg-white shadow-lg md:max-w-md">
+	<!-- Header Section -->
+	<div
+		class="bg-gradient-to-r p-4 text-white"
+		class:from-gray-800={OrderStatus.PENDING === order.status}
+		class:via-gray-700={OrderStatus.PENDING === order.status}
+		class:to-gray-600={OrderStatus.PENDING === order.status}
+		class:from-green-800={OrderStatus.FINISHED === order.status}
+		class:via-green-700={OrderStatus.FINISHED === order.status}
+		class:to-green-600={OrderStatus.FINISHED === order.status}
+		class:from-blue-800={OrderStatus.PICKED_UP === order.status}
+		class:via-blue-700={OrderStatus.PICKED_UP === order.status}
+		class:to-blue-600={OrderStatus.PICKED_UP === order.status}
+		class:from-red-800={OrderStatus.DELETED === order.status}
+		class:via-red-700={OrderStatus.DELETED === order.status}
+		class:to-red-600={OrderStatus.DELETED === order.status}
+		class:from-purple-800={OrderStatus.QUOTE === order.status}
+		class:via-purple-700={OrderStatus.QUOTE === order.status}
+		class:to-purple-600={OrderStatus.QUOTE === order.status}
+	>
+		<div class="flex items-center justify-between">
+			<div class="flex items-center space-x-1 pr-2 text-sm">
+				<Icon class="text-yellow-300" data={faSignHanging} />
+				<span class="font-semibold">{orderStatusMap[order.status]}</span>
+			</div>
+			<div class="overflow-hidden overflow-ellipsis whitespace-nowrap text-[0.6rem]">
+				<span class="rounded-lg bg-white px-2 py-1 font-mono text-gray-800">
+					{OrderUtilites.getOrderPublicId(order)}
+				</span>
+			</div>
+		</div>
+	</div>
 
-		<span class="variant-ghost-secondary badge">
-			<Icon class="mr-1" data={faBox} />
-			{OrderUtilites.getOrderPublicId(order)}
-		</span>
-
-		<span class="variant-ghost-success badge">
-			<Icon class="mr-1" data={faClock} />
-			{DateTime.fromJSDate(order.item.createdAt).toFormat('dd/MM/yyyy HH:mm')}
-		</span>
+	<!-- Details Section -->
+	<div class="space-y-3 p-4 text-sm">
+		<div>
+			<div class="flex items-center text-gray-600">
+				<Icon class="mr-2 text-gray-500" data={faClock} />
+				<span>Fecha:</span>
+			</div>
+			<div class="font-semibold">
+				{DateTime.fromJSDate(order.item.createdAt).toFormat('dd/MM/yyyy HH:mm')}
+			</div>
+		</div>
 
 		{#if showCustomer && order.customer.id !== tempCustomerUuid}
-			<span class="variant-ghost-tertiary badge">
-				<Icon class="mr-1" data={faUserLarge} />
-				{order.customer.name}
-			</span>
+			<div>
+				<div class="flex items-center text-gray-600">
+					<Icon class="mr-2 text-gray-500" data={faUserLarge} />
+					<span>Cliente:</span>
+				</div>
+				<div class="font-semibold">
+					{order.customer.name}
+				</div>
+			</div>
 		{/if}
 
 		{#if order.customer.id === tempCustomerUuid}
-			<span class="variant-ghost-error badge">
-				<Icon class="mr-1" data={faUserLarge} />
-				Pedido sin vincular
-			</span>
+			<div>
+				<div class="flex items-center text-gray-600">
+					<Icon class="mr-2 text-gray-500" data={faUserLarge} />
+					<span>Cliente:</span>
+				</div>
+				<div
+					class="font-semibold {order.status === OrderStatus.QUOTE
+						? 'text-purple-600'
+						: 'text-red-600'}"
+				>
+					{order.status === OrderStatus.QUOTE ? 'Presupuesto sin vincular' : 'Pedido sin vincular'}
+				</div>
+			</div>
 		{/if}
 
-		<span class="variant-ghost-warning badge">
-			<Icon class="mr-1" data={faTruck} />
-			Recogida: {DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
-		</span>
+		{#if order.status !== OrderStatus.QUOTE}
+			<div>
+				<div class="flex items-center text-gray-600">
+					<Icon class="mr-2 text-gray-500" data={faTruck} />
+					<span>Recogida:</span>
+				</div>
+				<div class="font-semibold">
+					{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+				</div>
+			</div>
+		{/if}
+
+		<div class="rounded-lg bg-gray-100 p-2 text-sm">
+			{order.item.description}
+		</div>
 	</div>
 
-	<div class="card mb-3 mt-3 p-3">{order.item.description}</div>
-
-	<div>
-		<button class="variant-filled btn btn-sm mt-1" on:click={() => goto(`/orders/${order.id}`)}>
+	<!-- Footer Section -->
+	<div class="flex justify-end bg-gray-50 p-3">
+		<button
+			class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white shadow transition-all duration-200 hover:bg-blue-700"
+			on:click={() => goto(`/orders/${order.id}`)}
+		>
 			{#if order.customer.id === tempCustomerUuid}
-				<Icon class="mr-1" data={faChain} /> Vincular pedido
+				<Icon class="mr-1" data={faChain} />
+				{order.status === OrderStatus.QUOTE ? 'Vincular presupuesto' : 'Vincular pedido'}
+			{:else if order.status === OrderStatus.QUOTE}
+				<Icon class="mr-1" data={faEye} /> Ver presupuesto
 			{:else}
 				<Icon class="mr-1" data={faEye} /> Ver pedido
 			{/if}

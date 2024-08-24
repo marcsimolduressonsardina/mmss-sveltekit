@@ -14,6 +14,8 @@
 		extraInfo?: string
 	) => void;
 	export let prices: ListPriceForm[];
+	export let extraPrices: ListPriceForm[] = [];
+	export let locationIdForExtraPrices: string | undefined = undefined;
 	export let canBeAdded: boolean = true;
 	export let priorityFirst: boolean = true;
 	export let showExtraInfo: boolean = false;
@@ -55,9 +57,55 @@
 		}
 	}
 
-	$: defaultPrices = prices.filter((p) => p.priority > 0).sort((a, b) => b.priority - a.priority);
-	$: normalPrices = prices.filter((p) => p.priority === 0 || p.priority == null);
-	$: generateMap(prices);
+	function insertElementsBeforeKey(
+		originalArray: ListPriceForm[],
+		newArray: ListPriceForm[],
+		key: string
+	): ListPriceForm[] {
+		const keyIndex = originalArray.findIndex((p) => p.id === key);
+		if (keyIndex === -1) {
+			return originalArray;
+		}
+
+		return [...originalArray.slice(0, keyIndex), ...newArray, ...originalArray.slice(keyIndex)];
+	}
+
+	function getDefaultPrices(
+		pi: ListPriceForm[],
+		epi: ListPriceForm[],
+		keyFound: boolean,
+		key?: string
+	): ListPriceForm[] {
+		const defaultPrices = pi.filter((p) => p.priority > 0).sort((a, b) => b.priority - a.priority);
+		if (!keyFound || key == null) {
+			return [...defaultPrices, ...epi]
+				.filter((p) => p.priority > 0)
+				.sort((a, b) => b.priority - a.priority);
+		} else {
+			return insertElementsBeforeKey(defaultPrices, epi, key);
+		}
+	}
+
+	function getNormalPrices(
+		pi: ListPriceForm[],
+		epi: ListPriceForm[],
+		keyFound: boolean,
+		key?: string
+	): ListPriceForm[] {
+		const normalPrices = pi.filter((p) => p.priority === 0);
+		if (!keyFound || key == null) {
+			return [...normalPrices, ...epi].filter((p) => p.priority === 0);
+		} else {
+			return insertElementsBeforeKey(normalPrices, epi, key);
+		}
+	}
+
+	$: keyFound =
+		locationIdForExtraPrices !== null &&
+		prices.findIndex((p) => p.id === locationIdForExtraPrices) > -1;
+	$: defaultPrices = getDefaultPrices(prices, extraPrices, keyFound, locationIdForExtraPrices);
+	$: normalPrices = getNormalPrices(prices, extraPrices, keyFound, locationIdForExtraPrices);
+	$: generateMap([...prices, ...extraPrices]);
 	$: updateSelectedId(defaultPrices);
 	$: isButtonDisabled = !selectedId;
 </script>
@@ -92,7 +140,7 @@
 		</label>
 		{#if showExtraInfo}
 			<label class="label" for="extraInfoValue">
-				<span>Otra información: </span>
+				<span>Número: </span>
 				<input class="input" type="text" name="extraInfoValue" bind:value={extraInfo} />
 			</label>
 			<div class="w-full lg:col-span-2 lg:w-auto">

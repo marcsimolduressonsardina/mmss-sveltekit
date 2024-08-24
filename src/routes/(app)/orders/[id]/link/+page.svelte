@@ -13,7 +13,7 @@
 		<div><Icon scale={3} data={faUserLarge} /></div>
 		<!-- Message -->
 		<div class="alert-message">
-			<h3 class="h3">Vincular cliente al pedido</h3>
+			<h3 class="h3">Vincular cliente al {data.orderName}</h3>
 			<p>Rellene sólo el teléfono, si el cliente no existe, tendrá que poner su nombre.</p>
 		</div>
 	</aside>

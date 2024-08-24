@@ -5,6 +5,7 @@
 	import OrderCard from '$lib/components/order/OrderCard.svelte';
 	import { Icon } from 'svelte-awesome';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+	import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
 	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
 	import { orderStatusMap } from '$lib/shared/order.utilities';
 	import { OrderStatus } from '$lib/type/order.type';
@@ -61,7 +62,7 @@
 		<span class="pb-1 text-xl font-medium text-gray-700">Pedidos {getStatus(data.status)}s</span>
 
 		<div
-			class="flex w-full flex-col place-content-center items-center justify-center gap-1 md:grid md:grid-cols-2"
+			class="flex w-full flex-col place-content-center items-center justify-center gap-1 md:grid md:grid-cols-3"
 		>
 			<a
 				class="variant-ghost-primary btn btn-sm w-full"
@@ -75,6 +76,12 @@
 			>
 				<Icon class="mr-1" data={faClockRotateLeft} /> Ver pedidos pendientes
 			</a>
+			<a
+				class="variant-ghost-secondary btn btn-sm w-full"
+				href={`/orders/list?status=${OrderStatus.QUOTE}`}
+			>
+				<Icon class="mr-1" data={faClipboardList} /> Ver presupuestos
+			</a>
 		</div>
 		<div
 			class="mb-3 mt-3 flex w-full flex-col place-content-center items-center justify-center gap-1"
@@ -87,7 +94,7 @@
 			/>
 		</div>
 
-		<div class="flex w-full flex-col gap-1 lg:grid lg:grid-cols-4">
+		<div class="flex w-full flex-col gap-3 lg:grid lg:grid-cols-4">
 			{#each filterOrders(orders, searchValue) as order}
 				<OrderCard {order} />
 			{/each}

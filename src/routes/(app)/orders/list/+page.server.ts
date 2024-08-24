@@ -5,8 +5,9 @@ import type { PageServerLoad } from './$types';
 
 export const load = (async ({ locals, url }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
-	let status = url.searchParams.get('status') || OrderStatus.PENDING;
-	if (status !== OrderStatus.PENDING && status !== OrderStatus.FINISHED) {
+	const allowedStatus = [OrderStatus.QUOTE, OrderStatus.PENDING, OrderStatus.FINISHED];
+	let status = (url.searchParams.get('status') as OrderStatus) || OrderStatus.PENDING;
+	if (allowedStatus.indexOf(status) === -1) {
 		status = OrderStatus.PENDING;
 	}
 

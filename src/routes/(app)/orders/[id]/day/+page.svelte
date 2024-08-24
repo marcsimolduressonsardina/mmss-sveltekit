@@ -11,7 +11,7 @@
 	export let data: PageData;
 </script>
 
-<div class="space flex w-full flex-col gap-1 p-3">
+<div class="space flex w-full flex-col gap-2 p-3">
 	{#await data.orders}
 		<ProgressBar />
 	{:then orders}
@@ -40,7 +40,7 @@
 			{/if}
 		</div>
 
-		<div class="flex w-full flex-col gap-1">
+		<div class="flex w-full flex-col gap-3 lg:grid lg:grid-cols-4">
 			{#each orders as order (order.id)}
 				<OrderCard {order} showCustomer={false} />
 			{/each}

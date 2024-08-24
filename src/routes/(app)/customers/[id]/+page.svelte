@@ -2,6 +2,7 @@
 	import { Icon } from 'svelte-awesome';
 	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
 	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
+	import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
 	import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
 	import { faUser } from '@fortawesome/free-regular-svg-icons/faUser';
 	import plus from 'svelte-awesome/icons/plus';
@@ -43,6 +44,12 @@
 					class="variant-filled btn btn-xl shadow-sm lg:btn-md lg:w-full"
 				>
 					<Icon class="mr-2" data={faBox} /> Ver pedidos
+				</a>
+				<a
+					href="/customers/{customer.id}/quotes"
+					class="variant-ghost-secondary btn btn-xl shadow-sm lg:btn-md lg:w-full"
+				>
+					<Icon class="mr-2" data={faClipboardList} /> Ver presupuestos
 				</a>
 				<a
 					href="/customers/{customer.id}/edit"

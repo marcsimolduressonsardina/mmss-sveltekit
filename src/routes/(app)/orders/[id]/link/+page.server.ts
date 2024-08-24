@@ -7,6 +7,7 @@ import { isOrderTemp } from '$lib/shared/order.utilities';
 import { fail, redirect } from '@sveltejs/kit';
 import { CustomerService } from '$lib/server/service/customer.service';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
+import { OrderStatus } from '$lib/type/order.type';
 
 export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
@@ -14,12 +15,16 @@ export const load = (async ({ params, locals }) => {
 	const orderService = new OrderService(appUser);
 
 	const order = await orderService.getOrderById(id);
-	if (!order || !isOrderTemp(order)) {
+	if (!order) {
 		return redirect(302, `/`);
 	}
 
+	if (!isOrderTemp(order)) {
+		return redirect(302, `/orders/${id}`);
+	}
+
 	const form = await superValidate(zod(linkCustomerSchema));
-	return { form };
+	return { form, orderName: order.status === OrderStatus.QUOTE ? 'presupuesto' : 'pedido' };
 }) satisfies PageServerLoad;
 
 export const actions = {

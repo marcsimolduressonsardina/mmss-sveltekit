@@ -2,7 +2,8 @@ export enum OrderStatus {
 	PENDING = 'pending',
 	FINISHED = 'finished',
 	DELETED = 'deleted',
-	PICKED_UP = 'picked_up'
+	PICKED_UP = 'picked_up',
+	QUOTE = 'quote'
 }
 
 export type OrderDimensions = {
@@ -13,4 +14,3 @@ export type OrderDimensions = {
 	workingHeight: number;
 	workingWidth: number;
 };
-

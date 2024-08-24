@@ -3,15 +3,7 @@ import { AuthService } from './auth.service';
 import { CustomerService } from './customer.service';
 import type { OrderDto } from '../repository/dto/order.dto';
 import { OrderRepository } from '../repository/order.repository';
-import type {
-	Customer,
-	Order,
-	AppUser,
-	PreCalculatedItemPart,
-	CalculatedItemPart,
-	Item,
-	PPDimensions
-} from '$lib/type/api.type';
+import type { Customer, Order, AppUser, PreCalculatedItemPart, Item } from '$lib/type/api.type';
 import { CalculatedItemService } from './calculated-item.service';
 import type { ItemDto } from '../repository/dto/item.dto';
 import { PricingType } from '$lib/type/pricing.type';
@@ -19,6 +11,9 @@ import { InvalidDataError } from '../error/invalid-data.error';
 import { isOrderTemp, tempCustomerUuid } from '$lib/shared/order.utilities';
 import { OrderStatus } from '$lib/type/order.type';
 import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
+import type { OrderCreationWithCustomerDto } from './dto/order-creation.dto';
+import type { OrderCreationDto } from './dto/order-creation.dto';
+import { DateTime } from 'luxon';
 
 export class OrderService {
 	private readonly storeId: string;
@@ -63,7 +58,20 @@ export class OrderService {
 		if (customer === null) return null;
 
 		const orderDtos = await this.repository.getOrdersByCustomerId(customerId);
-		return await this.processDtosFromRepository(orderDtos, customer);
+		return this.processDtosFromRepository(orderDtos, customer).filter(
+			(o) => o.status !== OrderStatus.QUOTE
+		);
+	}
+
+	async getOrdersByCustomerIdAndStatus(
+		customerId: string,
+		status: OrderStatus
+	): Promise<Order[] | null> {
+		const customer = await this.customerService.getCustomerById(customerId);
+		if (customer === null) return null;
+
+		const orderDtos = await this.repository.getOrdersByCustomerId(customerId);
+		return this.processDtosFromRepository(orderDtos, customer).filter((o) => o.status === status);
 	}
 
 	async getOrdersOnSameDay(order: Order): Promise<Order[]> {
@@ -76,87 +84,22 @@ export class OrderService {
 		const endTs = lastSecond.getTime();
 
 		const orderDtos = await this.repository.getOrdersBetweenTs(order.customer.id, startTs, endTs);
-		return await this.processDtosFromRepository(orderDtos, order.customer);
+		return this.processDtosFromRepository(orderDtos, order.customer).filter(
+			(o) => o.status !== OrderStatus.QUOTE
+		);
 	}
 
-	async createOrderForCustomer(
-		customerId: string,
-		width: number,
-		height: number,
-		pp: number = 0,
-		description: string = '',
-		predefinedObservations: string[] = [],
-		observations: string = '',
-		quantity: number = 1,
-		deliveryDate: Date = new Date(),
-		partsToCalculate: PreCalculatedItemPart[] = [],
-		extraParts: CalculatedItemPart[] = [],
-		discount: number = 0,
-		hasArrow: boolean = false,
-		ppDimensions?: PPDimensions,
-		exteriorWidth?: number,
-		exteriorHeight?: number
-	): Promise<Order | null> {
-		const customer = await this.customerService.getCustomerById(customerId);
+	async createOrderFromDto(dto: OrderCreationDto): Promise<Order | null> {
+		const customer =
+			dto.customerId == null
+				? OrderService.getTempCustomer(this.storeId)
+				: await this.customerService.getCustomerById(dto.customerId);
+
 		if (customer === null) return null;
-		const order = await this.createOrder(
-			customer,
-			width,
-			height,
-			pp,
-			description,
-			predefinedObservations,
-			observations,
-			quantity,
-			deliveryDate,
-			partsToCalculate,
-			extraParts,
-			discount,
-			hasArrow,
-			ppDimensions,
-			exteriorWidth,
-			exteriorHeight
-		);
-		return order;
-	}
-
-	async createTempOrder(
-		width: number,
-		height: number,
-		pp: number = 0,
-		description: string = '',
-		predefinedObservations: string[] = [],
-		observations: string = '',
-		quantity: number = 1,
-		deliveryDate: Date = new Date(),
-		partsToCalculate: PreCalculatedItemPart[] = [],
-		extraParts: CalculatedItemPart[] = [],
-		discount: number = 0,
-		hasArrow: boolean = false,
-		ppDimensions?: PPDimensions,
-		exteriorWidth?: number,
-		exteriorHeight?: number
-	): Promise<Order> {
-		const customer = OrderService.getTempCustomer(this.storeId);
-		const order = await this.createOrder(
-			customer,
-			width,
-			height,
-			pp,
-			description,
-			predefinedObservations,
-			observations,
-			quantity,
-			deliveryDate,
-			partsToCalculate,
-			extraParts,
-			discount,
-			hasArrow,
-			ppDimensions,
-			exteriorWidth,
-			exteriorHeight
-		);
-		return order;
+		return this.createOrder({
+			...dto,
+			customer
+		});
 	}
 
 	async addCustomerToTemporaryOrder(customer: Customer, order: Order): Promise<Order> {
@@ -165,6 +108,18 @@ export class OrderService {
 		}
 		const oldDto = OrderService.toDto(order);
 		order.customer = customer;
+		const newDto = OrderService.toDto(order);
+		await this.repository.updateFullOrder(oldDto, newDto);
+		return order;
+	}
+
+	async moveQuoteToOrder(order: Order, deliveryDate: Date): Promise<Order> {
+		if (order.status !== OrderStatus.QUOTE) return order;
+		const oldDto = OrderService.toDto(order);
+		order.createdAt = DateTime.now().toJSDate();
+		order.item.deliveryDate = deliveryDate;
+		order.statusUpdated = DateTime.now().toJSDate();
+		order.status = OrderStatus.PENDING;
 		const newDto = OrderService.toDto(order);
 		await this.repository.updateFullOrder(oldDto, newDto);
 		return order;
@@ -241,10 +196,7 @@ export class OrderService {
 		};
 	}
 
-	private async processDtosFromRepository(
-		orderDtos: OrderDto[],
-		customer: Customer
-	): Promise<Order[]> {
+	private processDtosFromRepository(orderDtos: OrderDto[], customer: Customer): Order[] {
 		const filteredOrderDtos = orderDtos.filter((dto) => dto.storeId === this.storeId);
 		if (filteredOrderDtos.length > 0) {
 			const orders = filteredOrderDtos.map((dto) => OrderService.fromDto(dto, customer));
@@ -256,49 +208,32 @@ export class OrderService {
 		return [];
 	}
 
-	private async createOrder(
-		customer: Customer,
-		width: number,
-		height: number,
-		pp: number = 0,
-		description: string = '',
-		predefinedObservations: string[] = [],
-		observations: string = '',
-		quantity: number = 1,
-		deliveryDate: Date = new Date(),
-		partsToCalculate: PreCalculatedItemPart[] = [],
-		extraParts: CalculatedItemPart[] = [],
-		discount: number = 0,
-		hasArrow: boolean = false,
-		ppDimensions?: PPDimensions,
-		exteriorWidth?: number,
-		exteriorHeight?: number
-	): Promise<Order> {
+	private async createOrder(dto: OrderCreationWithCustomerDto): Promise<Order> {
 		const order: Order = {
 			id: uuidv4(),
 			shortId: '',
-			customer,
+			customer: dto.customer,
 			createdAt: new Date(),
 			storeId: this.storeId,
 			user: this.currentUser,
 			amountPayed: 0,
-			status: OrderStatus.PENDING,
+			status: dto.isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING,
 			statusUpdated: new Date(),
-			hasArrow,
+			hasArrow: dto.hasArrow,
 			item: {
-				width,
-				height,
-				pp,
-				ppDimensions,
-				description,
-				predefinedObservations,
-				observations,
-				quantity,
+				width: dto.width,
+				height: dto.height,
+				pp: dto.pp,
+				ppDimensions: dto.ppDimensions,
+				description: dto.description,
+				predefinedObservations: dto.predefinedObservations,
+				observations: dto.observations,
+				quantity: dto.quantity,
 				createdAt: new Date(),
-				deliveryDate,
-				partsToCalculate: OrderService.optimizePartsToCalculate(partsToCalculate),
-				exteriorWidth,
-				exteriorHeight
+				deliveryDate: dto.deliveryDate,
+				partsToCalculate: OrderService.optimizePartsToCalculate(dto.partsToCalculate),
+				exteriorWidth: dto.exteriorWidth,
+				exteriorHeight: dto.exteriorHeight
 			}
 		};
 
@@ -306,8 +241,8 @@ export class OrderService {
 		OrderService.verifyItem(order.item);
 		const calculatedItem = await this.calculatedItemService.createCalculatedItem(
 			order,
-			discount,
-			extraParts
+			dto.discount,
+			dto.extraParts
 		);
 
 		await this.repository.createOrder(OrderService.toDto(order));
@@ -350,7 +285,6 @@ export class OrderService {
 
 	private static verifyItem(item: Item) {
 		if (!item.width || !item.height || !item.quantity || !item.createdAt) {
-			console.log(item);
 			throw new InvalidDataError('Invalid item data');
 		}
 
