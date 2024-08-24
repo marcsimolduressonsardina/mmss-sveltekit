@@ -10,10 +10,12 @@
 	import { OrderStatus } from '$lib/type/order.type';
 	import { orderStatusMap } from '$lib/shared/order.utilities';
 	import { DateTime } from 'luxon';
-	import type { Order } from '$lib/type/api.type';
+	import type { CalculatedItem, Order } from '$lib/type/api.type';
+	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 
-	export let totalOrder: number;
 	export let order: Order;
+	export let calculatedItem: CalculatedItem;
+	const totalOrder = CalculatedItemUtilities.getTotal(calculatedItem);
 </script>
 
 <div class="flex w-full flex-col gap-2">
