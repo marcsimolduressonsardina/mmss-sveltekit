@@ -2,12 +2,18 @@
 	import { Icon } from 'svelte-awesome';
 	import { faUserLarge } from '@fortawesome/free-solid-svg-icons/faUserLarge';
 	import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
+	import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle';
+	import { faCreditCard } from '@fortawesome/free-regular-svg-icons';
+	import { faCheckCircle, faHourglassHalf, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 	import { DateTime } from 'luxon';
 	import { OrderStatus } from '$lib/type/order.type';
-	import { OrderUtilites } from '$lib/shared/order.utilities';
-	import type { Order } from '$lib/type/api.type';
+	import { orderStatusMap, OrderUtilites } from '$lib/shared/order.utilities';
+	import type { CalculatedItem, Order } from '$lib/type/api.type';
+	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 
 	export let order: Order;
+	export let calculatedItem: CalculatedItem;
+	const totalOrder = CalculatedItemUtilities.getTotal(calculatedItem);
 
 	// Determine gradient based on order status
 	let gradientClasses = '';
@@ -44,14 +50,53 @@
 	</div>
 
 	<!-- Order Details -->
-	<div class="space-y-3 bg-white p-4">
+	<div class="space-y-3 rounded-lg bg-white p-4 shadow-md">
+		<!-- Customer Name -->
 		<div class="flex items-center text-lg text-gray-700">
 			<Icon class="mr-2 text-blue-600" data={faUserLarge} />
 			<span>{order.customer.name}</span>
 		</div>
+
+		<!-- Order Date -->
 		<div class="text-md flex items-center text-gray-700">
 			<Icon class="mr-2 text-gray-600" data={faClock} />
 			<span>{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy HH:mm')}</span>
 		</div>
+
+		<!-- Total Amount -->
+		<div class="text-md flex items-center text-gray-700">
+			<Icon class="mr-2" data={faCreditCard} />
+			<span>Total {totalOrder.toFixed(2)} €</span>
+		</div>
+
+		<!-- Payment Status -->
+		{#if order.status !== OrderStatus.QUOTE}
+			{#if order.amountPayed === 0}
+				<div class="text-md flex items-center text-red-700">
+					<Icon class="mr-2" data={faTimesCircle} />
+					No pagado
+				</div>
+			{:else if order.amountPayed === totalOrder}
+				<div class="text-md flex items-center text-green-700">
+					<Icon class="mr-2" data={faCheckCircle} />
+					Pagado
+				</div>
+			{:else}
+				<div class="text-md flex items-center text-yellow-700">
+					<Icon class="mr-2" data={faHourglassHalf} />
+					{order.amountPayed.toFixed(2)}€ pagado - {(totalOrder - order.amountPayed).toFixed(2)}€
+					pendiente
+				</div>
+			{/if}
+
+			<!-- Current Status -->
+			<div class="text-md flex items-center text-gray-700">
+				<Icon class="mr-2 text-indigo-600" data={faInfoCircle} />
+				<span>
+					{orderStatusMap[order.status]} -
+					{DateTime.fromJSDate(order.statusUpdated).toFormat('dd/MM/yyyy HH:mm')}
+				</span>
+			</div>
+		{/if}
 	</div>
 </div>

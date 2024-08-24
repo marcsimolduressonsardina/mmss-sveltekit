@@ -12,7 +12,6 @@
 	import { OrderStatus } from '$lib/type/order.type';
 	import OrderButtons from '$lib/components/order/OrderButtons.svelte';
 	import QuoteButtons from '$lib/components/order/QuoteButtons.svelte';
-	import OrderStatusInfo from '$lib/components/order/OrderStatusInfo.svelte';
 	import OrderInfo from '$lib/components/order/OrderInfo.svelte';
 	import OrderElements from '$lib/components/order/OrderElements.svelte';
 	import OrderHeader from '$lib/components/order/OrderHeader.svelte';
@@ -30,12 +29,12 @@
 	<ProgressBar />
 {:then info}
 	<div class="space flex w-full flex-col p-3">
-		{#if info.order == null}
+		{#if info.order == null || info.calculatedItem == null}
 			<span class="p-5 text-2xl text-red-700">Cliente o pedido no encontrado</span>
 		{:else if isOrderTemp(info.order)}
 			{goto(`/orders/${info.order.id}/link`)}
 		{:else}
-			<OrderHeader order={info.order}></OrderHeader>
+			<OrderHeader order={info.order} calculatedItem={info.calculatedItem}></OrderHeader>
 
 			{#if !formLoading}
 				<div
@@ -79,18 +78,11 @@
 					</button>
 				</div>
 
-				{#if info.calculatedItem}
-					<OrderStatusInfo order={info.order} calculatedItem={info.calculatedItem}
-					></OrderStatusInfo>
-				{/if}
-
 				<span class="pt-4"> <OrderInfo order={info.order}></OrderInfo> </span>
 
-				{#if info.calculatedItem}
-					<span class="pt-4">
-						<OrderElements order={info.order} calculatedItem={info.calculatedItem}></OrderElements>
-					</span>
-				{/if}
+				<span class="pt-4">
+					<OrderElements order={info.order} calculatedItem={info.calculatedItem}></OrderElements>
+				</span>
 
 				<form
 					class="w-full pt-4"
