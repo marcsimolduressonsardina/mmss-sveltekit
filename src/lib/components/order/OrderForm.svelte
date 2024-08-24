@@ -434,10 +434,10 @@
 
 <div class="px-2 pt-1 text-2xl font-semibold">Nuevo Pedido / Presupuesto</div>
 {#if $submitting}
-	<ProgressBar text={'Guardando...'} />
+	<ProgressBar text={'Guardando'} />
 {:else}
 	{#await data.pricing}
-		<ProgressBar />
+		<ProgressBar text={'Cargando precios'} />
 	{:then pricing}
 		<form
 			use:enhance

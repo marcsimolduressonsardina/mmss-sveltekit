@@ -3,6 +3,7 @@
 	import { Icon } from 'svelte-awesome';
 	import { superForm } from 'sveltekit-superforms';
 	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
+	import Box from '$lib/components/Box.svelte';
 
 	export let data;
 	export let title = 'Crear Cliente';
@@ -10,9 +11,7 @@
 	const { form, errors, enhance, submitting } = superForm(data.form);
 </script>
 
-<div class="space-y-4 rounded-lg bg-white p-4 shadow-md">
-	<div class="text-xl font-semibold text-gray-900">{title}</div>
-
+<Box {title}>
 	<div>
 		{#if $submitting}
 			<ProgressBar />
@@ -52,4 +51,4 @@
 			</form>
 		{/if}
 	</div>
-</div>
+</Box>

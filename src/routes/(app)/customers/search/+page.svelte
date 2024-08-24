@@ -4,34 +4,46 @@
 	import search from 'svelte-awesome/icons/search';
 	import { faList } from '@fortawesome/free-solid-svg-icons/faList';
 	import { superForm } from 'sveltekit-superforms';
+	import Box from '$lib/components/Box.svelte';
 
 	export let data;
 	const { form, errors, enhance, submitting } = superForm(data.form);
 </script>
 
-<div class="px-2 pt-1 text-xl font-semibold">Buscar Cliente</div>
-<div class="flex w-full flex-col place-content-center px-2">
+<Box title={'Buscar Cliente'}>
 	{#if $submitting}
 		<ProgressBar />
 	{:else}
-		<form use:enhance class="mb-2 w-full space-y-2" method="post">
-			<label class="label" for="phone">
-				<span>Teléfono:</span>
+		<form use:enhance class="space-y-3" method="post">
+			<div>
+				<label class="block text-sm font-medium text-gray-700" for="phone">Teléfono:</label>
 				<input
-					class="input {$errors.phone ? 'input-error' : ''}"
+					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm"
+					class:input-error={$errors.phone}
 					id="phone"
 					type="tel"
 					name="phone"
 					bind:value={$form.phone}
 				/>
-			</label>
+			</div>
 
-			<button class="variant-filled-warning btn w-full" type="submit"
-				><Icon class="mr-2" data={search} /> Buscar</button
-			>
+			<div class="flex flex-col space-y-3 md:flex-row md:space-x-3 md:space-y-0">
+				<button
+					class="w-full rounded-md bg-yellow-500 px-4 py-2 font-semibold text-white shadow hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
+					type="submit"
+				>
+					<Icon class="mr-2" data={search} />
+					Buscar
+				</button>
+
+				<a
+					class="w-full rounded-md bg-indigo-500 px-4 py-2 text-center font-semibold text-white shadow hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+					href="/customers/list"
+				>
+					<Icon class="mr-2" data={faList} />
+					Ver listado
+				</a>
+			</div>
 		</form>
-		<a class="variant-filled btn w-full" href="/customers/list">
-			<Icon class="mr-2" data={faList} /> Ver listado
-		</a>
 	{/if}
-</div>
+</Box>
