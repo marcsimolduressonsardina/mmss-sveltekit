@@ -3,14 +3,15 @@
 	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
 	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 	import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
-	import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
+	import { faFileCirclePlus } from '@fortawesome/free-solid-svg-icons/faFileCirclePlus';
 	import { faUserCircle } from '@fortawesome/free-solid-svg-icons/faUserCircle';
-	import plus from 'svelte-awesome/icons/plus';
 
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import Box from '$lib/components/Box.svelte';
 	import type { PageData } from './$types';
-	import { CustomerUtilites } from '$lib/shared/customer.utilities';
+	import WhatsAppButton from '$lib/components/button/WhatsAppButton.svelte';
+	import Button from '$lib/components/button/Button.svelte';
+	import { FORMULARIO_COLORS, PEDIDOS_COLORS, PRESUPUESTOS_COLORS } from '$lib/ui/ui.constants';
 
 	export let data: PageData;
 </script>
@@ -46,31 +47,28 @@
 			</div>
 
 			<div class="mt-4 flex flex-col space-y-2 lg:flex-row lg:space-x-2 lg:space-y-0">
-				<a
-					class="w-full rounded-md bg-yellow-700 px-4 py-2 text-white shadow hover:bg-yellow-800 focus:outline-none focus:ring-2 focus:ring-yellow-800 focus:ring-offset-2"
-					href="/customers/{customer.id}/orders/new"
-				>
-					<Icon class="mr-2" data={plus} /> Crear pedido
-				</a>
-				<a
-					href="/customers/{customer.id}/orders"
-					class="w-full rounded-md bg-blue-800 px-4 py-2 text-white shadow hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-offset-2"
-				>
-					<Icon class="mr-2" data={faBox} /> Ver pedidos
-				</a>
-				<a
-					href="/customers/{customer.id}/quotes"
-					class="w-full rounded-md bg-purple-800 px-4 py-2 text-white shadow hover:bg-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-900 focus:ring-offset-2"
-				>
-					<Icon class="mr-2" data={faClipboardList} /> Ver presupuestos
-				</a>
-				<a
-					href={CustomerUtilites.getWhatsappLink(customer)}
-					target="_blank"
-					class="w-full rounded-md bg-green-800 px-4 py-2 text-white shadow hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-900 focus:ring-offset-2"
-				>
-					<Icon class="mr-2" data={faWhatsapp} /> Enviar Whatsapp
-				</a>
+				<Button
+					icon={faFileCirclePlus}
+					link="/customers/{customer.id}/orders/new"
+					text="Crear pedido / presupuesto"
+					colorClasses={FORMULARIO_COLORS}
+				></Button>
+
+				<Button
+					icon={faBox}
+					link="/customers/{customer.id}/orders"
+					text="Ver pedidos"
+					colorClasses={PEDIDOS_COLORS}
+				></Button>
+
+				<Button
+					icon={faClipboardList}
+					link="/customers/{customer.id}/quotes"
+					text="Ver presupuestos"
+					colorClasses={PRESUPUESTOS_COLORS}
+				></Button>
+
+				<WhatsAppButton label="Enviar Whatsapp" message="" {customer}></WhatsAppButton>
 			</div>
 		{/if}
 	{/await}

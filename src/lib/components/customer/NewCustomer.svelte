@@ -4,7 +4,7 @@
 	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 	import Box from '$lib/components/Box.svelte';
 	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
-	import { NEUTRAL_ACTION_COLORS } from '$lib/ui/ui.constants';
+	import { ACCIONES_NEUTRES_COLORS } from '$lib/ui/ui.constants';
 
 	export let data;
 	export let title = 'Crear Cliente';
@@ -42,10 +42,7 @@
 					/>
 				</div>
 
-				<SubmitButton
-					icon={faEdit}
-					text={buttonText}
-					colorClasses={NEUTRAL_ACTION_COLORS}
+				<SubmitButton icon={faEdit} text={buttonText} colorClasses={ACCIONES_NEUTRES_COLORS}
 				></SubmitButton>
 			</form>
 		{/if}

@@ -2,14 +2,14 @@
 	import type { PageData } from './$types';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import OrderCard from '$lib/components/order/OrderCard.svelte';
-	import { Icon } from 'svelte-awesome';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
-	import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
 	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
 	import { orderStatusMap } from '$lib/shared/order.utilities';
 	import { OrderStatus } from '$lib/type/order.type';
 	import type { Order } from '$lib/type/api.type';
 	import Box from '$lib/components/Box.svelte';
+	import Button from '$lib/components/button/Button.svelte';
+	import { LISTADO_FINALIZADOS, LISTADO_PENDIENTES } from '$lib/ui/ui.constants';
 
 	export let data: PageData;
 	let searchValue = '';
@@ -67,18 +67,19 @@
 				<div
 					class="flex w-full flex-col place-content-center items-center justify-center gap-3 md:grid md:grid-cols-2"
 				>
-					<a
-						class="w-full rounded-md bg-green-700 px-4 py-2 text-center font-semibold text-white shadow hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-						href={`/orders/list?status=${OrderStatus.FINISHED}`}
-					>
-						<Icon class="mr-1" data={faCheck} /> Ver pedidos finalizados
-					</a>
-					<a
-						class="w-full rounded-md bg-gray-700 px-4 py-2 text-center font-semibold text-white shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-						href={`/orders/list?status=${OrderStatus.PENDING}`}
-					>
-						<Icon class="mr-1" data={faClockRotateLeft} /> Ver pedidos pendientes
-					</a>
+					<Button
+						text="Ver pedidos finalizados"
+						link={`/orders/list?status=${OrderStatus.FINISHED}`}
+						colorClasses={LISTADO_FINALIZADOS}
+						icon={faCheck}
+					></Button>
+
+					<Button
+						text="Ver pedidos pendientes"
+						link={`/orders/list?status=${OrderStatus.PENDING}`}
+						colorClasses={LISTADO_PENDIENTES}
+						icon={faClockRotateLeft}
+					></Button>
 				</div>
 			{/if}
 

@@ -36,6 +36,11 @@
 		fabricIds,
 		type AllPrices
 	} from '$lib/shared/pricing.utilites';
+	import {
+		BUTTON_DEFAULT_CLASSES,
+		PEDIDOS_COLORS,
+		PRESUPUESTOS_COLORS
+	} from '$lib/ui/ui.constants';
 
 	export let data: { pricing: Promise<AllPrices>; form: any };
 
@@ -927,13 +932,17 @@
 			</div>
 
 			<button
-				class="variant-filled-warning btn lg:col-span-2"
+				class={`${BUTTON_DEFAULT_CLASSES} ${PEDIDOS_COLORS} lg:col-span-2`}
 				type="submit"
 				formaction="?/createOrder"
 			>
 				<Icon class="mr-2" data={faCircleCheck} /> Crear pedido
 			</button>
-			<button class="variant-filled btn lg:col-span-2" type="submit" formaction="?/createQuote">
+			<button
+				class={`${BUTTON_DEFAULT_CLASSES} ${PRESUPUESTOS_COLORS} lg:col-span-2`}
+				type="submit"
+				formaction="?/createQuote"
+			>
 				<Icon class="mr-2" data={faClipboardList} /> Crear presupuesto
 			</button>
 		</form>

@@ -5,7 +5,7 @@
 	import { superForm } from 'sveltekit-superforms';
 	import Box from '$lib/components/Box.svelte';
 	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
-	import { NEUTRAL_ACTION_COLORS } from '$lib/ui/ui.constants';
+	import { ACCIONES_NEUTRES_COLORS } from '$lib/ui/ui.constants';
 
 	export let data;
 	const { form, errors, enhance, submitting } = superForm(data.form);
@@ -29,7 +29,8 @@
 				/>
 			</div>
 
-			<SubmitButton text="Buscar" icon={search} colorClasses={NEUTRAL_ACTION_COLORS}></SubmitButton>
+			<SubmitButton text="Buscar" icon={search} colorClasses={ACCIONES_NEUTRES_COLORS}
+			></SubmitButton>
 		</form>
 	{/if}
 </Box>

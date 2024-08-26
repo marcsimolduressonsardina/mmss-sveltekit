@@ -5,7 +5,7 @@
 	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { dateProxy, superForm } from 'sveltekit-superforms';
-	import { NEUTRAL_ACTION_COLORS } from '$lib/ui/ui.constants';
+	import { ACCIONES_NEUTRES_COLORS } from '$lib/ui/ui.constants';
 	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
 
 	export let data: PageData;
@@ -44,7 +44,10 @@
 						class:input-error={$errors.deliveryDate}
 					/>
 				</div>
-				<SubmitButton text="Convertir en pedido" icon={faEdit} colorClasses={NEUTRAL_ACTION_COLORS}
+				<SubmitButton
+					text="Convertir en pedido"
+					icon={faEdit}
+					colorClasses={ACCIONES_NEUTRES_COLORS}
 				></SubmitButton>
 			</form>
 		{/if}

@@ -15,6 +15,14 @@
 	import OrderInfo from '$lib/components/order/OrderInfo.svelte';
 	import OrderElements from '$lib/components/order/OrderElements.svelte';
 	import OrderHeader from '$lib/components/order/OrderHeader.svelte';
+	import Button from '$lib/components/button/Button.svelte';
+	import {
+		ACCIONES_NEUTRES_COLORS,
+		ACCIONES_RESGUARDO_COLORS,
+		ELIMINAR_COLORS
+	} from '$lib/ui/ui.constants';
+	import Divider from '$lib/components/Divider.svelte';
+	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
 
 	let formLoading = false;
 
@@ -37,16 +45,13 @@
 			<OrderHeader order={info.order} calculatedItem={info.calculatedItem}></OrderHeader>
 
 			{#if !formLoading}
-				<div
-					class="flex w-full flex-col place-content-center items-center justify-center gap-1 pt-4 md:grid md:grid-cols-2 lg:grid-cols-3"
-				>
-					<a
-						class="flex w-full items-center justify-center rounded-md bg-yellow-500 px-4 py-2 text-white shadow hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-offset-2"
-						target="_blank"
-						href={`/orders/${info.order.id}/print`}
-					>
-						<Icon class="mr-2" data={faPrint} /> Imprimir
-					</a>
+				<div class="flex w-full flex-col gap-1 pt-4 md:grid md:grid-cols-2 lg:grid-cols-3">
+					<Button
+						icon={faPrint}
+						colorClasses={ACCIONES_RESGUARDO_COLORS}
+						text="Imprimir"
+						link={`/orders/${info.order.id}/print`}
+					></Button>
 
 					{#if info.order.status === OrderStatus.QUOTE}
 						<QuoteButtons order={info.order}></QuoteButtons>
@@ -66,16 +71,14 @@
 			{/if}
 
 			<div class="flex w-full flex-col gap-1">
-				<hr class="mb-3 mt-2 border-t border-gray-200 lg:col-span-2" />
+				<Divider hideOnDesktop={false}></Divider>
 				<div class="flex w-full flex-col gap-2">
-					<button
-						class="w-full rounded-md bg-orange-500 px-4 py-2 text-lg text-white shadow hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600 focus:ring-offset-2"
-						on:click={() => {
-							goto(`/orders/${info?.order?.id}/files`);
-						}}
-					>
-						<Icon class="mr-2" data={faCamera} /> Cámara
-					</button>
+					<Button
+						icon={faCamera}
+						colorClasses={ACCIONES_NEUTRES_COLORS}
+						text="Cámara"
+						link={`/orders/${info.order.id}/files`}
+					></Button>
 				</div>
 
 				<span class="pt-4"> <OrderInfo order={info.order}></OrderInfo> </span>
@@ -105,13 +108,13 @@
 						};
 					}}
 				>
-					<button
-						class="flex w-full items-center justify-center rounded-md bg-red-700 px-4 py-2 text-white shadow hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-800 focus:ring-offset-2"
-						type="submit"
-					>
-						<Icon class="mr-2" data={trash} />
-						{info.order.status !== OrderStatus.QUOTE ? 'Eliminar pedido' : 'Eliminar presupuesto'}
-					</button>
+					<SubmitButton
+						icon={trash}
+						text={info.order.status !== OrderStatus.QUOTE
+							? 'Eliminar pedido'
+							: 'Eliminar presupuesto'}
+						colorClasses={ELIMINAR_COLORS}
+					></SubmitButton>
 				</form>
 			</div>
 		{/if}

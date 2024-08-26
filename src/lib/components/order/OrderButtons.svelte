@@ -13,8 +13,20 @@
 	import { OrderUtilites } from '$lib/shared/order.utilities';
 	import { OrderStatus } from '$lib/type/order.type';
 	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
-	import { CustomerUtilites } from '$lib/shared/customer.utilities';
 	import type { CalculatedItem, Order } from '$lib/type/api.type';
+	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
+	import Divider from '$lib/components/Divider.svelte';
+	import Button from '$lib/components/button/Button.svelte';
+	import WhatsAppButton from '$lib/components/button/WhatsAppButton.svelte';
+	import {
+		ACCIONES_VER_COLORS,
+		LISTADO_FINALIZADOS,
+		MARCAR_NO_PAGADA_COLORS,
+		MARCAR_PAGADA_COLORS,
+		MARCAR_PENDIENTE_COLORS,
+		MARCAR_RECOGIDO_COLORS,
+		PEDIDOS_COLORS
+	} from '$lib/ui/ui.constants';
 
 	export let formLoading: boolean;
 	export let setFormLoading: (value: boolean) => void;
@@ -38,12 +50,11 @@
 			};
 		}}
 	>
-		<button
-			class="flex w-full items-center justify-center rounded-md bg-amber-600 px-4 py-2 text-white shadow hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-700 focus:ring-offset-2"
-			disabled={formLoading}
-		>
-			<Icon class="mr-2" data={faMoneyBill} /> Marcar como no pagado
-		</button>
+		<SubmitButton
+			icon={faMoneyBill}
+			text="Marcar como no pagado"
+			colorClasses={MARCAR_NO_PAGADA_COLORS}
+		></SubmitButton>
 	</form>
 {:else}
 	<form
@@ -58,11 +69,8 @@
 			};
 		}}
 	>
-		<button
-			class="flex w-full items-center justify-center rounded-md bg-teal-600 px-4 py-2 text-white shadow hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700 focus:ring-offset-2"
-		>
-			<Icon class="mr-2" data={faMoneyBill} /> Marcar como pagado
-		</button>
+		<SubmitButton icon={faMoneyBill} text="Marcar como pagado" colorClasses={MARCAR_PAGADA_COLORS}
+		></SubmitButton>
 	</form>
 	<form
 		class="grid w-full grid-cols-2 gap-2"
@@ -76,11 +84,8 @@
 			};
 		}}
 	>
-		<button
-			class="flex w-full items-center justify-center rounded-md bg-yellow-600 px-4 py-2 text-white shadow hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-700 focus:ring-offset-2"
-		>
-			<Icon class="mr-2" data={faMoneyBill} /> Pago a cuenta
-		</button>
+		<SubmitButton icon={faMoneyBill} text="Pago a cuenta" colorClasses={MARCAR_PAGADA_COLORS}
+		></SubmitButton>
 		<div class="flex items-center space-x-2">
 			<div class="rounded-md bg-gray-200 px-3 py-2 text-gray-700">€</div>
 			<input
@@ -93,18 +98,6 @@
 		</div>
 	</form>
 {/if}
-
-<!-- Whatsapp Button -->
-<a
-	class="flex w-full items-center justify-center rounded-md bg-green-600 px-4 py-2 text-white shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-offset-2"
-	target="_blank"
-	href={CustomerUtilites.getWhatsappLink(
-		order.customer,
-		OrderUtilites.getWhatsappTicketText(order)
-	)}
->
-	<Icon class="mr-2" data={faWhatsapp} /> Enviar resguardo a cliente
-</a>
 
 <!-- Order Status Buttons -->
 {#if order.status !== OrderStatus.FINISHED}
@@ -120,26 +113,9 @@
 			};
 		}}
 	>
-		<button
-			class="flex w-full items-center justify-center rounded-md bg-lime-600 px-4 py-2 text-white shadow hover:bg-lime-700 focus:outline-none focus:ring-2 focus:ring-lime-700 focus:ring-offset-2"
-		>
-			<Icon class="mr-2" data={faCheck} /> Marcar como finalizado
-		</button>
+		<SubmitButton icon={faCheck} text="Marcar como finalizado" colorClasses={LISTADO_FINALIZADOS}
+		></SubmitButton>
 	</form>
-{/if}
-
-{#if order.status === OrderStatus.FINISHED}
-	<a
-		class="flex w-full items-center justify-center rounded-md bg-green-600 px-4 py-2 text-white shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-offset-2"
-		target="_blank"
-		aria-disabled="true"
-		href={CustomerUtilites.getWhatsappLink(
-			order.customer,
-			OrderUtilites.getWhatsappFinishedText([order])
-		)}
-	>
-		<Icon class="mr-2" data={faWhatsapp} /> Enviar mensaje finalizado
-	</a>
 {/if}
 
 {#if order.status !== OrderStatus.PENDING}
@@ -155,11 +131,11 @@
 			};
 		}}
 	>
-		<button
-			class="flex w-full items-center justify-center rounded-md bg-gray-600 px-4 py-2 text-white shadow hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2"
-		>
-			<Icon class="mr-2" data={faClockRotateLeft} /> Marcar como pendiente
-		</button>
+		<SubmitButton
+			icon={faClockRotateLeft}
+			text="Marcar como pendiente"
+			colorClasses={MARCAR_PENDIENTE_COLORS}
+		></SubmitButton>
 	</form>
 {/if}
 
@@ -176,27 +152,44 @@
 			};
 		}}
 	>
-		<button
-			class="flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-white shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2"
-		>
-			<Icon class="mr-2" data={faTruckPickup} /> Marcar como recogido
-		</button>
+		<SubmitButton
+			icon={faTruckPickup}
+			text="Marcar como recogido"
+			colorClasses={MARCAR_RECOGIDO_COLORS}
+		></SubmitButton>
 	</form>
 {/if}
 
-<!-- View Customer and Day Orders Buttons -->
-<a
-	class="flex w-full items-center justify-center rounded-md bg-yellow-600 px-4 py-2 text-white shadow hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-700 focus:ring-offset-2"
-	href="/customers/{order.customer.id}"
->
-	<Icon class="mr-2" data={faUser} /> Ver cliente
-</a>
+<Divider></Divider>
 
-<button
-	class="flex w-full items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-700 focus:ring-offset-2"
-	on:click={() => {
-		goto(`/orders/${order.id}/day`);
-	}}
->
-	<Icon class="mr-2" data={faBox} /> Pedidos del día
-</button>
+<!-- Whatsapp Button -->
+<WhatsAppButton
+	label="Enviar resguardo a cliente"
+	message={OrderUtilites.getWhatsappTicketText(order)}
+	customer={order.customer}
+></WhatsAppButton>
+
+{#if order.status === OrderStatus.FINISHED}
+	<WhatsAppButton
+		label="Enviar mensaje finalizado"
+		message={OrderUtilites.getWhatsappFinishedText([order])}
+		customer={order.customer}
+	></WhatsAppButton>
+{/if}
+
+<Divider></Divider>
+
+<!-- View Customer and Day Orders Buttons -->
+<Button
+	icon={faUser}
+	colorClasses={ACCIONES_VER_COLORS}
+	text="Ver cliente"
+	link="/customers/{order.customer.id}"
+></Button>
+
+<Button
+	icon={faBox}
+	colorClasses={PEDIDOS_COLORS}
+	text="Pedidos del día"
+	link={`/orders/${order.id}/day`}
+></Button>
