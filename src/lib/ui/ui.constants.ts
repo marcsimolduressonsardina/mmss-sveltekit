@@ -41,11 +41,12 @@ export const ELIMINAR_COLORS = 'bg-red-700 hover:bg-red-800 focus:ring-red-800';
 
 export const MARCAR_NO_PAGADA_COLORS = 'bg-amber-600 hover:bg-amber-700 focus:ring-amber-700';
 
-export const LISTADO_PENDIENTES = 'bg-gray-700 hover:bg-gray-800 focus:ring-gray-500';
-
 export const LISTADO_FINALIZADOS = 'bg-green-700 hover:bg-green-800 focus:ring-green-500';
 
 export const WHATSAPP_COLORS = 'bg-green-800 hover:bg-green-900 focus:ring-green-900';
+
+// Acciones Neutres - Grey 800
+export const DISABLED_COLORS = 'bg-gray-400 hover:bg-gray-500 focus:bg-gray-600';
 
 export const BUTTON_DEFAULT_CLASSES =
 	'w-full rounded-md px-4 py-2 text-center text-white shadow focus:outline-none focus:ring-2 focus:ring-offset-2';

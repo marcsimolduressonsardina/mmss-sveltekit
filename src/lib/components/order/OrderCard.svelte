@@ -22,9 +22,9 @@
 	<!-- Header Section -->
 	<div
 		class="bg-gradient-to-r p-4 text-white"
-		class:from-gray-800={OrderStatus.PENDING === order.status}
-		class:via-gray-700={OrderStatus.PENDING === order.status}
-		class:to-gray-600={OrderStatus.PENDING === order.status}
+		class:from-orange-600={OrderStatus.PENDING === order.status}
+		class:via-orange-500={OrderStatus.PENDING === order.status}
+		class:to-orange-400={OrderStatus.PENDING === order.status}
 		class:from-green-800={OrderStatus.FINISHED === order.status}
 		class:via-green-700={OrderStatus.FINISHED === order.status}
 		class:to-green-600={OrderStatus.FINISHED === order.status}
@@ -40,7 +40,7 @@
 	>
 		<div class="flex items-center justify-between">
 			<div class="flex items-center space-x-1 pr-2 text-sm">
-				<Icon class="text-yellow-300" data={faSignHanging} />
+				<Icon data={faSignHanging} />
 				<span class="font-semibold">{orderStatusMap[order.status]}</span>
 			</div>
 			<div class="overflow-hidden overflow-ellipsis whitespace-nowrap text-[0.6rem]">

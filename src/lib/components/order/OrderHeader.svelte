@@ -2,6 +2,7 @@
 	import { Icon } from 'svelte-awesome';
 	import { faUserLarge } from '@fortawesome/free-solid-svg-icons/faUserLarge';
 	import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
+	import { faSignHanging } from '@fortawesome/free-solid-svg-icons';
 	import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle';
 	import { faCreditCard } from '@fortawesome/free-regular-svg-icons';
 	import { faCheckCircle, faHourglassHalf, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
@@ -19,7 +20,7 @@
 	let gradientClasses = '';
 	switch (order.status) {
 		case OrderStatus.PENDING:
-			gradientClasses = 'from-gray-800 via-gray-700 to-gray-600';
+			gradientClasses = 'from-orange-600 via-orange-500 to-orange-400';
 			break;
 		case OrderStatus.FINISHED:
 			gradientClasses = 'from-green-800 via-green-700 to-green-600';
@@ -40,6 +41,7 @@
 	<!-- Header with Gradient Background -->
 	<div class={`bg-gradient-to-r ${gradientClasses} flex justify-between p-3 text-white`}>
 		<h3 class="text-lg font-semibold">
+			<Icon data={faSignHanging} />
 			{order.status === OrderStatus.QUOTE ? 'Presupuesto' : 'Pedido'}
 		</h3>
 		<div class="overflow-hidden overflow-ellipsis whitespace-nowrap text-[0.6rem]">

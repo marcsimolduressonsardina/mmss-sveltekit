@@ -8,12 +8,14 @@
 	export let label: string;
 	export let message: string;
 	export let customer: Customer;
+	export let disabled: boolean = false;
 </script>
 
 <Button
 	icon={faWhatsapp}
 	newWindow={true}
 	text={label}
+	{disabled}
 	link={CustomerUtilites.getWhatsappLink(customer, message)}
 	colorClasses={WHATSAPP_COLORS}
 ></Button>

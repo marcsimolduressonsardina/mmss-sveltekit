@@ -9,7 +9,7 @@
 	import type { Order } from '$lib/type/api.type';
 	import Box from '$lib/components/Box.svelte';
 	import Button from '$lib/components/button/Button.svelte';
-	import { LISTADO_FINALIZADOS, LISTADO_PENDIENTES } from '$lib/ui/ui.constants';
+	import { LISTADO_FINALIZADOS, MARCAR_PENDIENTE_COLORS } from '$lib/ui/ui.constants';
 
 	export let data: PageData;
 	let searchValue = '';
@@ -77,7 +77,7 @@
 					<Button
 						text="Ver pedidos pendientes"
 						link={`/orders/list?status=${OrderStatus.PENDING}`}
-						colorClasses={LISTADO_PENDIENTES}
+						colorClasses={MARCAR_PENDIENTE_COLORS}
 						icon={faClockRotateLeft}
 					></Button>
 				</div>
