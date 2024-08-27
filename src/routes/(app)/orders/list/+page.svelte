@@ -1,14 +1,15 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import OrderCard from '$lib/components/order/OrderCard.svelte';
-	import { Icon } from 'svelte-awesome';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
 	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
 	import { orderStatusMap } from '$lib/shared/order.utilities';
 	import { OrderStatus } from '$lib/type/order.type';
 	import type { Order } from '$lib/type/api.type';
+	import Box from '$lib/components/Box.svelte';
+	import Button from '$lib/components/button/Button.svelte';
+	import { LISTADO_FINALIZADOS, MARCAR_PENDIENTE_COLORS } from '$lib/ui/ui.constants';
 
 	export let data: PageData;
 	let searchValue = '';
@@ -22,27 +23,28 @@
 
 	function getStatus(statusStr: string) {
 		const status = statusStr as OrderStatus;
-		return orderStatusMap[status];
+		const name = orderStatusMap[status];
+		if (status === OrderStatus.QUOTE) {
+			return `Listado de ${name}s`;
+		} else {
+			return `Pedidos ${name}s`;
+		}
 	}
 
 	function isWordPresent(inputString1: string, inputString2: string): boolean {
-		// Normalize input strings to ensure consistent comparison
 		const normalizedInputString1 = normalizeString(inputString1);
 		const normalizedInputString2 = normalizeString(inputString2);
 
-		// Split normalized input strings into arrays of words
 		const words1 = normalizedInputString1.split(' ');
 		const words2 = normalizedInputString2.split(' ');
 
-		// Iterate over each word in the first input string
 		for (const word1 of words1) {
-			// Check if the current word is present or partially present in the second input string
 			if (words2.some((word2) => word2.includes(word1))) {
-				return true; // If found, return true
+				return true;
 			}
 		}
 
-		return false; // If no match is found, return false
+		return false;
 	}
 
 	function filterOrders(orders: Order[], search: string): Order[] {
@@ -54,40 +56,44 @@
 	}
 </script>
 
-<div class="space flex w-full flex-col gap-1 p-3">
+<div class="space flex w-full flex-col gap-4 p-3">
 	{#await data.orders}
-		<ProgressBar />
+		<Box title={''}>
+			<ProgressBar />
+		</Box>
 	{:then orders}
-		<span class="pb-1 text-xl font-medium text-gray-700">Pedidos {getStatus(data.status)}s</span>
+		<Box title={`${getStatus(data.status)}`}>
+			{#if data.status !== OrderStatus.QUOTE}
+				<div
+					class="flex w-full flex-col place-content-center items-center justify-center gap-3 md:grid md:grid-cols-2"
+				>
+					<Button
+						text="Ver pedidos finalizados"
+						link={`/orders/list?status=${OrderStatus.FINISHED}`}
+						colorClasses={LISTADO_FINALIZADOS}
+						icon={faCheck}
+					></Button>
 
-		<div
-			class="flex w-full flex-col place-content-center items-center justify-center gap-1 md:grid md:grid-cols-2"
-		>
-			<a
-				class="variant-ghost-primary btn btn-sm w-full"
-				href={`/orders/list?status=${OrderStatus.FINISHED}`}
-			>
-				<Icon class="mr-1" data={faCheck} /> Ver pedidos finalizados
-			</a>
-			<a
-				class="variant-ghost btn btn-sm w-full"
-				href={`/orders/list?status=${OrderStatus.PENDING}`}
-			>
-				<Icon class="mr-1" data={faClockRotateLeft} /> Ver pedidos pendientes
-			</a>
-		</div>
-		<div
-			class="mb-3 mt-3 flex w-full flex-col place-content-center items-center justify-center gap-1"
-		>
-			<input
-				bind:value={searchValue}
-				class="input"
-				type="text"
-				placeholder="Buscar en descripción..."
-			/>
-		</div>
+					<Button
+						text="Ver pedidos pendientes"
+						link={`/orders/list?status=${OrderStatus.PENDING}`}
+						colorClasses={MARCAR_PENDIENTE_COLORS}
+						icon={faClockRotateLeft}
+					></Button>
+				</div>
+			{/if}
 
-		<div class="flex w-full flex-col gap-1 lg:grid lg:grid-cols-4">
+			<div class="mt-4">
+				<input
+					bind:value={searchValue}
+					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm"
+					type="text"
+					placeholder="Buscar en descripción..."
+				/>
+			</div>
+		</Box>
+
+		<div class="flex w-full flex-col gap-3 lg:grid lg:grid-cols-4">
 			{#each filterOrders(orders, searchValue) as order}
 				<OrderCard {order} />
 			{/each}

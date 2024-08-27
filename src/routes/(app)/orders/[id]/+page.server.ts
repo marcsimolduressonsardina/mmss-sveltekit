@@ -5,6 +5,7 @@ import { CalculatedItemService } from '$lib/server/service/calculated-item.servi
 import { OrderStatus } from '$lib/type/order.type';
 import type { Order } from '$lib/type/api.type';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
+import type { CalculatedItem } from '../../../../lib/type/api.type';
 
 async function setOrderStatus(
 	status: OrderStatus,
@@ -25,17 +26,22 @@ async function setOrderStatus(
 	return order;
 }
 
+async function loadData(
+	orderService: OrderService,
+	calculatedItemService: CalculatedItemService,
+	orderId: string
+): Promise<{ order: Order | null; calculatedItem: CalculatedItem | null }> {
+	const order = await orderService.getOrderById(orderId);
+	const calculatedItem = await calculatedItemService.getCalculatedItem(orderId);
+	return { order, calculatedItem };
+}
+
 export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
 	const orderService = new OrderService(appUser);
 	const calculatedItemService = new CalculatedItemService();
-	const order = await orderService.getOrderById(id);
-
-	return {
-		order,
-		calculatedItem: await calculatedItemService.getCalculatedItem(id)
-	};
+	return { info: loadData(orderService, calculatedItemService, id) };
 }) satisfies PageServerLoad;
 
 export const actions = {

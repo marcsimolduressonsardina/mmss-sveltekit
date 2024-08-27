@@ -1,8 +1,10 @@
 <script lang="ts">
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { Icon } from 'svelte-awesome';
 	import { superForm } from 'sveltekit-superforms';
 	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
+	import Box from '$lib/components/Box.svelte';
+	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
+	import { ACCIONES_NEUTRES_COLORS } from '$lib/ui/ui.constants';
 
 	export let data;
 	export let title = 'Crear Cliente';
@@ -10,35 +12,39 @@
 	const { form, errors, enhance, submitting } = superForm(data.form);
 </script>
 
-<div class="px-2 pt-1 text-xl font-semibold">{title}</div>
-<div class="flex w-full flex-col place-content-center px-2">
-	{#if $submitting}
-		<ProgressBar />
-	{:else}
-		<form use:enhance class="w-full space-y-2" method="post">
-			<label class="label" for="name">
-				<span>Nombre:</span>
-				<input
-					class="input {$errors.name ? 'input-error' : ''}"
-					id="name"
-					type="text"
-					name="name"
-					bind:value={$form.name}
-				/>
-			</label>
-			<label class="label" for="phone">
-				<span>Teléfono:</span>
-				<input
-					class="input {$errors.phone ? 'input-error' : ''}"
-					id="phone"
-					type="tel"
-					name="phone"
-					bind:value={$form.phone}
-				/>
-			</label>
-			<button class="variant-filled-warning btn w-full" type="submit"
-				><Icon class="mr-2" data={faEdit} /> {buttonText}</button
-			>
-		</form>
-	{/if}
-</div>
+<Box {title}>
+	<div>
+		{#if $submitting}
+			<ProgressBar />
+		{:else}
+			<form use:enhance class="space-y-4" method="post">
+				<div>
+					<label class="block text-sm font-medium text-gray-700" for="name">Nombre:</label>
+					<input
+						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm"
+						id="name"
+						class:input-error={$errors.name}
+						type="text"
+						name="name"
+						bind:value={$form.name}
+					/>
+				</div>
+
+				<div>
+					<label class="block text-sm font-medium text-gray-700" for="phone">Teléfono:</label>
+					<input
+						class="input-error mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm"
+						class:input-error={$errors.phone}
+						id="phone"
+						type="tel"
+						name="phone"
+						bind:value={$form.phone}
+					/>
+				</div>
+
+				<SubmitButton icon={faEdit} text={buttonText} colorClasses={ACCIONES_NEUTRES_COLORS}
+				></SubmitButton>
+			</form>
+		{/if}
+	</div>
+</Box>

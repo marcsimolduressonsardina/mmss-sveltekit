@@ -7,6 +7,7 @@
 	export let added: Boolean;
 	export let sectionTitle: string;
 	export let label: string;
+	export let priorityFirst: boolean = true;
 	export let prices: ListPrice[];
 	export let addItem: (id: string, quantity: number) => void;
 
@@ -38,6 +39,9 @@
 		class:input-success={added}
 		bind:this={predefinedElementInput}
 	>
+		{#if !priorityFirst}
+			<option></option>
+		{/if}
 		{#each prices.sort((a, b) => b.priority - a.priority) as otherPrice}
 			<option value={otherPrice.id}
 				>{otherPrice.description} ({otherPrice.price.toFixed(2)} €)</option

@@ -14,6 +14,7 @@
 	export let print: boolean = false;
 
 	const totalOrder = calculatedItem ? CalculatedItemUtilities.getTotal(calculatedItem) : 0;
+	const isQuote = order.status === OrderStatus.QUOTE;
 
 	const others = [
 		...otherForPrintPricingTypes
@@ -41,16 +42,19 @@
 
 	const statusInfo: string[] = [];
 
-	if (order.status === OrderStatus.PICKED_UP) {
-		statusInfo.push('ENTREGADO');
-	}
-
-	if (order.amountPayed === totalOrder) {
-		statusInfo.push('PAGADO');
-	} else if (order.amountPayed === 0) {
-		statusInfo.push('PENDIENTE DE PAGO');
+	if (!isQuote) {
+		if (order.status === OrderStatus.PICKED_UP) {
+			statusInfo.push('ENTREGADO');
+		}
+		if (order.amountPayed === totalOrder) {
+			statusInfo.push('PAGADO');
+		} else if (order.amountPayed === 0) {
+			statusInfo.push('PENDIENTE DE PAGO');
+		} else {
+			statusInfo.push(`PENDIENTE DE PAGO (${(totalOrder - order.amountPayed).toFixed(2)} €)`);
+		}
 	} else {
-		statusInfo.push(`PENDIENTE DE PAGO (${(totalOrder - order.amountPayed).toFixed(2)} €)`);
+		statusInfo.push('PRESUPUESTO');
 	}
 
 	function groupInPairs(arr: string[]): string[][] {
@@ -185,7 +189,7 @@
 					<tr>
 						<td>
 							Obra: {`${order.item.height}x${order.item.width} cm`} <br />
-							Trabajo: {OrderUtilites.getWorkingDimensions(order)}
+							<strong>Trabajo: {OrderUtilites.getWorkingDimensions(order)}</strong>
 							{#if order.item.exteriorHeight || order.item.exteriorWidth}
 								<br />
 								Marco exterior: {`${order.item.exteriorHeight}x${order.item.exteriorWidth} cm`}
@@ -280,15 +284,19 @@
 			<td class="inner-td">
 				<table class="inner-table">
 					<tr>
-						<th> Recogida </th>
+						{#if !isQuote}
+							<th> Recogida </th>
+						{/if}
 						<th> Cliente </th>
 						<th> Teléfono </th>
 					</tr>
 					<tr>
-						<td>
-							{esWeekDay}
-							{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
-						</td>
+						{#if !isQuote}
+							<td>
+								{esWeekDay}
+								{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+							</td>
+						{/if}
 						<td> {order.customer.name} </td>
 						<td> {order.customer.phone} </td>
 					</tr>
@@ -310,13 +318,24 @@
 		{/if}
 	</table>
 	<div class="customer-text">
-		<p class="customer-bottom">
-			Una vez pasados <strong>15 días desde la fecha estipulada de entrega</strong>, la empresa
-			<strong>no se hará cargo del material.</strong>
-		</p>
-		<p class="customer-bottom">
-			<strong>Sin el justificante no se hará entrega del material.</strong>
-		</p>
+		{#if !isQuote}
+			<p class="customer-bottom">
+				Una vez pasados <strong>15 días desde la fecha estipulada de entrega</strong>, la empresa
+				<strong>no se hará cargo del material.</strong>
+			</p>
+			<p class="customer-bottom">
+				<strong>Sin el justificante no se hará entrega del material.</strong>
+			</p>
+		{:else}
+			<p class="customer-bottom">
+				Este presupuesto tiene una validez de <strong>30 días desde la fecha de emisión</strong>,
+				para la aceptación del presupuesto y puesta en marcha del pedido deberá hacer el pago del
+				50% del presupuesto.
+			</p>
+			<p class="customer-bottom">
+				<strong>IBAN ES13 2100 6805 9102 0013 3197 / SWIFT CAIXESBBXXX</strong>
+			</p>
+		{/if}
 	</div>
 </main>
 

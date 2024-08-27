@@ -5,7 +5,8 @@
 	import Icon from 'svelte-awesome';
 	import plus from 'svelte-awesome/icons/plus';
 	import minus from 'svelte-awesome/icons/minus';
-	import check from 'svelte-awesome/icons/check';
+	import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
+	import { faCircleCheck } from '@fortawesome/free-solid-svg-icons/faCircleCheck';
 
 	import type {
 		CalculatedItemPart,
@@ -35,6 +36,11 @@
 		fabricIds,
 		type AllPrices
 	} from '$lib/shared/pricing.utilites';
+	import {
+		BUTTON_DEFAULT_CLASSES,
+		PEDIDOS_COLORS,
+		PRESUPUESTOS_COLORS
+	} from '$lib/ui/ui.constants';
 
 	export let data: { pricing: Promise<AllPrices>; form: any };
 
@@ -365,7 +371,6 @@
 			ppDimensions
 		);
 
-		console.log(typeof totalHeight);
 		totalHeightBox = totalHeight;
 		totalWidthBox = totalWidth;
 	}
@@ -432,12 +437,12 @@
 	}
 </script>
 
-<div class="px-2 pt-1 text-2xl font-semibold">Nuevo Pedido</div>
+<div class="px-2 pt-1 text-2xl font-semibold">Nuevo Pedido / Presupuesto</div>
 {#if $submitting}
-	<ProgressBar text={'Guardando...'} />
+	<ProgressBar text={'Guardando'} />
 {:else}
 	{#await data.pricing}
-		<ProgressBar />
+		<ProgressBar text={'Cargando precios'} />
 	{:then pricing}
 		<form
 			use:enhance
@@ -476,7 +481,7 @@
 
 			<PricingSelectorSection
 				sectionTitle={'PP / Fondo'}
-				label={'Tipo de PP'}
+				label={'Tipo'}
 				prices={pricing.ppPrices}
 				addValue={addFromPricingSelector}
 				showExtraInfo={true}
@@ -578,61 +583,6 @@
 				{/each}
 			</dl>
 
-			<AutocompleteSection
-				sectionTitle={'Molduras'}
-				label={'Moldura/Marco'}
-				prices={pricing.moldPrices}
-				addValue={addFromPricingSelector}
-				pricingType={PricingType.MOLD}
-				added={addedMold}
-			/>
-
-			<dl class="list-dl lg:col-span-2">
-				{#each partsToCalulatePreview.filter((p) => p.pre.type === PricingType.MOLD) as part}
-					<CartItem
-						part={part.post}
-						partToDelete={part}
-						deleteExtraPart={deletePrecalculatedPreview}
-					/>
-				{/each}
-			</dl>
-
-			<PricingSelectorSection
-				sectionTitle={'Cristal'}
-				label={'Tipo de cristal'}
-				prices={pricing.glassPrices}
-				addValue={addFromPricingSelector}
-				added={addedGlass}
-			/>
-
-			<dl class="list-dl lg:col-span-2">
-				{#each partsToCalulatePreview.filter((p) => p.pre.type === PricingType.GLASS) as part}
-					<CartItem
-						part={part.post}
-						partToDelete={part}
-						deleteExtraPart={deletePrecalculatedPreview}
-					/>
-				{/each}
-			</dl>
-
-			<PricingSelectorSection
-				sectionTitle={'Trasera'}
-				label={'Tipo de trasera'}
-				prices={pricing.backPrices}
-				addValue={addFromPricingSelector}
-				added={addedBack}
-			/>
-
-			<dl class="list-dl lg:col-span-2">
-				{#each partsToCalulatePreview.filter((p) => p.pre.type === PricingType.BACK) as part}
-					<CartItem
-						part={part.post}
-						partToDelete={part}
-						deleteExtraPart={deletePrecalculatedPreview}
-					/>
-				{/each}
-			</dl>
-
 			<Spacer title={'Medidas de trabajo'} />
 
 			<div class="grid grid-cols-1 lg:col-span-2">
@@ -681,11 +631,70 @@
 				</label>
 			{/if}
 
+			<AutocompleteSection
+				sectionTitle={'Molduras'}
+				label={'Moldura/Marco'}
+				prices={pricing.moldPrices}
+				addValue={addFromPricingSelector}
+				pricingType={PricingType.MOLD}
+				added={addedMold}
+			/>
+
+			<dl class="list-dl lg:col-span-2">
+				{#each partsToCalulatePreview.filter((p) => p.pre.type === PricingType.MOLD) as part}
+					<CartItem
+						part={part.post}
+						partToDelete={part}
+						deleteExtraPart={deletePrecalculatedPreview}
+					/>
+				{/each}
+			</dl>
+
+			<PricingSelectorSection
+				sectionTitle={'Cristal'}
+				priorityFirst={false}
+				label={'Tipo de cristal'}
+				prices={pricing.glassPrices}
+				addValue={addFromPricingSelector}
+				added={addedGlass}
+			/>
+
+			<dl class="list-dl lg:col-span-2">
+				{#each partsToCalulatePreview.filter((p) => p.pre.type === PricingType.GLASS) as part}
+					<CartItem
+						part={part.post}
+						partToDelete={part}
+						deleteExtraPart={deletePrecalculatedPreview}
+					/>
+				{/each}
+			</dl>
+
+			<PricingSelectorSection
+				sectionTitle={'Trasera'}
+				priorityFirst={false}
+				label={'Tipo de trasera'}
+				prices={pricing.backPrices}
+				addValue={addFromPricingSelector}
+				added={addedBack}
+			/>
+
+			<dl class="list-dl lg:col-span-2">
+				{#each partsToCalulatePreview.filter((p) => p.pre.type === PricingType.BACK) as part}
+					<CartItem
+						part={part.post}
+						partToDelete={part}
+						deleteExtraPart={deletePrecalculatedPreview}
+					/>
+				{/each}
+			</dl>
+
 			<PricingSelectorSection
 				sectionTitle={'Montajes'}
 				priorityFirst={false}
 				label={'Tipo de montaje'}
-				prices={[...pricing.labourPrices, ...fabricPrices]}
+				prices={pricing.labourPrices}
+				extraPrices={fabricPrices}
+				locationIdForExtraPrices={'CINTA_CANTO_LIENZO_BLANCA'}
 				addValue={addFromPricingSelector}
 				added={addedLabour}
 			/>
@@ -702,6 +711,7 @@
 
 			<PricingSelectorWithQuantitySection
 				added={addedHanger}
+				priorityFirst={false}
 				sectionTitle={'Colgadores'}
 				label={'Colgador'}
 				prices={pricing.hangerPrices}
@@ -720,6 +730,7 @@
 
 			<PricingSelectorWithQuantitySection
 				added={addedOther}
+				priorityFirst={false}
 				sectionTitle={'Suministros'}
 				label={'Elemento'}
 				prices={pricing.otherPrices}
@@ -738,6 +749,7 @@
 
 			<PricingSelectorSection
 				sectionTitle={'Transporte'}
+				priorityFirst={false}
 				label={'Tipo de transporte'}
 				prices={pricing.transportPrices}
 				addValue={addFromPricingSelector}
@@ -860,7 +872,7 @@
 			</div>
 
 			<label class="label" for="deliveryDate">
-				<span>Fecha de entrega:</span>
+				<span>Fecha de entrega (Sólo pedidos):</span>
 				<input
 					class="input {$errors.deliveryDate ? 'input-error' : ''}"
 					name="deliveryDate"
@@ -919,9 +931,20 @@
 				</span>
 			</div>
 
-			<button class="variant-filled-warning btn lg:col-span-2" type="submit"
-				><Icon class="mr-2" data={check} /> Crear pedido</button
+			<button
+				class={`${BUTTON_DEFAULT_CLASSES} ${PEDIDOS_COLORS} lg:col-span-2`}
+				type="submit"
+				formaction="?/createOrder"
 			>
+				<Icon class="mr-2" data={faCircleCheck} /> Crear pedido
+			</button>
+			<button
+				class={`${BUTTON_DEFAULT_CLASSES} ${PRESUPUESTOS_COLORS} lg:col-span-2`}
+				type="submit"
+				formaction="?/createQuote"
+			>
+				<Icon class="mr-2" data={faClipboardList} /> Crear presupuesto
+			</button>
 		</form>
 	{/await}
 {/if}

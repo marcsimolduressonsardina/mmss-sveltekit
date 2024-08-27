@@ -1,28 +1,54 @@
 <script lang="ts">
 	import { faQrcode } from '@fortawesome/free-solid-svg-icons/faQrcode';
-	import { faImage } from '@fortawesome/free-solid-svg-icons/faImage';
+	import { faFileCirclePlus } from '@fortawesome/free-solid-svg-icons/faFileCirclePlus';
 	import { faList } from '@fortawesome/free-solid-svg-icons/faList';
-	import Icon from 'svelte-awesome';
-	import plus from 'svelte-awesome/icons/plus';
+	import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
 	import search from 'svelte-awesome/icons/search';
+	import HomeButton from '$lib/components/button/HomeButton.svelte';
+	import {
+		BUSCAR_CLIENTE_COLORS,
+		ESCANEAR_RESGUARDO_COLORS,
+		FORMULARIO_COLORS,
+		LISTADO_PEDIDOS_COLORS,
+		PRESUPUESTOS_COLORS
+	} from '$lib/ui/ui.constants';
 </script>
 
 <div
-	class="flex w-full flex-col place-content-center items-center justify-center gap-2 p-4 md:grid md:grid-cols-2 lg:grid-cols-3"
+	class="flex w-full flex-col place-content-center items-center justify-center gap-4 p-6 md:grid md:grid-cols-2 lg:grid-cols-3"
 >
-	<a href="/customers/new" class="variant-filled-warning btn btn-xl w-full shadow-sm">
-		<Icon class="mr-2" data={plus} /> Crear cliente
-	</a>
-	<a href="/customers/search" class="variant-filled-surface btn btn-xl w-full shadow-sm">
-		<Icon class="mr-2" data={search} /> Buscar cliente
-	</a>
-	<a href="/orders/scan" class="variant-filled btn btn-xl w-full shadow-sm">
-		<Icon class="mr-2" data={faQrcode} /> Escanear Pedido
-	</a>
-	<a href="/orders/list" class="variant-filled-secondary btn btn-xl w-full shadow-sm">
-		<Icon class="mr-2" data={faList} /> Listado de pedidos
-	</a>
-	<a href="/orders/new" class="variant-filled-primary btn btn-xl w-full shadow-sm">
-		<Icon class="mr-2" data={faImage} /> Crear presupuesto
-	</a>
+	<HomeButton
+		icon={faFileCirclePlus}
+		text="Formulario"
+		link={'/orders/new'}
+		colorClasses={FORMULARIO_COLORS}
+	></HomeButton>
+
+	<HomeButton
+		icon={search}
+		text="Buscar cliente"
+		link="/customers/search"
+		colorClasses={BUSCAR_CLIENTE_COLORS}
+	></HomeButton>
+
+	<HomeButton
+		icon={faQrcode}
+		text="Escanear resguardo"
+		link="/orders/scan"
+		colorClasses={ESCANEAR_RESGUARDO_COLORS}
+	></HomeButton>
+
+	<HomeButton
+		icon={faList}
+		text="Listado pedidos"
+		link="/orders/list"
+		colorClasses={LISTADO_PEDIDOS_COLORS}
+	></HomeButton>
+
+	<HomeButton
+		icon={faClipboardList}
+		text="Listado de presupuestos"
+		link="/orders/list?status=quote"
+		colorClasses={PRESUPUESTOS_COLORS}
+	></HomeButton>
 </div>

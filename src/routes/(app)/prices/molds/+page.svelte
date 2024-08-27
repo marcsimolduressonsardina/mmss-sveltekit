@@ -3,6 +3,7 @@
 	import { faFileExcel } from '@fortawesome/free-solid-svg-icons/faFileExcel';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import Icon from 'svelte-awesome';
+	import Box from '$lib/components/Box.svelte';
 
 	const toastStore = getToastStore();
 	let inputFile: HTMLInputElement;
@@ -118,14 +119,22 @@
 	}
 </script>
 
-<div class="px-2 pt-1 text-xl font-semibold">Carga de precios de Marcos/Molduras</div>
-<div class="flex w-full flex-col place-content-center items-center justify-center space-y-2 p-4">
-	{#if loading}
-		<ProgressBar text={loadingText} />
-	{:else}
-		<input class="input" type="file" bind:this={inputFile} />
-		<button class="variant-filled-warning btn btn-xl shadow-sm" on:click={loadFile}
-			><Icon class="mr-2" data={faFileExcel} /> Cargar archivo excel</button
-		>
-	{/if}
-</div>
+<Box title="Carga de precios de Marcos/Molduras">
+	<div class="flex w-full flex-col place-content-center items-center justify-center space-y-4 p-4">
+		{#if loading}
+			<ProgressBar text={loadingText} />
+		{:else}
+			<input
+				class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm"
+				type="file"
+				bind:this={inputFile}
+			/>
+			<button
+				class="w-full rounded-md bg-yellow-500 px-4 py-2 text-base font-semibold text-white shadow hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
+				on:click={loadFile}
+			>
+				<Icon class="mr-2" data={faFileExcel} /> Cargar archivo excel
+			</button>
+		{/if}
+	</div>
+</Box>
