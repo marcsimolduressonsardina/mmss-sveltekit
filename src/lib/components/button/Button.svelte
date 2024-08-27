@@ -9,10 +9,11 @@
 	export let text: string;
 	export let colorClasses;
 	export let disabled: boolean = false;
+	export let forceLink: boolean = false;
 	export let newWindow: boolean = false;
 </script>
 
-{#if !newWindow || disabled}
+{#if (!newWindow || disabled) && !forceLink}
 	<button
 		{disabled}
 		class={`${disabled ? DISABLED_COLORS : colorClasses} ${BUTTON_DEFAULT_CLASSES}`}
@@ -22,7 +23,11 @@
 		{text}
 	</button>
 {:else}
-	<a class={`${colorClasses} ${BUTTON_DEFAULT_CLASSES}`} href={link} target="_blank">
+	<a
+		class={`${colorClasses} ${BUTTON_DEFAULT_CLASSES}`}
+		href={link}
+		target={newWindow ? '_blank' : '_self'}
+	>
 		<Icon class="mr-2" data={icon} />
 		{text}
 	</a>

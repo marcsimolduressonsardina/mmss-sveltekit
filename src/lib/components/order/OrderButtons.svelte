@@ -28,7 +28,6 @@
 		PEDIDOS_COLORS
 	} from '$lib/ui/ui.constants';
 
-	export let formLoading: boolean;
 	export let setFormLoading: (value: boolean) => void;
 	export let order: Order;
 	export let calculatedItem: CalculatedItem | null;

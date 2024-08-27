@@ -50,17 +50,14 @@
 						icon={faPrint}
 						colorClasses={ACCIONES_RESGUARDO_COLORS}
 						text="Imprimir"
+						forceLink={true}
 						link={`/orders/${info.order.id}/print`}
 					></Button>
 
 					{#if info.order.status === OrderStatus.QUOTE}
 						<QuoteButtons order={info.order}></QuoteButtons>
 					{:else}
-						<OrderButtons
-							order={info.order}
-							calculatedItem={info.calculatedItem}
-							{formLoading}
-							{setFormLoading}
+						<OrderButtons order={info.order} calculatedItem={info.calculatedItem} {setFormLoading}
 						></OrderButtons>
 					{/if}
 				</div>
