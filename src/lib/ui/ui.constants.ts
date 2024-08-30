@@ -11,7 +11,7 @@ export const ESCANEAR_RESGUARDO_COLORS = 'bg-gray-800 hover:bg-gray-900 focus:bg
 export const BUSCAR_CLIENTE_COLORS = 'bg-blue-600 hover:bg-blue-700 focus:bg-blue-500';
 
 // Formulario - Fuchsia 600
-export const FORMULARIO_COLORS = 'bg-fuchsia-600 hover:bg-fuchsia-700 focus:bg-fuchsia-500';
+export const FORMULARIO_COLORS = 'bg-emerald-600 hover:bg-emmrald-700 focus:bg-emerald-500';
 
 // Acciones Neutres - Grey 800
 export const ACCIONES_NEUTRES_COLORS = 'bg-gray-800 hover:bg-gray-900 focus:bg-gray-700';
