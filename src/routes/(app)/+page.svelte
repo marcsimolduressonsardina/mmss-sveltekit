@@ -18,24 +18,10 @@
 	class="flex w-full flex-col place-content-center items-center justify-center gap-4 p-6 md:grid md:grid-cols-2 lg:grid-cols-3"
 >
 	<HomeButton
-		icon={faFileCirclePlus}
-		text="Formulario"
-		link={'/orders/new'}
-		colorClasses={FORMULARIO_COLORS}
-	></HomeButton>
-
-	<HomeButton
 		icon={search}
 		text="Buscar cliente"
 		link="/customers/search"
 		colorClasses={BUSCAR_CLIENTE_COLORS}
-	></HomeButton>
-
-	<HomeButton
-		icon={faQrcode}
-		text="Escanear resguardo"
-		link="/orders/scan"
-		colorClasses={ESCANEAR_RESGUARDO_COLORS}
 	></HomeButton>
 
 	<HomeButton
@@ -50,5 +36,19 @@
 		text="Listado de presupuestos"
 		link="/orders/list?status=quote"
 		colorClasses={PRESUPUESTOS_COLORS}
+	></HomeButton>
+
+	<HomeButton
+		icon={faQrcode}
+		text="Escanear resguardo"
+		link="/orders/scan"
+		colorClasses={ESCANEAR_RESGUARDO_COLORS}
+	></HomeButton>
+
+	<HomeButton
+		icon={faFileCirclePlus}
+		text="Crear nota"
+		link={'/orders/new'}
+		colorClasses={FORMULARIO_COLORS}
 	></HomeButton>
 </div>
