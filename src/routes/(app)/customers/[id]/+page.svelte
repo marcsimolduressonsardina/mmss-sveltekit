@@ -50,7 +50,7 @@
 				<Button
 					icon={faFileCirclePlus}
 					link="/customers/{customer.id}/orders/new"
-					text="Crear pedido / presupuesto"
+					text="Crear nota"
 					colorClasses={FORMULARIO_COLORS}
 				></Button>
 
