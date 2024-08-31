@@ -8,14 +8,17 @@ import { fail, redirect } from '@sveltejs/kit';
 import { CustomerService } from '$lib/server/service/customer.service';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { OrderStatus } from '$lib/type/order.type';
+import { CalculatedItemService } from '$lib/server/service/calculated-item.service';
 
 export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
 	const orderService = new OrderService(appUser);
+	const calculatedItemService = new CalculatedItemService();
 
 	const order = await orderService.getOrderById(id);
-	if (!order) {
+	const calculatedItem = await calculatedItemService.getCalculatedItem(id);
+	if (order == null || calculatedItem == null) {
 		return redirect(302, `/`);
 	}
 
@@ -24,7 +27,12 @@ export const load = (async ({ params, locals }) => {
 	}
 
 	const form = await superValidate(zod(linkCustomerSchema));
-	return { form, orderName: order.status === OrderStatus.QUOTE ? 'presupuesto' : 'pedido' };
+	return {
+		form,
+		orderName: order.status === OrderStatus.QUOTE ? 'presupuesto' : 'pedido',
+		order,
+		calculatedItem
+	};
 }) satisfies PageServerLoad;
 
 export const actions = {

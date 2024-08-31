@@ -3,9 +3,10 @@ import type { PageServerLoad, RouteParams } from './$types';
 import { OrderService } from '$lib/server/service/order.service';
 import { CalculatedItemService } from '$lib/server/service/calculated-item.service';
 import { OrderStatus } from '$lib/type/order.type';
-import type { Order } from '$lib/type/api.type';
+import type { AppUser, Order } from '$lib/type/api.type';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import type { CalculatedItem } from '../../../../lib/type/api.type';
+import { FileService } from '$lib/server/service/file.service';
 
 async function setOrderStatus(
 	status: OrderStatus,
@@ -14,6 +15,10 @@ async function setOrderStatus(
 ): Promise<Order> {
 	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
+
+	if (!appUser.priceManager && status === OrderStatus.DELETED) {
+		throw fail(403, {});
+	}
 
 	const orderService = new OrderService(appUser);
 
@@ -27,21 +32,25 @@ async function setOrderStatus(
 }
 
 async function loadData(
-	orderService: OrderService,
-	calculatedItemService: CalculatedItemService,
+	user: AppUser,
 	orderId: string
-): Promise<{ order: Order | null; calculatedItem: CalculatedItem | null }> {
+): Promise<{ order: Order | null; calculatedItem: CalculatedItem | null; hasFiles: boolean }> {
+	const orderService = new OrderService(user);
+	const calculatedItemService = new CalculatedItemService();
+	const fileService = new FileService();
 	const order = await orderService.getOrderById(orderId);
 	const calculatedItem = await calculatedItemService.getCalculatedItem(orderId);
-	return { order, calculatedItem };
+	const files = await fileService.getFilesByOrder(orderId);
+	return { order, calculatedItem, hasFiles: files.length > 0 };
 }
 
 export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
-	const orderService = new OrderService(appUser);
-	const calculatedItemService = new CalculatedItemService();
-	return { info: loadData(orderService, calculatedItemService, id) };
+	return {
+		info: loadData(appUser, id),
+		isPriceManager: appUser.priceManager
+	};
 }) satisfies PageServerLoad;
 
 export const actions = {

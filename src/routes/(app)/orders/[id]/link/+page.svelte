@@ -3,6 +3,9 @@
 	import { Icon } from 'svelte-awesome';
 	import { faUserLarge } from '@fortawesome/free-solid-svg-icons/faUserLarge';
 	import NewCustomer from '$lib/components/customer/NewCustomer.svelte';
+	import OrderInfo from '$lib/components/order/OrderInfo.svelte';
+	import OrderElements from '$lib/components/order/OrderElements.svelte';
+	import OrderHeader from '$lib/components/order/OrderHeader.svelte';
 
 	export let data: PageData;
 </script>
@@ -21,4 +24,10 @@
 	</div>
 
 	<NewCustomer {data} title={''} buttonText={'Vincular'} />
+
+	<OrderHeader order={data.order} calculatedItem={data.calculatedItem}></OrderHeader>
+
+	<OrderInfo order={data.order}></OrderInfo>
+
+	<OrderElements order={data.order} calculatedItem={data.calculatedItem}></OrderElements>
 </div>

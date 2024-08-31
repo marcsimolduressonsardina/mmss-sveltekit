@@ -11,12 +11,13 @@
 	export let disabled: boolean = false;
 	export let forceLink: boolean = false;
 	export let newWindow: boolean = false;
+	export let textWhite: boolean = true;
 </script>
 
 {#if (!newWindow || disabled) && !forceLink}
 	<button
 		{disabled}
-		class={`${disabled ? DISABLED_COLORS : colorClasses} ${BUTTON_DEFAULT_CLASSES}`}
+		class={`${disabled ? DISABLED_COLORS : colorClasses} ${textWhite ? 'text-white' : 'text-gray-800'} ${BUTTON_DEFAULT_CLASSES}`}
 		on:click={() => goto(link)}
 	>
 		<Icon class="mr-2" data={icon} />
@@ -24,7 +25,7 @@
 	</button>
 {:else}
 	<a
-		class={`${colorClasses} ${BUTTON_DEFAULT_CLASSES}`}
+		class={`${colorClasses} ${textWhite ? 'text-white' : 'text-gray-800'} ${BUTTON_DEFAULT_CLASSES} `}
 		href={link}
 		target={newWindow ? '_blank' : '_self'}
 	>

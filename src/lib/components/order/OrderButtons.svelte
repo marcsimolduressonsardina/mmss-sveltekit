@@ -29,6 +29,7 @@
 	} from '$lib/ui/ui.constants';
 
 	export let setFormLoading: (value: boolean) => void;
+	export let hasFiles: boolean;
 	export let order: Order;
 	export let calculatedItem: CalculatedItem | null;
 
@@ -161,22 +162,24 @@
 
 <Divider></Divider>
 
-<!-- Whatsapp Button -->
-<WhatsAppButton
-	label="Enviar resguardo a cliente"
-	message={OrderUtilites.getWhatsappTicketText(order)}
-	customer={order.customer}
-></WhatsAppButton>
-
-{#if order.status === OrderStatus.FINISHED}
+{#if hasFiles}
+	<!-- Whatsapp Button -->
 	<WhatsAppButton
-		label="Enviar mensaje finalizado"
-		message={OrderUtilites.getWhatsappFinishedText([order])}
+		label="Enviar resguardo a cliente"
+		message={OrderUtilites.getWhatsappTicketText(order)}
 		customer={order.customer}
 	></WhatsAppButton>
-{/if}
 
-<Divider></Divider>
+	{#if order.status === OrderStatus.FINISHED}
+		<WhatsAppButton
+			label="Enviar mensaje finalizado"
+			message={OrderUtilites.getWhatsappFinishedText([order])}
+			customer={order.customer}
+		></WhatsAppButton>
+	{/if}
+
+	<Divider></Divider>
+{/if}
 
 <!-- View Customer and Day Orders Buttons -->
 <Button
@@ -187,6 +190,7 @@
 ></Button>
 
 <Button
+	textWhite={false}
 	icon={faBox}
 	colorClasses={PEDIDOS_COLORS}
 	text="Pedidos del día"

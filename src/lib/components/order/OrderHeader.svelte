@@ -8,7 +8,7 @@
 	import { faCheckCircle, faHourglassHalf, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 	import { DateTime } from 'luxon';
 	import { OrderStatus } from '$lib/type/order.type';
-	import { orderStatusMap, OrderUtilites } from '$lib/shared/order.utilities';
+	import { orderStatusMap, OrderUtilites, tempCustomerUuid } from '$lib/shared/order.utilities';
 	import type { CalculatedItem, Order } from '$lib/type/api.type';
 	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 
@@ -54,10 +54,12 @@
 	<!-- Order Details -->
 	<div class="space-y-3 rounded-lg bg-white p-4 shadow-md">
 		<!-- Customer Name -->
-		<div class="flex items-center text-lg text-gray-700">
-			<Icon class="mr-2 text-blue-600" data={faUserLarge} />
-			<span>{order.customer.name}</span>
-		</div>
+		{#if order.customer.id !== tempCustomerUuid}
+			<div class="flex items-center text-lg text-gray-700">
+				<Icon class="mr-2 text-blue-600" data={faUserLarge} />
+				<span>{order.customer.name}</span>
+			</div>
+		{/if}
 
 		<!-- Order Date -->
 		<div class="text-md flex items-center text-gray-700">

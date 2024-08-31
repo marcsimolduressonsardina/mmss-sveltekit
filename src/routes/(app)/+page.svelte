@@ -25,6 +25,7 @@
 	></HomeButton>
 
 	<HomeButton
+		textWhite={false}
 		icon={faList}
 		text="Listado pedidos"
 		link="/orders/list"

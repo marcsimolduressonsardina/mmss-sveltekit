@@ -2,7 +2,6 @@
 	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
 	import { enhance } from '$app/forms';
-	import { Icon } from 'svelte-awesome';
 	import { faCamera } from '@fortawesome/free-solid-svg-icons/faCamera';
 	import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint';
 	import trash from 'svelte-awesome/icons/trash';
@@ -55,9 +54,13 @@
 					></Button>
 
 					{#if info.order.status === OrderStatus.QUOTE}
-						<QuoteButtons order={info.order}></QuoteButtons>
+						<QuoteButtons order={info.order} hasFiles={info.hasFiles}></QuoteButtons>
 					{:else}
-						<OrderButtons order={info.order} calculatedItem={info.calculatedItem} {setFormLoading}
+						<OrderButtons
+							hasFiles={info.hasFiles}
+							order={info.order}
+							calculatedItem={info.calculatedItem}
+							{setFormLoading}
 						></OrderButtons>
 					{/if}
 				</div>
@@ -84,35 +87,37 @@
 					<OrderElements order={info.order} calculatedItem={info.calculatedItem}></OrderElements>
 				</span>
 
-				<form
-					class="w-full pt-4"
-					method="post"
-					action="?/deleteOrder"
-					use:enhance={({ cancel }) => {
-						if (
-							!confirm(
-								`Estás seguro que quieres eliminar el ${info.order?.status !== OrderStatus.QUOTE ? 'pedido' : 'presupuesto'}?`
-							)
-						) {
-							cancel();
-							return;
-						}
+				{#if data.isPriceManager}
+					<form
+						class="w-full pt-4"
+						method="post"
+						action="?/deleteOrder"
+						use:enhance={({ cancel }) => {
+							if (
+								!confirm(
+									`Estás seguro que quieres eliminar el ${info.order?.status !== OrderStatus.QUOTE ? 'pedido' : 'presupuesto'}?`
+								)
+							) {
+								cancel();
+								return;
+							}
 
-						formLoading = true;
-						return async ({ update }) => {
-							await update();
-							formLoading = false;
-						};
-					}}
-				>
-					<SubmitButton
-						icon={trash}
-						text={info.order.status !== OrderStatus.QUOTE
-							? 'Eliminar pedido'
-							: 'Eliminar presupuesto'}
-						colorClasses={ELIMINAR_COLORS}
-					></SubmitButton>
-				</form>
+							formLoading = true;
+							return async ({ update }) => {
+								await update();
+								formLoading = false;
+							};
+						}}
+					>
+						<SubmitButton
+							icon={trash}
+							text={info.order.status !== OrderStatus.QUOTE
+								? 'Eliminar pedido'
+								: 'Eliminar presupuesto'}
+							colorClasses={ELIMINAR_COLORS}
+						></SubmitButton>
+					</form>
+				{/if}
 			</div>
 		{/if}
 	</div>

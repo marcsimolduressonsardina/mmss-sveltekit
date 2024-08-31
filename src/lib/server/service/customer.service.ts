@@ -28,6 +28,13 @@ export class CustomerService {
 		return null;
 	}
 
+	public async deleteCustomerById(customerId: string) {
+		const customerDto = await this.repository.getCustomerById(customerId);
+		if (customerDto && customerDto.storeId === this.storeId) {
+			await this.repository.deleteCustomer(customerDto);
+		}
+	}
+
 	public async getAllCustomersMap(filterIds?: string[]): Promise<Map<string, Customer>> {
 		const map = new Map<string, Customer>();
 		const filterSet = new Set<string>(filterIds ?? []);

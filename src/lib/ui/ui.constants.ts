@@ -49,4 +49,4 @@ export const WHATSAPP_COLORS = 'bg-green-800 hover:bg-green-900 focus:ring-green
 export const DISABLED_COLORS = 'bg-gray-400 hover:bg-gray-500 focus:bg-gray-600';
 
 export const BUTTON_DEFAULT_CLASSES =
-	'w-full rounded-md px-4 py-2 text-center text-white shadow focus:outline-none focus:ring-2 focus:ring-offset-2';
+	'w-full rounded-md px-4 py-2 text-center shadow focus:outline-none focus:ring-2 focus:ring-offset-2';

@@ -482,6 +482,7 @@
 			<PricingSelectorSection
 				sectionTitle={'PP / Fondo'}
 				label={'Tipo'}
+				priorityFirst={false}
 				prices={pricing.ppPrices}
 				addValue={addFromPricingSelector}
 				showExtraInfo={true}
@@ -932,14 +933,14 @@
 			</div>
 
 			<button
-				class={`${BUTTON_DEFAULT_CLASSES} ${PEDIDOS_COLORS} lg:col-span-2`}
+				class={`${BUTTON_DEFAULT_CLASSES} ${PEDIDOS_COLORS} text-gray-800 lg:col-span-2`}
 				type="submit"
 				formaction="?/createOrder"
 			>
 				<Icon class="mr-2" data={faCircleCheck} /> Crear pedido
 			</button>
 			<button
-				class={`${BUTTON_DEFAULT_CLASSES} ${PRESUPUESTOS_COLORS} lg:col-span-2`}
+				class={`${BUTTON_DEFAULT_CLASSES} ${PRESUPUESTOS_COLORS} text-white lg:col-span-2`}
 				type="submit"
 				formaction="?/createQuote"
 			>

@@ -8,13 +8,16 @@
 	import { ACCIONES_VER_COLORS, PEDIDOS_COLORS } from '$lib/ui/ui.constants';
 
 	export let order: Order;
+	export let hasFiles: boolean;
 </script>
 
-<WhatsAppButton
-	label="Enviar presupuesto a cliente"
-	message={OrderUtilites.getWhatsappQuoteText(order)}
-	customer={order.customer}
-></WhatsAppButton>
+{#if hasFiles}
+	<WhatsAppButton
+		label="Enviar presupuesto a cliente"
+		message={OrderUtilites.getWhatsappQuoteText(order)}
+		customer={order.customer}
+	></WhatsAppButton>
+{/if}
 
 <Button
 	icon={faUser}
@@ -24,6 +27,7 @@
 ></Button>
 
 <Button
+	textWhite={false}
 	icon={faBox}
 	colorClasses={PEDIDOS_COLORS}
 	text="Convertir en pedido"

@@ -7,9 +7,13 @@
 	export let icon: IconType;
 	export let text: string;
 	export let colorClasses;
+	export let textWhite: boolean = true;
 </script>
 
-<button class={`${colorClasses} ${BUTTON_DEFAULT_CLASSES}`} type="submit">
+<button
+	class={`${colorClasses} ${textWhite ? 'text-white' : 'text-gray-800'} ${BUTTON_DEFAULT_CLASSES} `}
+	type="submit"
+>
 	<Icon class="mr-2" data={icon} />
 	{text}
 </button>
