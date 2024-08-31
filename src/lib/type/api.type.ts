@@ -28,6 +28,8 @@ export type CalculatedItemPart = {
 	log?: string;
 };
 
+export type CalculatedItemPartWithType = CalculatedItemPart & { type?: PricingType };
+
 export type PreCalculatedItemPart = {
 	type: PricingType;
 	id: string;

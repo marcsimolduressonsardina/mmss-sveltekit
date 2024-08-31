@@ -1,5 +1,11 @@
 import { PUBLIC_DOMAIN_URL } from '$env/static/public';
-import type { CalculatedItem, Order } from '$lib/type/api.type';
+import type {
+	CalculatedItem,
+	Order,
+	PreCalculatedItemPart,
+	CalculatedItemPart,
+	CalculatedItemPartWithType
+} from '$lib/type/api.type';
 import { OrderStatus } from '$lib/type/order.type';
 import { PricingType } from '$lib/type/pricing.type';
 import { DateTime } from 'luxon';
@@ -15,6 +21,26 @@ export class OrderUtilites {
 		const middle = (order.shortId.charAt(0) + order.id.charAt(0)).toUpperCase();
 		const quote = order.status === OrderStatus.QUOTE ? 'P-' : '';
 		return `${quote}${dateStr}/${middle}/${phoneWithoutPlus}`;
+	}
+
+	public static addPricingTypeToCalculatedParts(
+		preparts: PreCalculatedItemPart[],
+		parts: CalculatedItemPart[]
+	): CalculatedItemPartWithType[] {
+		// Create a map of PreCalculatedItemPart based on id for quick lookup
+		const prepartsMap = new Map<string, PreCalculatedItemPart>(
+			preparts.map((prepart) => [prepart.id, prepart])
+		);
+
+		// Map through the parts and match them with corresponding preparts using the priceId and id
+		return parts.map((part) => {
+			const matchingPrepart = prepartsMap.get(part.priceId);
+
+			return {
+				...part,
+				type: matchingPrepart?.type // If a matching prepart exists, set the type, otherwise undefined
+			};
+		});
 	}
 
 	public static getOrderMolds(order: Order): string[] {

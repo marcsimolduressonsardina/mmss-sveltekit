@@ -905,7 +905,7 @@
 
 			<Spacer title={'Elementos añadidos'} />
 			<dl class="list-dl lg:col-span-2">
-				{#each partsToCalulatePreview as part}
+				{#each CalculatedItemUtilities.sortByPricingType( partsToCalulatePreview, ['pre', 'type'] ) as part}
 					<CartItem
 						part={part.post}
 						partToDelete={part}
