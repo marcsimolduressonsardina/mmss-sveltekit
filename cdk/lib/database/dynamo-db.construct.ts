@@ -8,8 +8,8 @@ export function createDynamoTables(scope: Construct, envName: string): DynamoTab
 		orderTable: createOrderTable(scope, envName),
 		calculatedItemOrderTable: createCalculatedItemOrderTable(scope, envName),
 		listPricingTable: createListPricingTable(scope, envName),
-		fileTable: createFileTable(scope, envName),
-		configTable: createConfigTable(scope, envName)
+		fileTable: createFileTable(scope, envName)
+		//configTable: createConfigTable(scope, envName)
 	};
 }
 
@@ -31,21 +31,21 @@ function createCustomerTable(scope: Construct, envName: string): Table {
 	);
 }
 
-function createConfigTable(scope: Construct, envName: string): Table {
-	return createTable(
-		scope,
-		envName,
-		`${envName}-config`,
-		{
-			name: 'storeId',
-			type: AttributeType.STRING
-		},
-		{
-			name: 'id',
-			type: AttributeType.STRING
-		}
-	);
-}
+// function createConfigTable(scope: Construct, envName: string): Table {
+// 	return createTable(
+// 		scope,
+// 		envName,
+// 		`${envName}-config`,
+// 		{
+// 			name: 'storeId',
+// 			type: AttributeType.STRING
+// 		},
+// 		{
+// 			name: 'id',
+// 			type: AttributeType.STRING
+// 		}
+// 	);
+// }
 
 function createFileTable(scope: Construct, envName: string): Table {
 	return createTable(
