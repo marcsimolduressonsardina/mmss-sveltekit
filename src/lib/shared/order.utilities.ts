@@ -181,8 +181,8 @@ const ppDimensionsSchema = z.object({
 });
 
 export const baseOderSchema = z.object({
-	width: z.number().min(15),
-	height: z.number().min(15),
+	width: z.number().min(0),
+	height: z.number().min(0),
 	description: z.string().default(''),
 	observations: z.string().default(''),
 	quantity: z.number().int().min(1).default(1),

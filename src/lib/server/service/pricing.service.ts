@@ -284,10 +284,6 @@ export class PricingService {
 					`Dimensiones máximas superadas para ${pricing.description} (${pricing.id}). Max: ${d1}x${d2}`
 				);
 		}
-		if (d1w < 15 || d2w < 15)
-			throw new InvalidSizeError(
-				`Dimensiones mínimas no alcanzadas para ${pricing.description} (${pricing.id}). Min: 15x15`
-			);
 	}
 
 	private static toDto(price: ListPrice): ListPriceDto {
