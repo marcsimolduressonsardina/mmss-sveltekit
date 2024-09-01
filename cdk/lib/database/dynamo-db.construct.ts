@@ -32,10 +32,19 @@ function createCustomerTable(scope: Construct, envName: string): Table {
 }
 
 function createConfigTable(scope: Construct, envName: string): Table {
-	return createTable(scope, envName, `${envName}-config`, {
-		name: 'id',
-		type: AttributeType.STRING
-	});
+	return createTable(
+		scope,
+		envName,
+		`${envName}-config`,
+		{
+			name: 'storeId',
+			type: AttributeType.STRING
+		},
+		{
+			name: 'id',
+			type: AttributeType.STRING
+		}
+	);
 }
 
 function createFileTable(scope: Construct, envName: string): Table {
