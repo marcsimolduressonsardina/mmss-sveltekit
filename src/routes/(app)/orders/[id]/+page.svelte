@@ -63,6 +63,14 @@
 							{setFormLoading}
 						></OrderButtons>
 					{/if}
+
+					<Divider hideOnDesktop={true}></Divider>
+					<Button
+						icon={faCamera}
+						colorClasses={ACCIONES_NEUTRES_COLORS}
+						text="Cámara"
+						link={`/orders/${info.order.id}/files`}
+					></Button>
 				</div>
 			{/if}
 
@@ -71,16 +79,6 @@
 			{/if}
 
 			<div class="flex w-full flex-col gap-1">
-				<Divider hideOnDesktop={false}></Divider>
-				<div class="flex w-full flex-col gap-2">
-					<Button
-						icon={faCamera}
-						colorClasses={ACCIONES_NEUTRES_COLORS}
-						text="Cámara"
-						link={`/orders/${info.order.id}/files`}
-					></Button>
-				</div>
-
 				<span class="pt-4"> <OrderInfo order={info.order}></OrderInfo> </span>
 
 				<span class="pt-4">

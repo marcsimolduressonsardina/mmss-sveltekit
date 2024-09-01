@@ -1,10 +1,8 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { enhance } from '$app/forms';
-	import { Icon } from 'svelte-awesome';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
 	import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
-	import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
+	import { faLocationDot } from '@fortawesome/free-solid-svg-icons/faLocationDot';
 	import { faMoneyBill } from '@fortawesome/free-solid-svg-icons/faMoneyBill';
 	import { faTruckPickup } from '@fortawesome/free-solid-svg-icons/faTruckPickup';
 	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
@@ -19,6 +17,7 @@
 	import Button from '$lib/components/button/Button.svelte';
 	import WhatsAppButton from '$lib/components/button/WhatsAppButton.svelte';
 	import {
+		ACCIONES_NEUTRES_COLORS,
 		ACCIONES_VER_COLORS,
 		LISTADO_FINALIZADOS,
 		MARCAR_NO_PAGADA_COLORS,
@@ -101,21 +100,12 @@
 
 <!-- Order Status Buttons -->
 {#if order.status !== OrderStatus.FINISHED}
-	<form
-		class="w-full"
-		method="post"
-		action="?/setOrderFinished"
-		use:enhance={() => {
-			setFormLoading(true);
-			return async ({ update }) => {
-				await update();
-				setFormLoading(false);
-			};
-		}}
-	>
-		<SubmitButton icon={faCheck} text="Marcar como finalizado" colorClasses={LISTADO_FINALIZADOS}
-		></SubmitButton>
-	</form>
+	<Button
+		icon={faCheck}
+		text="Marcar como finalizado"
+		colorClasses={LISTADO_FINALIZADOS}
+		link={`/orders/${order.id}/location`}
+	></Button>
 {/if}
 
 {#if order.status !== OrderStatus.PENDING}
@@ -158,6 +148,16 @@
 			colorClasses={MARCAR_RECOGIDO_COLORS}
 		></SubmitButton>
 	</form>
+{/if}
+
+{#if order.status === OrderStatus.FINISHED}
+	<Divider></Divider>
+	<Button
+		icon={faLocationDot}
+		text="Cambiar ubicación"
+		colorClasses={ACCIONES_NEUTRES_COLORS}
+		link={`/orders/${order.id}/location`}
+	></Button>
 {/if}
 
 <Divider></Divider>

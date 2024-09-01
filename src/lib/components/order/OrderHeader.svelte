@@ -5,7 +5,12 @@
 	import { faSignHanging } from '@fortawesome/free-solid-svg-icons';
 	import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle';
 	import { faCreditCard } from '@fortawesome/free-regular-svg-icons';
-	import { faCheckCircle, faHourglassHalf, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+	import {
+		faCheckCircle,
+		faScaleUnbalanced,
+		faTimesCircle,
+		faLocationDot
+	} from '@fortawesome/free-solid-svg-icons';
 	import { DateTime } from 'luxon';
 	import { OrderStatus } from '$lib/type/order.type';
 	import { orderStatusMap, OrderUtilites, tempCustomerUuid } from '$lib/shared/order.utilities';
@@ -56,7 +61,7 @@
 		<!-- Customer Name -->
 		{#if order.customer.id !== tempCustomerUuid}
 			<div class="flex items-center text-lg text-gray-700">
-				<Icon class="mr-2 text-blue-600" data={faUserLarge} />
+				<Icon class="mr-2 " data={faUserLarge} />
 				<span>{order.customer.name}</span>
 			</div>
 		{/if}
@@ -87,20 +92,30 @@
 				</div>
 			{:else}
 				<div class="text-md flex items-center text-yellow-700">
-					<Icon class="mr-2" data={faHourglassHalf} />
-					{order.amountPayed.toFixed(2)}€ pagado - {(totalOrder - order.amountPayed).toFixed(2)}€
-					pendiente
+					<Icon class="mr-2" data={faScaleUnbalanced} />
+					{order.amountPayed.toFixed(2)}€ pagado | {(totalOrder - order.amountPayed).toFixed(2)}€
+					pendiente de pago
 				</div>
 			{/if}
 
 			<!-- Current Status -->
 			<div class="text-md flex items-center text-gray-700">
-				<Icon class="mr-2 text-indigo-600" data={faInfoCircle} />
-				<span>
+				<Icon class="mr-2" data={faInfoCircle} />
+				<span
+					>Estado:
 					{orderStatusMap[order.status]} -
 					{DateTime.fromJSDate(order.statusUpdated).toFormat('dd/MM/yyyy HH:mm')}
 				</span>
 			</div>
+
+			{#if order.status === OrderStatus.FINISHED}
+				<div class="text-md flex items-center text-gray-700">
+					<Icon class="mr-2" data={faLocationDot} />
+					<span>
+						Ubicación: {order.location.length === 0 ? 'Sin ubicación' : order.location}
+					</span>
+				</div>
+			{/if}
 		{/if}
 	</div>
 </div>

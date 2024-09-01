@@ -9,7 +9,8 @@
 		faTruck,
 		faClock,
 		faChain,
-		faUserLarge
+		faUserLarge,
+		faLocationDot
 	} from '@fortawesome/free-solid-svg-icons';
 	import { OrderUtilites, orderStatusMap, tempCustomerUuid } from '$lib/shared/order.utilities';
 	import { OrderStatus } from '$lib/type/order.type';
@@ -99,6 +100,18 @@
 				</div>
 				<div class="font-semibold">
 					{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+				</div>
+			</div>
+		{/if}
+
+		{#if order.status === OrderStatus.FINISHED}
+			<div>
+				<div class="flex items-center text-gray-600">
+					<Icon class="mr-2 text-gray-500" data={faLocationDot} />
+					<span>Ubicación:</span>
+				</div>
+				<div class="font-semibold">
+					{order.location.length === 0 ? 'Sin ubicación' : order.location}
 				</div>
 			</div>
 		{/if}

@@ -109,9 +109,6 @@ export const actions = {
 
 		await orderService.incrementOrderPayment(order, amountNumber);
 	},
-	async setOrderFinished({ params, locals }) {
-		await setOrderStatus(OrderStatus.FINISHED, params, locals);
-	},
 	async setOrderPending({ params, locals }) {
 		await setOrderStatus(OrderStatus.PENDING, params, locals);
 	},

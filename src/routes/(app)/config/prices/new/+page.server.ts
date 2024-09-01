@@ -57,6 +57,6 @@ export const actions = {
 			return setError(form, '', 'Error creando el item. Intente de nuevo.');
 		}
 
-		return redirect(302, `/prices/list?type=${form.data.type}`);
+		return redirect(302, `/config/prices/list?type=${form.data.type}`);
 	}
 };

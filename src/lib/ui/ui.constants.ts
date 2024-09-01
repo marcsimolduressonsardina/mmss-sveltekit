@@ -50,3 +50,6 @@ export const DISABLED_COLORS = 'bg-gray-400 hover:bg-gray-500 focus:bg-gray-600'
 
 export const BUTTON_DEFAULT_CLASSES =
 	'w-full rounded-md px-4 py-2 text-center shadow focus:outline-none focus:ring-2 focus:ring-offset-2';
+
+export const HOME_BUTTON_DEFAULT_CLASSES =
+	'w-full rounded-lg px-6 py-4 text-left text-lg font-semibold shadow-lg focus:outline-none focus:ring-4';

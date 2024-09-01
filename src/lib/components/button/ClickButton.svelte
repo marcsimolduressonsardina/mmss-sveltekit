@@ -4,12 +4,18 @@
 	import InnerButton from './InnerButton.svelte';
 
 	export let icon: IconType;
+	export let disabled: boolean = false;
 	export let text: string;
 	export let colorClasses: string;
 	export let textWhite: boolean = true;
 	export let homeButton: boolean = false;
+	export let onClick: (event: MouseEvent) => void;
 </script>
 
-<button class={generateButtonClasses(textWhite, colorClasses, false, homeButton)} type="submit">
+<button
+	{disabled}
+	class={generateButtonClasses(textWhite, colorClasses, disabled, homeButton)}
+	on:click={onClick}
+>
 	<InnerButton {icon} {text}></InnerButton>
 </button>

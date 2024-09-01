@@ -66,7 +66,14 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 			order.statusTimestamp,
 			order.timestamp
 		);
-		await Promise.all([updateStatus, updateTs]);
+
+		const updateLocation = this.updateField(
+			order.customerUuid,
+			'location',
+			order.location ?? '',
+			order.timestamp
+		);
+		await Promise.all([updateStatus, updateTs, updateLocation]);
 	}
 
 	public async updateAmountPayed(order: OrderDto) {

@@ -150,8 +150,9 @@ export class OrderService {
 		await this.repository.updateAmountPayed(OrderService.toDto(order));
 	}
 
-	async setOrderStatus(order: Order, status: OrderStatus) {
+	async setOrderStatus(order: Order, status: OrderStatus, location?: string) {
 		order.status = status;
+		order.location = location ?? '';
 		order.statusUpdated = new Date();
 		this.repository.setOrderStatus(OrderService.toDto(order));
 	}
@@ -220,6 +221,7 @@ export class OrderService {
 			status: dto.isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING,
 			statusUpdated: new Date(),
 			hasArrow: dto.hasArrow,
+			location: '',
 			item: {
 				width: dto.width,
 				height: dto.height,
@@ -307,7 +309,8 @@ export class OrderService {
 			item: OrderService.fromDtoItem(dto.item),
 			status: dto.status as OrderStatus,
 			statusUpdated: new Date(dto.statusTimestamp),
-			hasArrow: dto.hasArrow ?? false
+			hasArrow: dto.hasArrow ?? false,
+			location: dto.location ?? ''
 		};
 	}
 
@@ -324,7 +327,8 @@ export class OrderService {
 			item: OrderService.toDtoItem(order.item),
 			status: order.status,
 			statusTimestamp: Date.parse(order.statusUpdated.toISOString()),
-			hasArrow: order.hasArrow
+			hasArrow: order.hasArrow,
+			location: order.location
 		};
 	}
 

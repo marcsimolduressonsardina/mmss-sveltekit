@@ -55,6 +55,7 @@ export type Order = {
 	hasArrow: boolean;
 	user: StaticUser;
 	customer: Customer;
+	location: string;
 };
 
 export enum FileType {

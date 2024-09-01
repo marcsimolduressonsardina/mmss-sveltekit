@@ -110,7 +110,7 @@
 
 	function handleSelected(event: any) {
 		const internalId = event.detail[0] as string;
-		const url = `/prices/${internalId}`;
+		const url = `/config/prices/${internalId}`;
 		goto(url);
 	}
 </script>
@@ -120,7 +120,7 @@
 	<a
 		class="ml-2 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-700 text-white shadow hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-800 focus:ring-offset-2"
 		aria-label="Añadir nuevo precio"
-		href="/prices/new"
+		href="/config/prices/new"
 	>
 		<Icon data={plus} class="h-3 w-3" />
 	</a>
