@@ -264,7 +264,7 @@
 		if (response.status !== 200) {
 			if (response.status === 500) {
 				toastStore.trigger({
-					message: 'Error al calcular el precio. Por favor, inténtelo de nuevo.',
+					message: `Error al calcular el precio. Puede ser que el precio ya no exista (${partToCalculate.id}).`,
 					background: 'variant-filled-error'
 				});
 			}
@@ -453,11 +453,6 @@
 
 	onMount(async () => {
 		if (partsToCalculate.length > 0) {
-			toastStore.trigger({
-				message: `Cargando precios...`,
-				background: 'variant-filled'
-			});
-
 			const promises = partsToCalculate.map((p) => getPartToCalculateWihtPre(p));
 			const parts = (await Promise.all(promises)).filter((p) => p != null) as {
 				pre: PreCalculatedItemPart;
