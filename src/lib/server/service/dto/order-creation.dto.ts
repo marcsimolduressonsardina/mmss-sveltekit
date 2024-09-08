@@ -24,8 +24,5 @@ type OrderCreationDtoBase = {
 	exteriorHeight?: number;
 };
 
-export type OrderCreationDto = OrderCreationDtoBase & { customerId?: string; location?: string };
-export type OrderCreationWithCustomerDto = OrderCreationDtoBase & {
-	customer: Customer;
-	location?: string;
-};
+export type OrderCreationDto = OrderCreationDtoBase & { customerId?: string };
+export type OrderCreationWithCustomerDto = OrderCreationDtoBase & { customer: Customer };

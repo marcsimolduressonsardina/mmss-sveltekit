@@ -253,7 +253,9 @@ export class OrderService {
 			originalOrder.id,
 			originalOrder.shortId,
 			originalOrder.createdAt,
-			originalOrder.status
+			originalOrder.status,
+			originalOrder.location,
+			originalOrder.amountPayed
 		);
 
 		await this.repository.createOrder(OrderService.toDto(order));
@@ -266,7 +268,9 @@ export class OrderService {
 		originalId?: string,
 		originalShortId?: string,
 		originalCreationDate?: Date,
-		originalOrderStatus?: OrderStatus
+		originalOrderStatus?: OrderStatus,
+		originalLocation?: string,
+		originalAmountPayed?: number
 	): Promise<{ order: Order; calculatedItem: CalculatedItem }> {
 		const order: Order = {
 			id: originalId ?? uuidv4(),
@@ -275,11 +279,11 @@ export class OrderService {
 			createdAt: originalCreationDate ?? new Date(),
 			storeId: this.storeId,
 			user: this.currentUser,
-			amountPayed: 0,
+			amountPayed: originalAmountPayed ?? 0,
 			status: originalOrderStatus ?? (dto.isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING),
 			statusUpdated: new Date(),
 			hasArrow: dto.hasArrow,
-			location: dto.location ?? '',
+			location: originalLocation ?? '',
 			item: {
 				width: dto.width,
 				height: dto.height,

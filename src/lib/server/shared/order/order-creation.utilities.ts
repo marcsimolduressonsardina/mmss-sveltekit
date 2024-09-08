@@ -30,8 +30,7 @@ export class OrderCreationUtilities {
 	static createOrderDtoFromForm(
 		form: SuperValidated<OrderTypeForm | QuoteTypeForm>,
 		isQuote: boolean,
-		customerId?: string,
-		location?: string
+		customerId?: string
 	): OrderCreationDto {
 		const partsToCalculate = form.data.partsToCalculate.map((part) => ({
 			id: part.id,
@@ -65,8 +64,7 @@ export class OrderCreationUtilities {
 			hasArrow: form.data.hasArrow,
 			ppDimensions: form.data.ppDimensions,
 			exteriorWidth: form.data.exteriorWidth,
-			exteriorHeight: form.data.exteriorHeight,
-			location
+			exteriorHeight: form.data.exteriorHeight
 		};
 	}
 
@@ -128,8 +126,7 @@ export class OrderCreationUtilities {
 			const orderDto = OrderCreationUtilities.createOrderDtoFromForm(
 				form,
 				isQuote,
-				order.customer.id,
-				order.location
+				order.customer.id
 			);
 
 			await orderService.updateOrderFromDto(orderId, orderDto);
