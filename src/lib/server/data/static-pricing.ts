@@ -28,9 +28,7 @@ export function leftoverPricing(m2Price: number, d1: number, d2: number): number
 }
 
 export function areaPricing(m2Price: number, d1: number, d2: number): number {
-	const d1Min = Math.max(15, d1);
-	const d2Min = Math.max(15, d2);
-	const x = (d1Min / 100) * (d2Min / 100) * m2Price;
+	const x = (d1 / 100) * (d2 / 100) * m2Price;
 	return Math.ceil(x * 100) / 100;
 }
 

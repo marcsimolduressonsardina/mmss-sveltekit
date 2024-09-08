@@ -192,9 +192,9 @@ export class PricingService {
 			case PricingFormula.FORMULA_FIT_AREA_M2:
 				return fitAreaM2Pricing(priceInfo, d1t, d2t);
 			case PricingFormula.FORMULA_AREA:
-				return areaPricing(priceInfo.price, d1, d2);
+				return areaPricing(priceInfo.price, d1t, d2t);
 			case PricingFormula.FORMULA_LINEAR:
-				return linearPricing(priceInfo.price, d1, d2);
+				return linearPricing(priceInfo.price, d1t, d2t);
 			case PricingFormula.NONE:
 				return priceInfo.price;
 			default:
