@@ -2,6 +2,8 @@ export type PreCalculatedItemPartDto = {
 	type: string;
 	id: string;
 	quantity: number;
+	moldId?: string; // For fabric
+	extraInfo?: string; // For extra pp info
 };
 
 export type PPDimensionsDto = {

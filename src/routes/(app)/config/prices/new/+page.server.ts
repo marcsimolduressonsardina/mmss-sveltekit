@@ -53,7 +53,6 @@ export const actions = {
 				maxD2
 			);
 		} catch (error: unknown) {
-			console.log(error);
 			return setError(form, '', 'Error creando el item. Intente de nuevo.');
 		}
 

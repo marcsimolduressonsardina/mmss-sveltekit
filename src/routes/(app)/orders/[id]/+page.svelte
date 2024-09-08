@@ -22,6 +22,8 @@
 	} from '$lib/ui/ui.constants';
 	import Divider from '$lib/components/Divider.svelte';
 	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
+	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
+	import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
 
 	let formLoading = false;
 
@@ -63,6 +65,20 @@
 							{setFormLoading}
 						></OrderButtons>
 					{/if}
+
+					<Divider hideOnDesktop={true}></Divider>
+					<Button
+						icon={faEdit}
+						colorClasses={ACCIONES_NEUTRES_COLORS}
+						text="Editar"
+						link={`/orders/${info.order.id}/edit`}
+					></Button>
+					<Button
+						icon={faCopy}
+						colorClasses={ACCIONES_NEUTRES_COLORS}
+						text="Copiar"
+						link={`/customers/${info.order.customer.id}/orders/new?originId=${info.order.id}`}
+					></Button>
 
 					<Divider hideOnDesktop={true}></Divider>
 					<Button

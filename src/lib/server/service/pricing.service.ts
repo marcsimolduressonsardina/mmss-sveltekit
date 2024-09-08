@@ -216,7 +216,7 @@ export class PricingService {
 
 		if (
 			!fitFormulas.includes(listPrice.formula) &&
-			(listPrice.price == null || (listPrice.price <= 0 && listPrice.type !== PricingType.MOLD))
+			(listPrice.price == null || (listPrice.price < 0 && listPrice.type !== PricingType.MOLD))
 		) {
 			console.log(listPrice);
 			throw Error('No price provided for this formula');

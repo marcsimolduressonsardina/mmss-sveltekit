@@ -3,7 +3,14 @@ import { AuthService } from './auth.service';
 import { CustomerService } from './customer.service';
 import type { OrderDto } from '../repository/dto/order.dto';
 import { OrderRepository } from '../repository/order.repository';
-import type { Customer, Order, AppUser, PreCalculatedItemPart, Item } from '$lib/type/api.type';
+import type {
+	Customer,
+	Order,
+	AppUser,
+	PreCalculatedItemPart,
+	Item,
+	CalculatedItem
+} from '$lib/type/api.type';
 import { CalculatedItemService } from './calculated-item.service';
 import type { ItemDto } from '../repository/dto/item.dto';
 import { PricingType } from '$lib/type/pricing.type';
@@ -97,6 +104,27 @@ export class OrderService {
 
 		if (customer === null) return null;
 		return this.createOrder({
+			...dto,
+			customer
+		});
+	}
+
+	async updateOrderFromDto(orderId: string, dto: OrderCreationDto): Promise<Order | null> {
+		if (dto.customerId == null) {
+			throw Error('Customer is required');
+		}
+
+		const customer = await this.customerService.getCustomerById(dto.customerId);
+		if (customer == null) {
+			throw Error('Customer is required');
+		}
+
+		const order = await this.getOrderById(orderId);
+		if (order == null) {
+			throw Error('Order not found');
+		}
+
+		return this.updateOrder(order, {
 			...dto,
 			customer
 		});
@@ -210,18 +238,48 @@ export class OrderService {
 	}
 
 	private async createOrder(dto: OrderCreationWithCustomerDto): Promise<Order> {
+		const { order, calculatedItem } = await this.generateOrderAndCalculatedItemFromDto(dto);
+		await this.repository.createOrder(OrderService.toDto(order));
+		await this.calculatedItemService.saveCalculatedItem(calculatedItem);
+		return order;
+	}
+
+	private async updateOrder(
+		originalOrder: Order,
+		dto: OrderCreationWithCustomerDto
+	): Promise<Order> {
+		const { order, calculatedItem } = await this.generateOrderAndCalculatedItemFromDto(
+			dto,
+			originalOrder.id,
+			originalOrder.shortId,
+			originalOrder.createdAt,
+			originalOrder.status
+		);
+
+		await this.repository.createOrder(OrderService.toDto(order));
+		await this.calculatedItemService.saveCalculatedItem(calculatedItem);
+		return order;
+	}
+
+	private async generateOrderAndCalculatedItemFromDto(
+		dto: OrderCreationWithCustomerDto,
+		originalId?: string,
+		originalShortId?: string,
+		originalCreationDate?: Date,
+		originalOrderStatus?: OrderStatus
+	): Promise<{ order: Order; calculatedItem: CalculatedItem }> {
 		const order: Order = {
-			id: uuidv4(),
-			shortId: '',
+			id: originalId ?? uuidv4(),
+			shortId: originalShortId ?? '',
 			customer: dto.customer,
-			createdAt: new Date(),
+			createdAt: originalCreationDate ?? new Date(),
 			storeId: this.storeId,
 			user: this.currentUser,
 			amountPayed: 0,
-			status: dto.isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING,
+			status: originalOrderStatus ?? (dto.isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING),
 			statusUpdated: new Date(),
 			hasArrow: dto.hasArrow,
-			location: '',
+			location: dto.location ?? '',
 			item: {
 				width: dto.width,
 				height: dto.height,
@@ -231,7 +289,7 @@ export class OrderService {
 				predefinedObservations: dto.predefinedObservations,
 				observations: dto.observations,
 				quantity: dto.quantity,
-				createdAt: new Date(),
+				createdAt: originalCreationDate ?? new Date(),
 				deliveryDate: dto.deliveryDate,
 				partsToCalculate: OrderService.optimizePartsToCalculate(dto.partsToCalculate),
 				exteriorWidth: dto.exteriorWidth,
@@ -239,17 +297,16 @@ export class OrderService {
 			}
 		};
 
-		order.shortId = OrderService.generateShortId(order);
+		if (order.shortId === '') {
+			order.shortId = OrderService.generateShortId(order);
+		}
 		OrderService.verifyItem(order.item);
 		const calculatedItem = await this.calculatedItemService.createCalculatedItem(
 			order,
 			dto.discount,
 			dto.extraParts
 		);
-
-		await this.repository.createOrder(OrderService.toDto(order));
-		await this.calculatedItemService.saveCalculatedItem(calculatedItem);
-		return order;
+		return { order, calculatedItem };
 	}
 
 	private static optimizePartsToCalculate(parts: PreCalculatedItemPart[]): PreCalculatedItemPart[] {
@@ -347,7 +404,9 @@ export class OrderService {
 			partsToCalculate: item.partsToCalculate.map((part) => ({
 				id: part.id,
 				quantity: part.quantity,
-				type: part.type as string
+				type: part.type as string,
+				moldId: part.moldId,
+				extraInfo: part.extraInfo
 			})),
 			exteriorHeight: item.exteriorHeight,
 			exteriorWidth: item.exteriorWidth
@@ -369,7 +428,9 @@ export class OrderService {
 			partsToCalculate: dto.partsToCalculate.map((part) => ({
 				id: part.id,
 				quantity: part.quantity,
-				type: part.type as PricingType
+				type: part.type as PricingType,
+				moldId: part.moldId,
+				extraInfo: part.extraInfo
 			})),
 			exteriorHeight: dto.exteriorHeight,
 			exteriorWidth: dto.exteriorWidth

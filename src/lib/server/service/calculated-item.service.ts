@@ -86,15 +86,6 @@ export class CalculatedItemService {
 		);
 	}
 
-	private static getTotalPrice(calculatedItem: CalculatedItem): number {
-		const subtotal = calculatedItem.parts.reduce(
-			(total, part) => total + part.price * part.quantity,
-			0
-		);
-		const totalPrice = calculatedItem.quantity * subtotal * (1 - calculatedItem.discount / 100);
-		return Math.ceil(totalPrice * 100) / 100;
-	}
-
 	private static fromDto(dto: CalculatedItemDto): CalculatedItem {
 		return {
 			orderId: dto.orderUuid,
