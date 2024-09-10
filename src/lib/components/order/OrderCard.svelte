@@ -5,11 +5,13 @@
 	import { Icon } from 'svelte-awesome';
 	import {
 		faEye,
-		faSignHanging,
+		faCheckCircle,
 		faTruck,
 		faClock,
+		faClockRotateLeft,
 		faChain,
 		faUserLarge,
+		faClipboardList,
 		faLocationDot
 	} from '@fortawesome/free-solid-svg-icons';
 	import { OrderUtilites, orderStatusMap, tempCustomerUuid } from '$lib/shared/order.utilities';
@@ -17,6 +19,30 @@
 
 	export let order: Order;
 	export let showCustomer: boolean = true;
+	let gradientClasses = '';
+	let statusIcon = faUserLarge;
+	switch (order.status) {
+		case OrderStatus.PENDING:
+			gradientClasses = 'from-orange-600 via-orange-500 to-orange-400';
+			statusIcon = faClockRotateLeft;
+			break;
+		case OrderStatus.FINISHED:
+			gradientClasses = 'from-green-800 via-green-700 to-green-600';
+			statusIcon = faCheckCircle;
+			break;
+		case OrderStatus.PICKED_UP:
+			gradientClasses = 'from-blue-800 via-blue-700 to-blue-600';
+			statusIcon = faTruck;
+			break;
+		case OrderStatus.DELETED:
+			gradientClasses = 'from-red-800 via-red-700 to-red-600';
+			statusIcon = faClock;
+			break;
+		case OrderStatus.QUOTE:
+			gradientClasses = 'from-purple-800 via-purple-700 to-purple-600';
+			statusIcon = faClipboardList;
+			break;
+	}
 </script>
 
 <div class="mx-auto w-full overflow-hidden rounded-lg bg-white shadow-lg md:max-w-md">
@@ -41,7 +67,7 @@
 	>
 		<div class="flex items-center justify-between">
 			<div class="flex items-center space-x-1 pr-2 text-sm">
-				<Icon data={faSignHanging} />
+				<Icon data={statusIcon} />
 				<span class="font-semibold">{orderStatusMap[order.status]}</span>
 			</div>
 			<div class="overflow-hidden overflow-ellipsis whitespace-nowrap text-[0.6rem]">
@@ -104,7 +130,7 @@
 			</div>
 		{/if}
 
-		{#if order.status === OrderStatus.FINISHED}
+		<!-- {#if order.status === OrderStatus.FINISHED}
 			<div>
 				<div class="flex items-center text-gray-600">
 					<Icon class="mr-2 text-gray-500" data={faLocationDot} />
@@ -114,7 +140,7 @@
 					{order.location.length === 0 ? 'Sin ubicación' : order.location}
 				</div>
 			</div>
-		{/if}
+		{/if} -->
 
 		<div class="rounded-lg bg-gray-100 p-2 text-sm">
 			{order.item.description}

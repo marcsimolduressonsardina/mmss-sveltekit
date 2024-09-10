@@ -6,18 +6,11 @@
 	import WhatsAppButton from '$lib/components/button/WhatsAppButton.svelte';
 	import Button from '$lib/components/button/Button.svelte';
 	import { ACCIONES_VER_COLORS, PEDIDOS_COLORS } from '$lib/ui/ui.constants';
+	import Divider from '../Divider.svelte';
 
 	export let order: Order;
 	export let hasFiles: boolean;
 </script>
-
-{#if hasFiles}
-	<WhatsAppButton
-		label="Enviar presupuesto a cliente"
-		message={OrderUtilites.getWhatsappQuoteText(order)}
-		customer={order.customer}
-	></WhatsAppButton>
-{/if}
 
 <Button
 	icon={faUser}
@@ -33,3 +26,12 @@
 	text="Convertir en pedido"
 	link={`/orders/${order.id}/promote`}
 ></Button>
+
+{#if hasFiles}
+	<Divider></Divider>
+	<WhatsAppButton
+		label="Enviar presupuesto a cliente"
+		message={OrderUtilites.getWhatsappQuoteText(order)}
+		customer={order.customer}
+	></WhatsAppButton>
+{/if}

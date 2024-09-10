@@ -131,6 +131,19 @@ export class OrderUtilites {
 		return yesterday.toJSDate();
 	}
 
+	public static getPossibleNextStatuses(currentStatus: OrderStatus): OrderStatus[] {
+		switch (currentStatus) {
+			case OrderStatus.PENDING:
+				return [OrderStatus.FINISHED, OrderStatus.PICKED_UP];
+			case OrderStatus.FINISHED:
+				return [OrderStatus.PICKED_UP, OrderStatus.PENDING];
+			case OrderStatus.PICKED_UP:
+				return [OrderStatus.FINISHED, OrderStatus.PENDING];
+			default:
+				return [currentStatus];
+		}
+	}
+
 	private static formatNumber(num: number): string | number {
 		// Check if the number has decimals
 		if (num % 1 !== 0) {

@@ -14,3 +14,9 @@ export type OrderDimensions = {
 	workingHeight: number;
 	workingWidth: number;
 };
+
+export enum PaymentStatus {
+	FULLY_PAID = 'fully_paid',
+	PARTIALLY_PAID = 'partially_paid',
+	UNPAID = 'unpaid'
+}

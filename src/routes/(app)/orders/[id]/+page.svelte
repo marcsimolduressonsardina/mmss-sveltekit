@@ -24,6 +24,8 @@
 	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
 	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 	import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
+	import StatusChangeForm from '$lib/components/order/StatusChangeForm.svelte';
+	import PaymentChangeForm from '$lib/components/order/PaymentChangeForm.svelte';
 
 	let formLoading = false;
 
@@ -44,8 +46,13 @@
 			{goto(`/orders/${info.order.id}/link`)}
 		{:else}
 			<OrderHeader order={info.order} calculatedItem={info.calculatedItem}></OrderHeader>
-
 			{#if !formLoading}
+				{#if info.order.status !== OrderStatus.QUOTE}
+					<div class="flex w-full flex-col gap-4 pt-4">
+						<StatusChangeForm {setFormLoading} order={info.order}></StatusChangeForm>
+						<PaymentChangeForm {setFormLoading}></PaymentChangeForm>
+					</div>
+				{/if}
 				<div class="flex w-full flex-col gap-1 pt-4 md:grid md:grid-cols-2 lg:grid-cols-3">
 					<Button
 						icon={faPrint}
@@ -62,10 +69,8 @@
 							hasFiles={info.hasFiles}
 							order={info.order}
 							calculatedItem={info.calculatedItem}
-							{setFormLoading}
 						></OrderButtons>
 					{/if}
-
 					<Divider hideOnDesktop={true}></Divider>
 					<Button
 						icon={faEdit}
