@@ -69,10 +69,12 @@
 	<!-- Order Details -->
 	<div class="space-y-3 rounded-lg bg-white p-4 shadow-md">
 		<!-- Customer Name -->
-		<div class="flex items-center rounded-md bg-blue-600 px-3 py-1 text-lg text-white">
-			<Icon class="mr-2 " data={faUserLarge} />
-			<span>{order.customer.name}</span>
-		</div>
+		{#if order.customer.id !== tempCustomerUuid}
+			<div class="flex items-center rounded-md bg-blue-600 px-3 py-1 text-lg text-white">
+				<Icon class="mr-2 " data={faUserLarge} />
+				<span>{order.customer.name}</span>
+			</div>
+		{/if}
 
 		<!-- Payment Status -->
 		{#if order.status !== OrderStatus.QUOTE}
@@ -89,7 +91,7 @@
 			{:else}
 				<div class="flex items-center rounded-md bg-red-600 px-3 py-1 text-lg text-white">
 					<Icon class="mr-2 " data={faCircleXmark} />
-					<span>No pagado totalmente</span>
+					<span>Parcialmente pagado</span>
 				</div>
 			{/if}
 
@@ -110,30 +112,28 @@
 		{/if}
 
 		<!-- Total Amount and Date Section -->
-		<div class="flex items-center justify-between px-2 pt-2">
+		<div class="flex items-end justify-between px-2 pt-2">
 			<!-- Total Amount -->
 			{#if order.amountPayed > 0 && order.amountPayed !== totalOrder}
 				<div class="flex flex-col">
 					<div class="flex items-center text-lg text-gray-800 line-through">
-						<Icon class="mr-2" data={faCreditCard} />
 						<span>{totalOrder.toFixed(2)} €</span>
 					</div>
-					<div class="text-md flex items-center text-gray-800">
+					<div class="flex items-center text-lg text-gray-800">
 						<span>{order.amountPayed.toFixed(2)} € pagado</span>
 					</div>
-					<div class="text-md flex items-center text-gray-800">
+					<div class="flex items-center text-xl font-bold text-gray-800">
 						<span>{(totalOrder - order.amountPayed).toFixed(2)} € pendiente</span>
 					</div>
 				</div>
 			{:else}
-				<div class="flex items-center text-lg text-gray-800">
-					<Icon class="mr-2" data={faCreditCard} />
+				<div class="flex items-center text-xl font-bold text-gray-800">
 					<span>{totalOrder.toFixed(2)} €</span>
 				</div>
 			{/if}
 
 			<!-- Date Created -->
-			<div class="flex items-center text-lg text-gray-700">
+			<div class="flex items-center text-xs text-gray-700">
 				<Icon class="mr-2" data={faClock} />
 				<span>{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy')}</span>
 			</div>
