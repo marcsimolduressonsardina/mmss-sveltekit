@@ -34,8 +34,8 @@
 					bind:value={selectedStatus}
 					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 				>
-					<option value={PaymentStatus.FULLY_PAID}>Marcar como pagado</option>
-					<option value={PaymentStatus.UNPAID}>Marcar como no pagado</option>
+					<option value={PaymentStatus.FULLY_PAID}>Pagado</option>
+					<option value={PaymentStatus.UNPAID}>Pendiente de Pago</option>
 					<option value={PaymentStatus.PARTIALLY_PAID}>Pago a cuenta</option>
 				</select>
 
@@ -51,7 +51,7 @@
 				{/if}
 			</div>
 		</div>
-		<SubmitButton text="Aceptar" icon={faEdit} colorClasses={ACCIONES_NEUTRES_COLORS}
+		<SubmitButton text="Cambiar" icon={faEdit} colorClasses={ACCIONES_NEUTRES_COLORS}
 		></SubmitButton>
 	</form>
 </Box>
