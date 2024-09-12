@@ -1,9 +1,11 @@
 <script lang="ts">
-	export let title;
+	export let title: string | undefined = undefined;
 </script>
 
 <div class="space-y-4 rounded-lg bg-white p-4 shadow-md">
-	<div class="text-xl font-semibold text-gray-900">{title}</div>
+	{#if title}
+		<div class="text-xl font-semibold text-gray-900">{title}</div>
+	{/if}
 
 	<div>
 		<slot></slot>

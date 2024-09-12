@@ -16,7 +16,6 @@
 	export let prices: ListPriceForm[];
 	export let extraPrices: ListPriceForm[] = [];
 	export let locationIdForExtraPrices: string | undefined = undefined;
-	export let canBeAdded: boolean = true;
 	export let priorityFirst: boolean = true;
 	export let showExtraInfo: boolean = false;
 	export let added: boolean;
@@ -108,6 +107,7 @@
 	$: generateMap([...prices, ...extraPrices]);
 	$: updateSelectedId(defaultPrices);
 	$: isButtonDisabled = !selectedId;
+	$: canBeAdded = !showExtraInfo || (extraInfo != null && extraInfo?.length > 0);
 </script>
 
 <Spacer title={sectionTitle} />
@@ -150,7 +150,9 @@
 					disabled={!canBeAdded}
 					on:click={() => addFunction()}
 				>
-					<Icon class="mr-2" data={plus} /> Añadir a la lista
+					<Icon class="mr-2" data={plus} /> Añadir a la lista {#if !canBeAdded}
+						(Falta número)
+					{/if}
 				</button>
 			</div>
 		{:else}

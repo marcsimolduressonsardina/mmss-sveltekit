@@ -28,6 +28,8 @@ export type CalculatedItemPart = {
 	log?: string;
 };
 
+export type CalculatedItemPartWithType = CalculatedItemPart & { type?: PricingType };
+
 export type PreCalculatedItemPart = {
 	type: PricingType;
 	id: string;
@@ -53,6 +55,7 @@ export type Order = {
 	hasArrow: boolean;
 	user: StaticUser;
 	customer: Customer;
+	location: string;
 };
 
 export enum FileType {

@@ -39,6 +39,7 @@
 				></SubmitButton>
 
 				<Button
+					textWhite={false}
 					link="/customers/list"
 					icon={faUser}
 					text="Ver listado"

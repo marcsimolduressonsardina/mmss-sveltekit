@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Box from '$lib/components/Box.svelte';
 	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
+	import { OrderUtilites } from '$lib/shared/order.utilities';
 	import type { Order, CalculatedItem } from '$lib/type/api.type';
 
 	export let order: Order;
@@ -10,7 +11,7 @@
 <Box title="Elementos">
 	{#if calculatedItem}
 		<div class="text-md space-y-2 text-gray-700">
-			{#each calculatedItem.parts as part}
+			{#each CalculatedItemUtilities.sortByPricingType(OrderUtilites.addPricingTypeToCalculatedParts(order.item.partsToCalculate, calculatedItem.parts)) as part}
 				<div class="flex justify-between">
 					<span>- {part.description}</span>
 					<div>

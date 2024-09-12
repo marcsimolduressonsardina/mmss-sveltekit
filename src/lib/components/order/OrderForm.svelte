@@ -7,6 +7,7 @@
 	import minus from 'svelte-awesome/icons/minus';
 	import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
 	import { faCircleCheck } from '@fortawesome/free-solid-svg-icons/faCircleCheck';
+	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 
 	import type {
 		CalculatedItemPart,
@@ -37,12 +38,16 @@
 		type AllPrices
 	} from '$lib/shared/pricing.utilites';
 	import {
+		ACCIONES_NEUTRES_COLORS,
 		BUTTON_DEFAULT_CLASSES,
 		PEDIDOS_COLORS,
 		PRESUPUESTOS_COLORS
 	} from '$lib/ui/ui.constants';
+	import { onMount } from 'svelte';
+	import type { OrderCreationFormData } from '$lib/server/shared/order/order-creation.utilities';
+	import { OrderStatus } from '$lib/type/order.type';
 
-	export let data: { pricing: Promise<AllPrices>; form: any };
+	export let data: OrderCreationFormData;
 
 	type TempParts = { pre: PreCalculatedItemPart; post: CalculatedItemPart }[];
 
@@ -52,9 +57,9 @@
 	});
 	const proxyDate = dateProxy(form, 'deliveryDate', { format: 'date' });
 
-	$form.height = '';
-	$form.width = '';
-	$form.pp = '';
+	$form.height = ($form.height === 0 ? '' : $form.height) as unknown as number;
+	$form.width = ($form.width === 0 ? '' : $form.width) as unknown as number;
+	$form.pp = ($form.pp === 0 ? '' : $form.pp) as unknown as number;
 
 	let total = 0.0;
 	let totalPerUnit = 0.0;
@@ -62,34 +67,44 @@
 	let totalPerUnitDiscount = 0.0;
 	let totalDiscount = 0.0;
 	let totalWithoutDiscount = 0.0;
-	let predefinedObservations: string[] = [];
-	let partsToCalculate: PreCalculatedItemPart[] = [];
+	let predefinedObservations: string[] =
+		$form.predefinedObservations.length > 0 ? $form.predefinedObservations : [];
+	let partsToCalculate: PreCalculatedItemPart[] =
+		$form.partsToCalculate.length > 0
+			? $form.partsToCalculate.map((p) => ({ ...p, type: p.type as PricingType }))
+			: [];
+
 	let partsToCalulatePreview: TempParts = [];
-	let extraParts: CalculatedItemPart[] = [
-		{
-			description: 'Cantoneras',
-			price: 2.5,
-			quantity: 1,
-			priceId: cornersId,
-			discountAllowed: true
-		}
-	];
+	let extraParts: CalculatedItemPart[] =
+		$form.extraParts.length > 0
+			? $form.extraParts
+			: [
+					{
+						description: 'Cantoneras',
+						price: 2.5,
+						quantity: 1,
+						priceId: cornersId,
+						discountAllowed: true
+					}
+				];
 
 	// Fabric vars
 	let fabricPrices: ListPriceForm[] = [fabricDefaultPricing];
 
 	// PP vars
-	let asymetricPP = false;
-	let upPP: number | string = '';
-	let downPP: number | string = '';
-	let leftPP: number | string = '';
-	let rightPP: number | string = '';
-	$form.ppDimensions = undefined;
+	let asymetricPP = $form.ppDimensions != null;
+	let upPP: number | string = $form.ppDimensions == null ? '' : $form.ppDimensions.up;
+	let downPP: number | string = $form.ppDimensions == null ? '' : $form.ppDimensions.down;
+	let leftPP: number | string = $form.ppDimensions == null ? '' : $form.ppDimensions.left;
+	let rightPP: number | string = $form.ppDimensions == null ? '' : $form.ppDimensions.right;
+	$form.ppDimensions = $form.ppDimensions != null ? $form.ppDimensions : undefined;
 
 	// Size vars
 	let totalHeightBox = 0;
 	let totalWidthBox = 0;
-	let exteriorDimensions = false;
+	let exteriorDimensions =
+		($form.exteriorHeight != null && $form.exteriorHeight > 0) ||
+		($form.exteriorWidth != null && $form.exteriorWidth > 0);
 
 	const defaultObservations = [
 		'Sabe que puede ondular',
@@ -249,7 +264,7 @@
 		if (response.status !== 200) {
 			if (response.status === 500) {
 				toastStore.trigger({
-					message: 'Error al calcular el precio. Por favor, inténtelo de nuevo.',
+					message: `Error al calcular el precio. Puede ser que el precio ya no exista (${partToCalculate.id}).`,
 					background: 'variant-filled-error'
 				});
 			}
@@ -435,9 +450,38 @@
 		if (!exteriorDimensions) $form.exteriorHeight = undefined;
 		if (!exteriorDimensions) $form.exteriorWidth = undefined;
 	}
+
+	onMount(async () => {
+		if (partsToCalculate.length > 0) {
+			const promises = partsToCalculate.map((p) => getPartToCalculateWihtPre(p));
+			const parts = (await Promise.all(promises)).filter((p) => p != null) as {
+				pre: PreCalculatedItemPart;
+				post: CalculatedItemPart;
+			}[];
+
+			const validatedParts = parts.map((p) => p.pre);
+			partsToCalculate = validatedParts;
+			$form.partsToCalculate = partsToCalculate;
+			partsToCalulatePreview = parts;
+			toastStore.trigger({
+				message: `Precios actualizados`,
+				background: 'variant-filled'
+			});
+		}
+	});
 </script>
 
-<div class="px-2 pt-1 text-2xl font-semibold">Nuevo Pedido / Presupuesto</div>
+<div class="px-2 pt-1 text-2xl font-semibold">
+	{#if data.editing}
+		Editar {#if data.editingStatus === OrderStatus.QUOTE}
+			presupuesto
+		{:else}
+			pedido
+		{/if}
+	{:else}
+		Nuevo Pedido / Presupuesto
+	{/if}
+</div>
 {#if $submitting}
 	<ProgressBar text={'Guardando'} />
 {:else}
@@ -482,6 +526,7 @@
 			<PricingSelectorSection
 				sectionTitle={'PP / Fondo'}
 				label={'Tipo'}
+				priorityFirst={false}
 				prices={pricing.ppPrices}
 				addValue={addFromPricingSelector}
 				showExtraInfo={true}
@@ -613,7 +658,7 @@
 						step="0.01"
 						name="exteriorHeight"
 						bind:value={$form.exteriorHeight}
-						class:input-success={$form.exteriorHeight > 0}
+						class:input-success={$form.exteriorHeight != null && $form.exteriorHeight > 0}
 					/>
 				</label>
 
@@ -626,7 +671,7 @@
 						step="0.01"
 						name="exteriorWidth"
 						bind:value={$form.exteriorWidth}
-						class:input-success={$form.exteriorWidth > 0}
+						class:input-success={$form.exteriorWidth != null && $form.exteriorWidth > 0}
 					/>
 				</label>
 			{/if}
@@ -835,6 +880,7 @@
 
 			<ChipSet
 				observations={defaultObservations}
+				filledObservations={predefinedObservations}
 				addFunction={addObservation}
 				removeFunction={removeObservation}
 			/>
@@ -904,7 +950,7 @@
 
 			<Spacer title={'Elementos añadidos'} />
 			<dl class="list-dl lg:col-span-2">
-				{#each partsToCalulatePreview as part}
+				{#each CalculatedItemUtilities.sortByPricingType( partsToCalulatePreview, ['pre', 'type'] ) as part}
 					<CartItem
 						part={part.post}
 						partToDelete={part}
@@ -931,20 +977,34 @@
 				</span>
 			</div>
 
-			<button
-				class={`${BUTTON_DEFAULT_CLASSES} ${PEDIDOS_COLORS} lg:col-span-2`}
-				type="submit"
-				formaction="?/createOrder"
-			>
-				<Icon class="mr-2" data={faCircleCheck} /> Crear pedido
-			</button>
-			<button
-				class={`${BUTTON_DEFAULT_CLASSES} ${PRESUPUESTOS_COLORS} lg:col-span-2`}
-				type="submit"
-				formaction="?/createQuote"
-			>
-				<Icon class="mr-2" data={faClipboardList} /> Crear presupuesto
-			</button>
+			{#if data.editing}
+				<button
+					class={`${BUTTON_DEFAULT_CLASSES} ${ACCIONES_NEUTRES_COLORS} text-white lg:col-span-2`}
+					type="submit"
+					formaction="?/editOrder"
+				>
+					<Icon class="mr-2" data={faEdit} /> Editar {#if data.editingStatus === OrderStatus.QUOTE}
+						presupuesto
+					{:else}
+						pedido
+					{/if}
+				</button>
+			{:else}
+				<button
+					class={`${BUTTON_DEFAULT_CLASSES} ${PEDIDOS_COLORS} text-gray-800 lg:col-span-2`}
+					type="submit"
+					formaction="?/createOrder"
+				>
+					<Icon class="mr-2" data={faCircleCheck} /> Crear pedido
+				</button>
+				<button
+					class={`${BUTTON_DEFAULT_CLASSES} ${PRESUPUESTOS_COLORS} text-white lg:col-span-2`}
+					type="submit"
+					formaction="?/createQuote"
+				>
+					<Icon class="mr-2" data={faClipboardList} /> Crear presupuesto
+				</button>
+			{/if}
 		</form>
 	{/await}
 {/if}

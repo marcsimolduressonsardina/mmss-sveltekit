@@ -13,6 +13,7 @@ export type DynamoTableSet = {
 	calculatedItemOrderTable: Table;
 	listPricingTable: Table;
 	fileTable: Table;
+	configTable: Table;
 };
 
 export type BucketSet = {

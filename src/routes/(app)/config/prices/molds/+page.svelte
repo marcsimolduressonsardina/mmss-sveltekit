@@ -2,8 +2,9 @@
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { faFileExcel } from '@fortawesome/free-solid-svg-icons/faFileExcel';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import Icon from 'svelte-awesome';
 	import Box from '$lib/components/Box.svelte';
+	import { ACCIONES_NEUTRES_COLORS } from '$lib/ui/ui.constants';
+	import ClickButton from '$lib/components/button/ClickButton.svelte';
 
 	const toastStore = getToastStore();
 	let inputFile: HTMLInputElement;
@@ -129,12 +130,12 @@
 				type="file"
 				bind:this={inputFile}
 			/>
-			<button
-				class="w-full rounded-md bg-yellow-500 px-4 py-2 text-base font-semibold text-white shadow hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
-				on:click={loadFile}
-			>
-				<Icon class="mr-2" data={faFileExcel} /> Cargar archivo excel
-			</button>
+			<ClickButton
+				text="Cargar archivo excel"
+				icon={faFileExcel}
+				colorClasses={ACCIONES_NEUTRES_COLORS}
+				onClick={loadFile}
+			></ClickButton>
 		{/if}
 	</div>
 </Box>

@@ -11,7 +11,15 @@
 	import type { PageData } from './$types';
 	import WhatsAppButton from '$lib/components/button/WhatsAppButton.svelte';
 	import Button from '$lib/components/button/Button.svelte';
-	import { FORMULARIO_COLORS, PEDIDOS_COLORS, PRESUPUESTOS_COLORS } from '$lib/ui/ui.constants';
+	import {
+		ELIMINAR_COLORS,
+		FORMULARIO_COLORS,
+		PEDIDOS_COLORS,
+		PRESUPUESTOS_COLORS
+	} from '$lib/ui/ui.constants';
+	import { enhance } from '$app/forms';
+	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
+	import trash from 'svelte-awesome/icons/trash';
 
 	export let data: PageData;
 </script>
@@ -55,6 +63,7 @@
 				></Button>
 
 				<Button
+					textWhite={false}
 					icon={faBox}
 					link="/customers/{customer.id}/orders"
 					text="Ver pedidos"
@@ -69,6 +78,37 @@
 				></Button>
 
 				<WhatsAppButton label="Enviar Whatsapp" message="" {customer}></WhatsAppButton>
+
+				{#if data.isPriceManager && data.totalOrders === 0}
+					<form
+						class="w-full text-center"
+						method="post"
+						action="?/deleteCustomer"
+						use:enhance={({ cancel }) => {
+							if (!confirm(`Estás seguro que quieres eliminar el cliente?`)) {
+								cancel();
+								return;
+							}
+
+							return async ({ update }) => {
+								await update();
+							};
+						}}
+					>
+						<SubmitButton icon={trash} text="Eliminar cliente" colorClasses={ELIMINAR_COLORS}
+						></SubmitButton>
+					</form>
+				{/if}
+
+				{#if data.isPriceManager && data.totalOrders > 0}
+					<Button
+						link={'#'}
+						disabled={true}
+						icon={trash}
+						text="Eliminar cliente"
+						colorClasses={ELIMINAR_COLORS}
+					></Button>
+				{/if}
 			</div>
 		{/if}
 	{/await}

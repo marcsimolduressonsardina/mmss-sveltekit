@@ -1,34 +1,30 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { BUTTON_DEFAULT_CLASSES, DISABLED_COLORS } from '$lib/ui/ui.constants';
-	import Icon from 'svelte-awesome';
 	import type { IconType } from 'svelte-awesome/components/Icon.svelte';
+	import ClickButton from './ClickButton.svelte';
+	import LinkButton from './LinkButton.svelte';
 
 	export let link: string;
 	export let icon: IconType;
 	export let text: string;
-	export let colorClasses;
+	export let colorClasses: string;
 	export let disabled: boolean = false;
 	export let forceLink: boolean = false;
 	export let newWindow: boolean = false;
+	export let textWhite: boolean = true;
+	export let homeButton: boolean = false;
 </script>
 
 {#if (!newWindow || disabled) && !forceLink}
-	<button
+	<ClickButton
+		{text}
 		{disabled}
-		class={`${disabled ? DISABLED_COLORS : colorClasses} ${BUTTON_DEFAULT_CLASSES}`}
-		on:click={() => goto(link)}
-	>
-		<Icon class="mr-2" data={icon} />
-		{text}
-	</button>
+		{textWhite}
+		{colorClasses}
+		{homeButton}
+		{icon}
+		onClick={() => goto(link)}
+	></ClickButton>
 {:else}
-	<a
-		class={`${colorClasses} ${BUTTON_DEFAULT_CLASSES}`}
-		href={link}
-		target={newWindow ? '_blank' : '_self'}
-	>
-		<Icon class="mr-2" data={icon} />
-		{text}
-	</a>
+	<LinkButton {newWindow} {text} {link} {textWhite} {colorClasses} {homeButton} {icon}></LinkButton>
 {/if}

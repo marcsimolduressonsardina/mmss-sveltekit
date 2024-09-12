@@ -1,4 +1,5 @@
 import type { OrderDimensions } from '$lib/type/order.type';
+import { PricingType } from '$lib/type/pricing.type';
 import type { CalculatedItem, CalculatedItemPart, PPDimensions } from '../type/api.type';
 
 export const cornersId = 'cantoneras_extra';
@@ -28,6 +29,32 @@ export class CalculatedItemUtilities {
 			originalHeight: height,
 			originalWidth: width
 		};
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	public static sortByPricingType(arr: any[], path: (string | number)[] = ['type']): any[] {
+		const desiredOrder: PricingType[] = [
+			PricingType.PP,
+			PricingType.MOLD,
+			PricingType.GLASS,
+			PricingType.BACK,
+			PricingType.FABRIC,
+			PricingType.LABOUR,
+			PricingType.HANGER,
+			PricingType.OTHER,
+			PricingType.TRANSPORT
+		];
+
+		return arr.sort((a, b) => {
+			const aValue = CalculatedItemUtilities.getValueByPath(a, path);
+			const bValue = CalculatedItemUtilities.getValueByPath(b, path);
+
+			// Handle undefined types by placing them after TRANSPORT
+			const aIndex = aValue !== undefined ? desiredOrder.indexOf(aValue) : desiredOrder.length;
+			const bIndex = bValue !== undefined ? desiredOrder.indexOf(bValue) : desiredOrder.length;
+
+			return aIndex - bIndex;
+		});
 	}
 
 	public static getTotalDimensions(
@@ -96,5 +123,10 @@ export class CalculatedItemUtilities {
 		}
 
 		return Math.ceil(value / 5) * 5;
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static getValueByPath(obj: any, path: (string | number)[]): any {
+		return path.reduce((acc, key) => acc && acc[key], obj);
 	}
 }

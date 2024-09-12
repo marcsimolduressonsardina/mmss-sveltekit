@@ -2,7 +2,7 @@
 	import { Icon } from 'svelte-awesome';
 	import check from 'svelte-awesome/icons/check';
 
-	let clicked = false;
+	export let clicked = false;
 	export let text: string;
 	export let addFunction: (text: string) => void;
 	export let removeFunction: (text: string) => void;

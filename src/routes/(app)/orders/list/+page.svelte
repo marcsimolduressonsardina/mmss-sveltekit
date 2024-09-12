@@ -2,7 +2,7 @@
 	import type { PageData } from './$types';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import OrderCard from '$lib/components/order/OrderCard.svelte';
-	import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
 	import { orderStatusMap } from '$lib/shared/order.utilities';
 	import { OrderStatus } from '$lib/type/order.type';
@@ -71,7 +71,7 @@
 						text="Ver pedidos finalizados"
 						link={`/orders/list?status=${OrderStatus.FINISHED}`}
 						colorClasses={LISTADO_FINALIZADOS}
-						icon={faCheck}
+						icon={faCheckCircle}
 					></Button>
 
 					<Button

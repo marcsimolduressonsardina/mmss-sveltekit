@@ -13,6 +13,10 @@ export class CustomerRepository extends DynamoRepository<CustomerDto> {
 		return dto;
 	}
 
+	public async deleteCustomer(customer: CustomerDto): Promise<void> {
+		await this.batchDelete([{ partitionKey: customer.storeId, sortKey: customer.phone }]);
+	}
+
 	public async getAllCustomers(storeId: string): Promise<CustomerDto[]> {
 		const dtos = await this.getByPartitionKey(storeId);
 		return dtos;
@@ -32,7 +36,7 @@ export class CustomerRepository extends DynamoRepository<CustomerDto> {
 	}
 
 	public async updateName(storeId: string, phone: string, newName: string) {
-		await this.updateField(storeId, 'name', newName, phone)
+		await this.updateField(storeId, 'name', newName, phone);
 	}
 
 	public async updateFullCustomer(oldCustomer: CustomerDto, newCustomer: CustomerDto) {

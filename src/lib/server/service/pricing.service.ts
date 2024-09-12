@@ -192,9 +192,9 @@ export class PricingService {
 			case PricingFormula.FORMULA_FIT_AREA_M2:
 				return fitAreaM2Pricing(priceInfo, d1t, d2t);
 			case PricingFormula.FORMULA_AREA:
-				return areaPricing(priceInfo.price, d1, d2);
+				return areaPricing(priceInfo.price, d1t, d2t);
 			case PricingFormula.FORMULA_LINEAR:
-				return linearPricing(priceInfo.price, d1, d2);
+				return linearPricing(priceInfo.price, d1t, d2t);
 			case PricingFormula.NONE:
 				return priceInfo.price;
 			default:
@@ -216,7 +216,7 @@ export class PricingService {
 
 		if (
 			!fitFormulas.includes(listPrice.formula) &&
-			(listPrice.price == null || (listPrice.price <= 0 && listPrice.type !== PricingType.MOLD))
+			(listPrice.price == null || (listPrice.price < 0 && listPrice.type !== PricingType.MOLD))
 		) {
 			console.log(listPrice);
 			throw Error('No price provided for this formula');
@@ -284,10 +284,6 @@ export class PricingService {
 					`Dimensiones máximas superadas para ${pricing.description} (${pricing.id}). Max: ${d1}x${d2}`
 				);
 		}
-		if (d1w < 15 || d2w < 15)
-			throw new InvalidSizeError(
-				`Dimensiones mínimas no alcanzadas para ${pricing.description} (${pricing.id}). Min: 15x15`
-			);
 	}
 
 	private static toDto(price: ListPrice): ListPriceDto {

@@ -193,7 +193,7 @@ export abstract class DynamoRepository<T> {
 	protected async updateField(
 		partitionKeyValue: string,
 		fieldName: string,
-		value: string | number | ItemDto | boolean,
+		value: string | number | ItemDto | boolean | undefined,
 		sortKeyValue?: string | number
 	) {
 		const key: { [x: string]: string | number } = {

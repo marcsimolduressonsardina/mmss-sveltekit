@@ -7,7 +7,7 @@
 	import { Icon } from 'svelte-awesome';
 	import home from 'svelte-awesome/icons/home';
 	import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons/faRightFromBracket';
-	import { faCalculator } from '@fortawesome/free-solid-svg-icons/faCalculator';
+	import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 	initializeStores();
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -27,7 +27,7 @@
 			Marcos App
 			<svelte:fragment slot="trail">
 				{#if data.user.priceManager}
-					<a href="/prices"><Icon data={faCalculator} /></a>
+					<a href="/config"><Icon data={faGear} /></a>
 				{/if}
 				<a href="/auth/signout?callbackUrl=/"><Icon data={faRightFromBracket} /></a>
 			</svelte:fragment>
