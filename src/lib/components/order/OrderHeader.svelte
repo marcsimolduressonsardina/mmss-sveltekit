@@ -81,7 +81,7 @@
 			{#if order.amountPayed === 0}
 				<div class="flex items-center rounded-md bg-red-600 px-3 py-1 text-lg text-white">
 					<Icon class="mr-2 " data={faCircleXmark} />
-					<span>No pagado</span>
+					<span>Pendiente de Pago</span>
 				</div>
 			{:else if order.amountPayed === totalOrder}
 				<div class="flex items-center rounded-md bg-green-600 px-3 py-1 text-lg text-white">
