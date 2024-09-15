@@ -347,7 +347,7 @@ export class OrderService {
 	}
 
 	private static verifyItem(item: Item) {
-		if (!item.width || !item.height || !item.quantity || !item.createdAt) {
+		if (!item.quantity || !item.createdAt) {
 			throw new InvalidDataError('Invalid item data');
 		}
 

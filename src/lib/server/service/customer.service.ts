@@ -9,6 +9,11 @@ import type { CustomerDto } from '../repository/dto/customer.dto';
 import type { Customer, AppUser } from '../../type/api.type';
 import type { OrderDto } from '../repository/dto/order.dto';
 
+interface PaginatedCustomers {
+	customers: Customer[];
+	nextKey?: string;
+}
+
 export class CustomerService {
 	private readonly storeId: string;
 	private repository: CustomerRepository;
@@ -49,39 +54,45 @@ export class CustomerService {
 		return map;
 	}
 
+	public async getAllCustomersPaginated(nextKey?: string): Promise<PaginatedCustomers> {
+		const paginatedDtos = await this.repository.getAllCustomersPaginated(
+			this.storeId,
+			nextKey ? atob(nextKey) : undefined
+		);
+
+		return {
+			customers: paginatedDtos.elements.map((dto) => CustomerService.fromDto(dto)),
+			nextKey: paginatedDtos.endKey ? btoa(paginatedDtos.endKey as string) : undefined
+		};
+	}
+
+	public async indexCustomers() {
+		const customerDtos = await this.repository.getAllCustomers(this.storeId);
+		const newDtos = customerDtos
+			.map((dto) => CustomerService.fromDto(dto))
+			.map((c) => CustomerService.toDto(c));
+		await this.repository.storeCustomers(newDtos);
+	}
+
+	public async searchCustomers(query: string): Promise<Customer[]> {
+		const dtos = await this.repository.searchCustomer(
+			this.storeId,
+			CustomerService.normalizeName(query)
+		);
+
+		return dtos.map((dto) => CustomerService.fromDto(dto));
+	}
+
 	public async updateCustomerData(
 		customer: Customer,
 		name?: string,
 		phone?: string
 	): Promise<Customer> {
-		let newName = name;
-		let newPhone = phone;
-
-		if (newName === customer.name) {
-			newName = undefined;
-		}
-
-		if (newPhone === customer.phone) {
-			newPhone = undefined;
-		}
-
-		if (newName == null && newPhone == null) {
-			return customer;
-		}
-
-		if (newName != null && newPhone == null) {
-			customer.name = newName;
-			CustomerService.validate(customer);
-			await this.repository.updateName(customer.storeId, customer.phone, newName);
-			return customer;
-		}
-
-		const oldCustomerDto = CustomerService.toDto(customer);
-		customer.name = newName ?? customer.name;
-		customer.phone = newPhone ?? customer.phone;
+		customer.name = name ?? customer.name;
+		customer.phone = phone ?? customer.phone;
 		CustomerService.validate(customer);
 		const newCustomerDto = CustomerService.toDto(customer);
-		await this.repository.updateFullCustomer(oldCustomerDto, newCustomerDto);
+		await this.repository.createCustomer(newCustomerDto);
 		return customer;
 	}
 
@@ -149,6 +160,22 @@ export class CustomerService {
 		}
 	}
 
+	private static normalizeName(input: string): string {
+		// Convert to lowercase
+		let normalized = input.toLowerCase();
+
+		// Remove diacritics (accents)
+		normalized = normalized.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+		// Remove special characters (anything that is not a letter, number, or whitespace)
+		normalized = normalized.replace(/[^a-z0-9\s]/g, '');
+
+		// Trim whitespace
+		normalized = normalized.trim();
+
+		return normalized;
+	}
+
 	private static fromDto(dto: CustomerDto): Customer {
 		return {
 			id: dto.uuid,
@@ -160,10 +187,11 @@ export class CustomerService {
 
 	private static toDto(customer: Customer): CustomerDto {
 		return {
-			uuid: customer.id!,
-			name: customer.name!,
-			phone: customer.phone!,
-			storeId: customer.storeId!
+			uuid: customer.id,
+			name: customer.name,
+			phone: customer.phone,
+			storeId: customer.storeId,
+			normalizedName: CustomerService.normalizeName(customer.name)
 		};
 	}
 }

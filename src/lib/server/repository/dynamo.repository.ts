@@ -1,28 +1,29 @@
 import { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } from '$env/static/private';
-import {
-	type AttributeValue,
-	DynamoDBClient,
-	type KeysAndAttributes
-} from '@aws-sdk/client-dynamodb';
+import { type AttributeValue, DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
 	DynamoDBDocument,
 	type DynamoDBDocumentClient,
 	QueryCommand,
 	GetCommand,
 	PutCommand,
-	type BatchGetCommandInput,
-	BatchGetCommand,
 	BatchWriteCommand,
 	type UpdateCommandInput,
 	UpdateCommand,
 	type QueryCommandInput,
 	TransactWriteCommand,
-	type TransactWriteCommandInput
+	type TransactWriteCommandInput,
+	type NativeAttributeValue
 } from '@aws-sdk/lib-dynamodb';
 import _ from 'lodash';
 import type { ItemDto } from './dto/item.dto';
 
+export interface IPaginatedDtoResult<T> {
+	elements: T[];
+	endKey?: string | number;
+}
+
 export abstract class DynamoRepository<T> {
+	protected readonly defaultLimit: number = 25;
 	protected readonly table: string;
 	protected readonly partitionKey: string;
 	protected readonly sortKey?: string;
@@ -108,7 +109,7 @@ export abstract class DynamoRepository<T> {
 			return [];
 		}
 
-		const params = {
+		const params: QueryCommandInput = {
 			TableName: this.table,
 			KeyConditionExpression: '#pk = :pkv AND #sk BETWEEN :sksv AND :skev',
 			ExpressionAttributeNames: {
@@ -123,17 +124,11 @@ export abstract class DynamoRepository<T> {
 		};
 
 		try {
-			const command = new QueryCommand(params);
-			const response = await this.client.send(command);
-			if (response.Items) {
-				return response.Items as T[];
-			}
+			return this.executeQueryCommandWithoutPagination(params);
 		} catch (error: unknown) {
 			this.logError('getBySortingKeyBetween', error);
 			throw error;
 		}
-
-		return [];
 	}
 
 	protected async getByPartitionKey(
@@ -153,41 +148,67 @@ export abstract class DynamoRepository<T> {
 		};
 
 		try {
-			const command = new QueryCommand(params);
-			const response = await this.client.send(command);
-			if (response.Items) {
-				return response.Items as T[];
-			}
+			return this.executeQueryCommandWithoutPagination(params);
 		} catch (error: unknown) {
 			this.logError('getByPartitionKey', error);
 			throw error;
 		}
-
-		return [];
 	}
 
-	protected async getByPartitionKeys(partitionKeyValues: string[]): Promise<T[]> {
-		const requestItems: { [key: string]: KeysAndAttributes } = {};
-		requestItems[this.table] = {
-			Keys: partitionKeyValues.map((keyValue) => ({ [this.partitionKey]: { S: keyValue } }))
-		};
-
-		const params: BatchGetCommandInput = {
-			RequestItems: requestItems
+	protected async getByPartitionKeyPaginated(
+		partitionKeyValue: string,
+		ascendent: boolean = true,
+		startKey?: string | number,
+		limit?: number
+	): Promise<IPaginatedDtoResult<T>> {
+		const params: QueryCommandInput = {
+			Limit: limit ?? this.defaultLimit,
+			TableName: this.table,
+			KeyConditionExpression: '#pk = :pkv',
+			ExpressionAttributeNames: {
+				'#pk': this.partitionKey
+			},
+			ExpressionAttributeValues: {
+				':pkv': partitionKeyValue
+			},
+			ScanIndexForward: ascendent
 		};
 
 		try {
-			const command = new BatchGetCommand(params);
-			const response = await this.client.send(command);
-			if (response.Responses) {
-				return response.Responses[this.table] as T[];
-			}
+			return this.executeQueryCommandWithPagination(params, partitionKeyValue, startKey);
 		} catch (error: unknown) {
-			this.logError('getByPartitionKeys', error);
+			this.logError('getByPartitionKeyPaginated', error);
 			throw error;
 		}
+	}
 
-		return [];
+	protected async search(
+		partitionKeyValue: string,
+		query: string,
+		queryField: string,
+		ascendent: boolean = true
+	): Promise<T[]> {
+		const params: QueryCommandInput = {
+			TableName: this.table,
+			KeyConditionExpression: '#pk = :pkv',
+			FilterExpression: 'contains(#attribute, :query)',
+			ExpressionAttributeNames: {
+				'#pk': this.partitionKey,
+				'#attribute': queryField
+			},
+			ExpressionAttributeValues: {
+				':pkv': partitionKeyValue,
+				':query': query
+			},
+			ScanIndexForward: ascendent
+		};
+
+		try {
+			return this.executeQueryCommandWithoutPagination(params);
+		} catch (error: unknown) {
+			this.logError('search', error);
+			throw error;
+		}
 	}
 
 	protected async updateField(
@@ -376,17 +397,65 @@ export abstract class DynamoRepository<T> {
 		};
 
 		try {
-			const command = new QueryCommand(params);
-			const response = await this.client.send(command);
-			if (response.Items && response.Items.length > 0) {
-				return response.Items as T[];
-			}
+			return this.executeQueryCommandWithoutPagination(params);
 		} catch (error: unknown) {
 			this.logError('get by secondary index', error);
 			throw error;
 		}
+	}
 
-		return [];
+	private async executeQueryCommandWithoutPagination(params: QueryCommandInput): Promise<T[]> {
+		const results: T[] = [];
+		let lastEvaluatedKey: Record<string, NativeAttributeValue> | undefined;
+
+		try {
+			do {
+				if (lastEvaluatedKey) {
+					params.ExclusiveStartKey = lastEvaluatedKey;
+				}
+
+				const command = new QueryCommand(params);
+				const response = await this.client.send(command);
+
+				if (response.Items) {
+					results.push(...(response.Items as T[]));
+				}
+
+				lastEvaluatedKey = response.LastEvaluatedKey;
+			} while (lastEvaluatedKey);
+		} catch (error: unknown) {
+			this.logError('execute query command', error);
+			throw error;
+		}
+
+		return results;
+	}
+
+	private async executeQueryCommandWithPagination(
+		params: QueryCommandInput,
+		partitionKeyValue: string | number,
+		startKey?: string | number
+	): Promise<IPaginatedDtoResult<T>> {
+		try {
+			const paginationKey =
+				startKey && this.sortKey
+					? { [this.partitionKey]: partitionKeyValue, [this.sortKey]: startKey }
+					: undefined;
+
+			params.ExclusiveStartKey = paginationKey;
+			const command = new QueryCommand(params);
+			const response = await this.client.send(command);
+
+			const endKey =
+				this.sortKey && response.LastEvaluatedKey
+					? (response.LastEvaluatedKey[this.sortKey] as string | number | undefined)
+					: undefined;
+
+			return { elements: response.Items as T[], endKey };
+		} catch (error: unknown) {
+			this.logError('execute paginated query command', error);
+			throw error;
+		}
 	}
 
 	private async batchWrite(

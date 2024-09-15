@@ -1,7 +1,7 @@
 import { CUSTOMER_TABLE } from '$env/static/private';
 
 import type { CustomerDto } from './dto/customer.dto';
-import { DynamoRepository } from './dynamo.repository';
+import { DynamoRepository, type IPaginatedDtoResult } from './dynamo.repository';
 
 export class CustomerRepository extends DynamoRepository<CustomerDto> {
 	constructor() {
@@ -20,6 +20,17 @@ export class CustomerRepository extends DynamoRepository<CustomerDto> {
 	public async getAllCustomers(storeId: string): Promise<CustomerDto[]> {
 		const dtos = await this.getByPartitionKey(storeId);
 		return dtos;
+	}
+
+	public async getAllCustomersPaginated(
+		storeId: string,
+		lastCustomerPhone?: string
+	): Promise<IPaginatedDtoResult<CustomerDto>> {
+		return this.getByPartitionKeyPaginated(storeId, true, lastCustomerPhone);
+	}
+
+	public async storeCustomers(customers: CustomerDto[]) {
+		await this.batchPut(customers);
 	}
 
 	public async getCustomerByPhone(storeId: string, phone: string): Promise<CustomerDto | null> {
@@ -41,5 +52,9 @@ export class CustomerRepository extends DynamoRepository<CustomerDto> {
 
 	public async updateFullCustomer(oldCustomer: CustomerDto, newCustomer: CustomerDto) {
 		await this.updateFullObject(oldCustomer, newCustomer);
+	}
+
+	public async searchCustomer(storeId: string, normalizedQuery: string): Promise<CustomerDto[]> {
+		return this.search(storeId, normalizedQuery, 'normalizedName');
 	}
 }

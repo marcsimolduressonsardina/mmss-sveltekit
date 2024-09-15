@@ -11,8 +11,7 @@
 		faClockRotateLeft,
 		faChain,
 		faUserLarge,
-		faClipboardList,
-		faLocationDot
+		faClipboardList
 	} from '@fortawesome/free-solid-svg-icons';
 	import { OrderUtilites, orderStatusMap, tempCustomerUuid } from '$lib/shared/order.utilities';
 	import { OrderStatus } from '$lib/type/order.type';
