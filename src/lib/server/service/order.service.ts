@@ -193,6 +193,11 @@ export class OrderService {
 		this.repository.setOrderStatus(OrderService.toDto(order));
 	}
 
+	async setOrderAsNotified(order: Order) {
+		order.notified = true;
+		await this.repository.setOrderNotified(OrderService.toDto(order));
+	}
+
 	async incrementOrderPayment(order: Order, amount: number) {
 		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
 		if (calculatedItem == null) return;
@@ -277,7 +282,8 @@ export class OrderService {
 			originalOrder.createdAt,
 			originalOrder.status,
 			originalOrder.location,
-			originalOrder.amountPayed
+			originalOrder.amountPayed,
+			originalOrder.notified
 		);
 
 		await this.repository.createOrder(OrderService.toDto(order));
@@ -292,7 +298,8 @@ export class OrderService {
 		originalCreationDate?: Date,
 		originalOrderStatus?: OrderStatus,
 		originalLocation?: string,
-		originalAmountPayed?: number
+		originalAmountPayed?: number,
+		originalNotified?: boolean
 	): Promise<{ order: Order; calculatedItem: CalculatedItem }> {
 		const order: Order = {
 			id: originalId ?? uuidv4(),
@@ -305,6 +312,7 @@ export class OrderService {
 			status: originalOrderStatus ?? (dto.isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING),
 			statusUpdated: new Date(),
 			hasArrow: dto.hasArrow,
+			notified: originalNotified ?? false,
 			location: originalLocation ?? '',
 			item: {
 				width: dto.width,
@@ -393,7 +401,8 @@ export class OrderService {
 			status: dto.status as OrderStatus,
 			statusUpdated: new Date(dto.statusTimestamp),
 			hasArrow: dto.hasArrow ?? false,
-			location: dto.location ?? ''
+			location: dto.location ?? '',
+			notified: dto.notified ?? false
 		};
 	}
 
@@ -411,7 +420,8 @@ export class OrderService {
 			status: order.status,
 			statusTimestamp: Date.parse(order.statusUpdated.toISOString()),
 			hasArrow: order.hasArrow,
-			location: order.location
+			location: order.location,
+			notified: order.notified
 		};
 	}
 

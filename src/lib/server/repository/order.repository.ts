@@ -53,6 +53,15 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 		await this.put(order);
 	}
 
+	public async setOrderNotified(order: OrderDto) {
+		await this.updateField(
+			order.customerUuid,
+			'notified',
+			order.notified ?? false,
+			order.timestamp
+		);
+	}
+
 	public async setOrderStatus(order: OrderDto) {
 		const updateStatus = this.updateField(
 			order.customerUuid,

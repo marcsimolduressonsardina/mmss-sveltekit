@@ -56,6 +56,7 @@ export type Order = {
 	user: StaticUser;
 	customer: Customer;
 	location: string;
+	notified: boolean;
 };
 
 export type FullOrder = {

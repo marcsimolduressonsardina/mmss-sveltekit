@@ -34,9 +34,11 @@
 
 	{#if order.status === OrderStatus.FINISHED}
 		<WhatsAppButton
-			label="Enviar mensaje finalizado"
+			label="Enviar mensaje finalizado {order.notified ? '(YA AVISADO)' : ''}"
 			message={OrderUtilites.getWhatsappFinishedText([order])}
 			customer={order.customer}
+			notifyOrder={true}
+			{order}
 		></WhatsAppButton>
 	{/if}
 {/if}

@@ -24,5 +24,5 @@ export const load = (async ({ params, locals }) => {
 
 	await orderService.addCustomerToTemporaryOrder(customer, order);
 
-	return redirect(302, `/orders/${id}`);
+	return redirect(302, `/orders/${id}/files`);
 }) satisfies PageServerLoad;
