@@ -1,11 +1,10 @@
 <script lang="ts">
 	import Box from '$lib/components/Box.svelte';
 
-	import { orderStatusMap, OrderUtilites } from '$lib/shared/order.utilities';
+	import { OrderUtilites } from '$lib/shared/order.utilities';
 	import type { PageData } from './$types';
 	import { enhance } from '$app/forms';
 	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
-	import { getStatusUIInfo } from '$lib/ui/ui.helper';
 	import { PaymentStatus } from '$lib/type/order.type';
 	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 	import {
@@ -35,10 +34,7 @@
 			}}
 		>
 			<input type="hidden" name="paymentStatus" value={PaymentStatus.FULLY_PAID} />
-			<SubmitButton
-				text="Marcar como pagado"
-				icon={faCheckCircle}
-				colorClasses={LISTADO_FINALIZADOS}
+			<SubmitButton text="Pagado" icon={faCheckCircle} colorClasses={LISTADO_FINALIZADOS}
 			></SubmitButton>
 		</form>
 
@@ -54,7 +50,7 @@
 			}}
 		>
 			<input type="hidden" name="paymentStatus" value={PaymentStatus.UNPAID} />
-			<SubmitButton text="Marcar como no pagado" icon={faCircleXmark} colorClasses={ELIMINAR_COLORS}
+			<SubmitButton text="No pagado" icon={faCircleXmark} colorClasses={ELIMINAR_COLORS}
 			></SubmitButton>
 		</form>
 
