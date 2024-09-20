@@ -172,13 +172,14 @@
 		<ProgressBar />
 	{:else}
 		<!-- Title and Button Container -->
-		<div class="flex items-center pb-2">
+		<div class="flex flex-row items-center justify-between pb-2">
 			<button
 				on:click={goBackToOrder}
 				class="flex items-center rounded-lg bg-gray-200 px-4 py-1 font-bold text-gray-700 hover:bg-gray-300"
 			>
 				<Icon class="mr-1" data={faArrowLeft} /> Volver al pedido
 			</button>
+			<span class="px-4 py-1 text-lg font-bold">Archivos del pedido</span>
 		</div>
 
 		<span class="mt-4 border-b border-gray-300 pb-1 text-xl font-semibold text-gray-700">

@@ -37,6 +37,12 @@ export function linearPricing(mPrice: number, d1: number, d2: number): number {
 	return Math.ceil(x * 100) / 100;
 }
 
+export function linearPricingShortSide(mPrice: number, d1: number, d2: number): number {
+	const shortSide = Math.min(d1, d2);
+	const x = (shortSide / 100) * mPrice;
+	return Math.ceil(x * 100) / 100;
+}
+
 export function fitAreaM2Pricing(listPrice: ListPrice, d1: number, d2: number): number {
 	const area = Math.ceil((d1 / 100) * (d2 / 100) * 100) / 100;
 	if (listPrice.areasM2.length === 0) {

@@ -66,7 +66,7 @@
 						icon={faCopy}
 						colorClasses={ACCIONES_NEUTRES_COLORS}
 						text="Copiar"
-						link={`/customers/${info.order.customer.id}/orders/new?originId=${info.order.id}`}
+						link={`/orders/new?originId=${info.order.id}`}
 					></Button>
 
 					<Divider hideOnDesktop={true}></Divider>

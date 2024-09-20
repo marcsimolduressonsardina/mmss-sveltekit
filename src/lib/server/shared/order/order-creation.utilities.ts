@@ -184,7 +184,7 @@ export class OrderCreationUtilities {
 		if (customerId == null) {
 			return redirect(302, `/orders/${orderId}/link`);
 		} else {
-			return redirect(302, `/orders/${orderId}`);
+			return redirect(302, `/orders/${orderId}/files`);
 		}
 	}
 
