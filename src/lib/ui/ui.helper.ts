@@ -1,18 +1,15 @@
 import { OrderStatus } from '$lib/type/order.type';
 import {
 	faCheckCircle,
-	faTimesCircle,
 	faTruck,
 	faClockRotateLeft,
-	faClipboardList
+	faClipboardList,
+	type IconDefinition
 } from '@fortawesome/free-solid-svg-icons';
 import {
 	BUTTON_DEFAULT_CLASSES,
 	DISABLED_COLORS,
-	HOME_BUTTON_DEFAULT_CLASSES,
-	LISTADO_FINALIZADOS,
-	MARCAR_PENDIENTE_COLORS,
-	MARCAR_RECOGIDO_COLORS
+	HOME_BUTTON_DEFAULT_CLASSES
 } from './ui.constants';
 
 export function generateButtonClasses(
@@ -24,31 +21,53 @@ export function generateButtonClasses(
 	return `${disabled ? DISABLED_COLORS : colorClasses} ${textWhite ? 'text-white' : 'text-gray-800'} ${homeButton ? HOME_BUTTON_DEFAULT_CLASSES : BUTTON_DEFAULT_CLASSES}`;
 }
 
-export function getStatusUIInfo(status: OrderStatus) {
+interface IUIInfo {
+	colors: string;
+	gradientClasses: string;
+	statusIcon: IconDefinition;
+}
+
+const redGradientClasses = 'from-red-800 via-red-700 to-red-600';
+const redColors = 'bg-red-700 hover:bg-red-800 focus:ring-red-800';
+
+export function getStatusUIInfo(status: OrderStatus): IUIInfo {
 	let colors = '';
+	let gradientClasses = '';
 	let statusIcon = faTruck;
 	switch (status) {
 		case OrderStatus.PENDING:
-			colors = MARCAR_PENDIENTE_COLORS;
+			gradientClasses = 'from-blue-800 via-blue-700 to-blue-600';
+			colors = 'bg-blue-600 hover:bg-blue-700 focus:bg-blue-500';
 			statusIcon = faClockRotateLeft;
 			break;
 		case OrderStatus.FINISHED:
-			colors = LISTADO_FINALIZADOS;
+			gradientClasses = 'from-orange-600 via-orange-500 to-orange-400';
+			colors = 'bg-orange-500 hover:bg-orange-600 focus:bg-orange-400';
 			statusIcon = faCheckCircle;
 			break;
 		case OrderStatus.PICKED_UP:
-			colors = MARCAR_RECOGIDO_COLORS;
+			gradientClasses = 'from-green-800 via-green-700 to-green-600';
+			colors = 'bg-green-700 hover:bg-green-800 focus:ring-green-500';
 			statusIcon = faTruck;
 			break;
 		case OrderStatus.DELETED:
-			colors = '';
-			statusIcon = faTimesCircle;
 			break;
 		case OrderStatus.QUOTE:
-			colors = '';
+			gradientClasses = 'from-purple-800 via-purple-700 to-purple-600';
+			colors = 'bg-purple-600 hover:bg-purple-700 focus:bg-purple-500';
 			statusIcon = faClipboardList;
 			break;
 	}
 
-	return { statusIcon, colors };
+	return { statusIcon, colors, gradientClasses };
+}
+
+export function getStatusUIInfoWithPaymentInfo(status: OrderStatus, payed: boolean): IUIInfo {
+	const uiInfo = getStatusUIInfo(status);
+
+	if ((status === OrderStatus.PICKED_UP && !payed) || (status === OrderStatus.FINISHED && payed)) {
+		return { ...uiInfo, colors: redColors, gradientClasses: redGradientClasses };
+	}
+
+	return uiInfo;
 }

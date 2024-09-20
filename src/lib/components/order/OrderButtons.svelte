@@ -3,8 +3,7 @@
 
 	import { OrderUtilites } from '$lib/shared/order.utilities';
 	import { OrderStatus } from '$lib/type/order.type';
-	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
-	import type { CalculatedItem, Order } from '$lib/type/api.type';
+	import type { Order } from '$lib/type/api.type';
 	import Divider from '$lib/components/Divider.svelte';
 	import Button from '$lib/components/button/Button.svelte';
 	import WhatsAppButton from '$lib/components/button/WhatsAppButton.svelte';

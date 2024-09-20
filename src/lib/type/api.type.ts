@@ -58,6 +58,11 @@ export type Order = {
 	location: string;
 };
 
+export type FullOrder = {
+	order: Order;
+	calculatedItem: CalculatedItem;
+};
+
 export enum FileType {
 	VIDEO = 'video',
 	PHOTO = 'photo',

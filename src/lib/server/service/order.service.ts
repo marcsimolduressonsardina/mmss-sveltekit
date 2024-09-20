@@ -9,7 +9,8 @@ import type {
 	AppUser,
 	PreCalculatedItemPart,
 	Item,
-	CalculatedItem
+	CalculatedItem,
+	FullOrder
 } from '$lib/type/api.type';
 import { CalculatedItemService } from './calculated-item.service';
 import type { ItemDto } from '../repository/dto/item.dto';
@@ -52,36 +53,42 @@ export class OrderService {
 		return null;
 	}
 
-	async getOrdersByStatus(status: OrderStatus): Promise<Order[]> {
+	async getOrdersByStatus(status: OrderStatus): Promise<FullOrder[]> {
 		const orderDtos = await this.repository.getOrdersByStatus(status, this.storeId);
 		const customerIds = orderDtos.map((dto) => dto.customerUuid);
 		const customerMap = await this.customerService.getAllCustomersMap(customerIds);
 		customerMap.set(tempCustomerUuid, OrderService.getTempCustomer(this.storeId));
-		return orderDtos.map((o) => OrderService.fromDto(o, customerMap.get(o.customerUuid)!));
+		const orders = orderDtos.map((o) => OrderService.fromDto(o, customerMap.get(o.customerUuid)!));
+		return this.getFullOrders(orders);
 	}
 
-	async getOrdersByCustomerId(customerId: string): Promise<Order[] | null> {
+	async getOrdersByCustomerId(customerId: string): Promise<FullOrder[] | null> {
 		const customer = await this.customerService.getCustomerById(customerId);
 		if (customer === null) return null;
 
 		const orderDtos = await this.repository.getOrdersByCustomerId(customerId);
-		return this.processDtosFromRepository(orderDtos, customer).filter(
+		const orders = this.processDtosFromRepository(orderDtos, customer).filter(
 			(o) => o.status !== OrderStatus.QUOTE
 		);
+
+		return this.getFullOrders(orders);
 	}
 
 	async getOrdersByCustomerIdAndStatus(
 		customerId: string,
 		status: OrderStatus
-	): Promise<Order[] | null> {
+	): Promise<FullOrder[] | null> {
 		const customer = await this.customerService.getCustomerById(customerId);
 		if (customer === null) return null;
 
 		const orderDtos = await this.repository.getOrdersByCustomerId(customerId);
-		return this.processDtosFromRepository(orderDtos, customer).filter((o) => o.status === status);
+		const orders = this.processDtosFromRepository(orderDtos, customer).filter(
+			(o) => o.status === status
+		);
+		return this.getFullOrders(orders);
 	}
 
-	async getOrdersOnSameDay(order: Order): Promise<Order[]> {
+	async getOrdersOnSameDay(order: Order): Promise<FullOrder[]> {
 		const firstSecond = new Date(order.createdAt);
 		firstSecond.setHours(0, 0, 0, 0);
 		const startTs = firstSecond.getTime();
@@ -91,9 +98,10 @@ export class OrderService {
 		const endTs = lastSecond.getTime();
 
 		const orderDtos = await this.repository.getOrdersBetweenTs(order.customer.id, startTs, endTs);
-		return this.processDtosFromRepository(orderDtos, order.customer).filter(
+		const orders = this.processDtosFromRepository(orderDtos, order.customer).filter(
 			(o) => o.status !== OrderStatus.QUOTE
 		);
+		return this.getFullOrders(orders);
 	}
 
 	async createOrderFromDto(dto: OrderCreationDto): Promise<Order | null> {
@@ -242,6 +250,20 @@ export class OrderService {
 		await this.repository.createOrder(OrderService.toDto(order));
 		await this.calculatedItemService.saveCalculatedItem(calculatedItem);
 		return order;
+	}
+
+	private async getFullOrders(orders: Order[]): Promise<FullOrder[]> {
+		const orderMap = new Map(orders.map((order) => [order.id, order]));
+		const calculatedItemsPromises = orders.map((order) =>
+			this.calculatedItemService.getCalculatedItem(order.id)
+		);
+		const calculatedItems = (await Promise.all(calculatedItemsPromises)).filter(
+			(calculatedItem) => calculatedItem != null
+		);
+		return calculatedItems.map((calculatedItem) => ({
+			calculatedItem,
+			order: orderMap.get(calculatedItem.orderId)!
+		}));
 	}
 
 	private async updateOrder(

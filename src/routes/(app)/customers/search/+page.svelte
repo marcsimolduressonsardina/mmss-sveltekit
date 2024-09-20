@@ -50,7 +50,7 @@
 		{/if}
 	</Box>
 
-	<!-- <Box title={'Buscar cliente por nombre'}>
+	<Box title={'Buscar cliente por nombre'}>
 		<div class="space-y-3">
 			<div>
 				<label class="block text-sm font-medium text-gray-700" for="phone">Nombre:</label>
@@ -66,7 +66,7 @@
 
 			<div class="flex flex-col space-y-3 md:flex-row md:space-x-3 md:space-y-0">
 				<ClickButton
-					disabled={searchQuery.length === 0}
+					disabled={searchQuery.length < 3}
 					icon={search}
 					text="Buscar"
 					colorClasses={BUSCAR_CLIENTE_COLORS}
@@ -76,7 +76,7 @@
 				></ClickButton>
 			</div>
 		</div>
-	</Box> -->
+	</Box>
 
 	<Box title={'Gestión'}>
 		<div class="flex flex-col space-y-3 md:flex-row md:space-x-3 md:space-y-0">

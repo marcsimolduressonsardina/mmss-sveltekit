@@ -27,8 +27,8 @@
 		{:else if orders.length === 0}
 			<p class="text-xl">El cliente no tiene presupuestos</p>
 		{:else}
-			{#each orders as order (order.id)}
-				<OrderCard {order} showCustomer={false} />
+			{#each orders as fullOrder (fullOrder.order.id)}
+				<OrderCard {fullOrder} showCustomer={false} />
 			{/each}
 		{/if}
 	{:catch error}

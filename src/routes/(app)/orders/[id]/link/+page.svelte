@@ -34,7 +34,7 @@
 
 	<NewCustomer {data} title={''} buttonText={'Vincular'} />
 
-	<!-- <Box title={'Buscar cliente por nombre'}>
+	<Box title={'Buscar cliente por nombre'}>
 		<div class="space-y-3">
 			<div>
 				<label class="block text-sm font-medium text-gray-700" for="phone">Nombre:</label>
@@ -60,7 +60,7 @@
 				></ClickButton>
 			</div>
 		</div>
-	</Box> -->
+	</Box>
 
 	<OrderInfo order={data.order}></OrderInfo>
 

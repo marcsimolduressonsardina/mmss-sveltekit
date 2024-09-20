@@ -2,14 +2,12 @@
 	import type { PageData } from './$types';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import OrderCard from '$lib/components/order/OrderCard.svelte';
-	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
-	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
 	import { orderStatusMap } from '$lib/shared/order.utilities';
 	import { OrderStatus } from '$lib/type/order.type';
-	import type { Order } from '$lib/type/api.type';
+	import type { FullOrder } from '$lib/type/api.type';
 	import Box from '$lib/components/Box.svelte';
 	import Button from '$lib/components/button/Button.svelte';
-	import { LISTADO_FINALIZADOS, MARCAR_PENDIENTE_COLORS } from '$lib/ui/ui.constants';
+	import { getStatusUIInfo } from '$lib/ui/ui.helper';
 
 	export let data: PageData;
 	let searchValue = '';
@@ -47,12 +45,12 @@
 		return false;
 	}
 
-	function filterOrders(orders: Order[], search: string): Order[] {
+	function filterOrders(orders: FullOrder[], search: string): FullOrder[] {
 		if (searchValue.length === 0) {
 			return orders;
 		}
 
-		return orders.filter((o) => isWordPresent(search, o.item.description));
+		return orders.filter((o) => isWordPresent(search, o.order.item.description));
 	}
 </script>
 
@@ -61,7 +59,7 @@
 		<Box title={''}>
 			<ProgressBar />
 		</Box>
-	{:then orders}
+	{:then fullOrders}
 		<Box title={`${getStatus(data.status)}`}>
 			{#if data.status !== OrderStatus.QUOTE}
 				<div
@@ -70,15 +68,15 @@
 					<Button
 						text="Ver pedidos finalizados"
 						link={`/orders/list?status=${OrderStatus.FINISHED}`}
-						colorClasses={LISTADO_FINALIZADOS}
-						icon={faCheckCircle}
+						colorClasses={getStatusUIInfo(OrderStatus.FINISHED).colors}
+						icon={getStatusUIInfo(OrderStatus.FINISHED).statusIcon}
 					></Button>
 
 					<Button
 						text="Ver pedidos pendientes"
 						link={`/orders/list?status=${OrderStatus.PENDING}`}
-						colorClasses={MARCAR_PENDIENTE_COLORS}
-						icon={faClockRotateLeft}
+						colorClasses={getStatusUIInfo(OrderStatus.PENDING).colors}
+						icon={getStatusUIInfo(OrderStatus.PENDING).statusIcon}
 					></Button>
 				</div>
 			{/if}
@@ -94,8 +92,8 @@
 		</Box>
 
 		<div class="flex w-full flex-col gap-3 lg:grid lg:grid-cols-4">
-			{#each filterOrders(orders, searchValue) as order}
-				<OrderCard {order} />
+			{#each filterOrders(fullOrders, searchValue) as fullOrder}
+				<OrderCard {fullOrder} />
 			{/each}
 		</div>
 	{/await}
