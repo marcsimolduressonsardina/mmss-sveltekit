@@ -931,9 +931,11 @@
 				<span>Descuento:</span>
 				<select
 					name="discount"
+					class:input-success={typeof $form.discount === 'number' && !isNaN($form.discount)}
 					class="select {$errors.discount ? 'input-error' : ''}"
 					bind:value={$form.discount}
 				>
+					<option></option>
 					<option value={0}>0</option>
 					<option value={10}>1</option>
 					<option value={15}>2</option>

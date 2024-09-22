@@ -141,7 +141,13 @@
 		{#if showExtraInfo}
 			<label class="label" for="extraInfoValue">
 				<span>Número: </span>
-				<input class="input" type="text" name="extraInfoValue" bind:value={extraInfo} />
+				<input
+					class:input-success={added}
+					class="input"
+					type="text"
+					name="extraInfoValue"
+					bind:value={extraInfo}
+				/>
 			</label>
 			<div class="w-full lg:col-span-2 lg:w-auto">
 				<button

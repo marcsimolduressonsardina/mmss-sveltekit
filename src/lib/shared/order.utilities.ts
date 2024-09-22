@@ -201,7 +201,10 @@ export const baseOderSchema = z.object({
 	quantity: z.number().int().min(1).default(1),
 	pp: z.coerce.number().min(0).default(0),
 	ppDimensions: ppDimensionsSchema.optional(),
-	discount: z.number().min(0).default(0),
+	discount: z
+		.number()
+		.min(0)
+		.default('' as unknown as number),
 	extraParts: z.array(extraPartSchema),
 	partsToCalculate: z.array(partToCalculateSchema),
 	predefinedObservations: z.array(z.string()).default([]),
