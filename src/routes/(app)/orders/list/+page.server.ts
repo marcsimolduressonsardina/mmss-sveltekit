@@ -14,5 +14,5 @@ export const load = (async ({ locals, url }) => {
 	const orderService = new OrderService(appUser);
 	const orders = orderService.getOrdersByStatus(status as OrderStatus);
 
-	return { orders, status };
+	return { orders, status, isAdmin: appUser.priceManager };
 }) satisfies PageServerLoad;

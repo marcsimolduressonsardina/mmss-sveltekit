@@ -91,10 +91,12 @@
 			</div>
 		</Box>
 
-		<div class="flex w-full flex-col gap-3 lg:grid lg:grid-cols-4">
-			{#each filterOrders(fullOrders, searchValue) as fullOrder}
-				<OrderCard {fullOrder} />
-			{/each}
-		</div>
+		{#if data.isAdmin || searchValue.length > 0}
+			<div class="flex w-full flex-col gap-3 lg:grid lg:grid-cols-4">
+				{#each filterOrders(fullOrders, searchValue) as fullOrder}
+					<OrderCard {fullOrder} />
+				{/each}
+			</div>
+		{/if}
 	{/await}
 </div>
