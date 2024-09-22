@@ -57,7 +57,6 @@
 		"@fortawesome/free-brands-svg-icons": "6.5.1",
 		"@fortawesome/free-regular-svg-icons": "6.5.1",
 		"@fortawesome/free-solid-svg-icons": "6.5.1",
-		"@sentry/sveltekit": "8.2.1",
 		"@skeletonlabs/skeleton": "2.9.1",
 		"@skeletonlabs/tw-plugin": "0.4.0",
 		"@sveltejs/adapter-auto": "3.2.0",
