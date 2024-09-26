@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, RouteParams } from './$types';
-import { OrderService } from '$lib/server/service/order.service';
+import { OrderService, type ISameDayOrderCounters } from '$lib/server/service/order.service';
 import { CalculatedItemService } from '$lib/server/service/calculated-item.service';
 import { OrderStatus } from '$lib/type/order.type';
 import type { AppUser, Order } from '$lib/type/api.type';
@@ -34,14 +34,22 @@ async function setOrderStatus(
 async function loadData(
 	user: AppUser,
 	orderId: string
-): Promise<{ order: Order | null; calculatedItem: CalculatedItem | null; hasFiles: boolean }> {
+): Promise<{
+	order: Order | null;
+	unfinishedSameDayCount: ISameDayOrderCounters;
+	calculatedItem: CalculatedItem | null;
+	hasFiles: boolean;
+}> {
 	const orderService = new OrderService(user);
 	const calculatedItemService = new CalculatedItemService();
 	const fileService = new FileService();
 	const order = await orderService.getOrderById(orderId);
 	const calculatedItem = await calculatedItemService.getCalculatedItem(orderId);
 	const files = await fileService.getFilesByOrder(orderId);
-	return { order, calculatedItem, hasFiles: files.length > 0 };
+	const unfinishedSameDayCount = order
+		? await orderService.getOrdersCountOnSameDay(order)
+		: { finishedCount: 0, unfinishedCount: 0 };
+	return { order, calculatedItem, hasFiles: files.length > 0, unfinishedSameDayCount };
 }
 
 export const load = (async ({ params, locals }) => {

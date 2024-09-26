@@ -23,6 +23,11 @@ import type { OrderCreationWithCustomerDto } from './dto/order-creation.dto';
 import type { OrderCreationDto } from './dto/order-creation.dto';
 import { DateTime } from 'luxon';
 
+export interface ISameDayOrderCounters {
+	finishedCount: number;
+	unfinishedCount: number;
+}
+
 export class OrderService {
 	private readonly storeId: string;
 	private repository: OrderRepository;
@@ -88,16 +93,18 @@ export class OrderService {
 		return this.getFullOrders(orders);
 	}
 
+	async getOrdersCountOnSameDay(order: Order): Promise<ISameDayOrderCounters> {
+		const dtos = await this.getSameDayOrdersDtos(order);
+		const orderDtos = dtos.filter((dto) => dto.status !== OrderStatus.QUOTE.toString());
+		const finishedCount = orderDtos.filter(
+			(dto) => dto.status === OrderStatus.FINISHED.toString()
+		).length;
+		const unfinishedCount = orderDtos.length - finishedCount;
+		return { unfinishedCount, finishedCount };
+	}
+
 	async getOrdersOnSameDay(order: Order): Promise<FullOrder[]> {
-		const firstSecond = new Date(order.createdAt);
-		firstSecond.setHours(0, 0, 0, 0);
-		const startTs = firstSecond.getTime();
-
-		const lastSecond = new Date(order.createdAt);
-		lastSecond.setHours(23, 59, 59, 999);
-		const endTs = lastSecond.getTime();
-
-		const orderDtos = await this.repository.getOrdersBetweenTs(order.customer.id, startTs, endTs);
+		const orderDtos = await this.getSameDayOrdersDtos(order);
 		const orders = this.processDtosFromRepository(orderDtos, order.customer).filter(
 			(o) => o.status !== OrderStatus.QUOTE
 		);
@@ -248,6 +255,18 @@ export class OrderService {
 		}
 
 		return [];
+	}
+
+	private async getSameDayOrdersDtos(order: Order): Promise<OrderDto[]> {
+		const firstSecond = new Date(order.createdAt);
+		firstSecond.setHours(0, 0, 0, 0);
+		const startTs = firstSecond.getTime();
+
+		const lastSecond = new Date(order.createdAt);
+		lastSecond.setHours(23, 59, 59, 999);
+		const endTs = lastSecond.getTime();
+
+		return this.repository.getOrdersBetweenTs(order.customer.id, startTs, endTs);
 	}
 
 	private async createOrder(dto: OrderCreationWithCustomerDto): Promise<Order> {

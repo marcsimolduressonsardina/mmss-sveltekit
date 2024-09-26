@@ -26,7 +26,7 @@
 					customer={fullOrders[0].order.customer}
 					disabled={fullOrders.filter(
 						(fullOrder) => fullOrder.order.status === OrderStatus.FINISHED
-					).length === 0}
+					).length !== fullOrders.length}
 				></WhatsAppButton>
 			</div>
 		</Box>
