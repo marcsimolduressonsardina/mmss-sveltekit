@@ -3,5 +3,7 @@ export type FileDto = {
 	fileUuid: string;
 	type: string;
 	key: string;
+	thumbnailKey?: string;
+	optimizedKey?: string;
 	originalFilename: string;
 };

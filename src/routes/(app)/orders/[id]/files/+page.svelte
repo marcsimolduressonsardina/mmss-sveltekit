@@ -94,6 +94,19 @@
 		return file;
 	}
 
+	async function optimizeFile(id: string) {
+		const response = await fetch(`/api/orders/${data!.order!.id}/files/${id}/optimize`, {
+			method: 'POST',
+			headers: {
+				'content-type': 'application/json'
+			}
+		});
+
+		if (response.status !== 200) {
+			toastError('Error al procesar fichero');
+		}
+	}
+
 	async function getFile(id: string): Promise<MMSSFile | undefined> {
 		const response = await fetch(`/api/orders/${data!.order!.id}/files/${id}`, {
 			method: 'GET',
@@ -136,6 +149,9 @@
 		const file = await createFile(fileToUpload.name);
 		if (file == null) return;
 		await uploadToS3(file.uploadUrl!, fileToUpload);
+		if (file.type === FileType.PHOTO) {
+			await optimizeFile(file.id);
+		}
 		return getFile(file.id);
 	}
 
@@ -201,7 +217,7 @@
 							on:click={() => showOverlay(image)}
 						>
 							<img
-								src={image.downloadUrl ?? ''}
+								src={image.thumbnailDownloadUrl ?? image.downloadUrl}
 								alt={image.originalFilename}
 								class="h-full w-full object-cover"
 							/>

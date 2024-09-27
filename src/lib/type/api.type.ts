@@ -75,6 +75,7 @@ export type File = {
 	id: string;
 	originalFilename: string;
 	downloadUrl?: string;
+	thumbnailDownloadUrl?: string;
 	uploadUrl?: string;
 	type: FileType;
 };
