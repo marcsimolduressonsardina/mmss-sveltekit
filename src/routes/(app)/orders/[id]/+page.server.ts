@@ -48,7 +48,7 @@ async function loadData(
 	const files = await fileService.getFilesByOrder(orderId);
 	const unfinishedSameDayCount = order
 		? await orderService.getOrdersCountOnSameDay(order)
-		: { finishedCount: 0, unfinishedCount: 0 };
+		: { finishedCount: 0, unfinishedCount: 0, totalCount: 1 };
 	return { order, calculatedItem, hasFiles: files.length > 0, unfinishedSameDayCount };
 }
 

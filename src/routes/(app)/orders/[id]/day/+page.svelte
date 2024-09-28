@@ -17,15 +17,22 @@
 		<Box title={`Pedidos del mismo día | ${fullOrders[0].order.customer.name}`}>
 			<div class="flex w-full flex-col place-content-center items-center justify-center gap-2">
 				<WhatsAppButton
-					label="Enviar mensaje finalizado (Sólo acabados)"
+					label="Enviar mensaje todos finalizados"
 					message={OrderUtilites.getWhatsappFinishedText(
 						fullOrders
-							.filter((fullOrder) => fullOrder.order.status === OrderStatus.FINISHED)
 							.map((fullOrder) => fullOrder.order)
+							.filter((order) => order.status === OrderStatus.FINISHED)
 					)}
 					customer={fullOrders[0].order.customer}
+					tooltipText="Hay pedidos sin finalizar"
+					notifyOrder={true}
+					orders={fullOrders
+						.map((fullOrder) => fullOrder.order)
+						.filter((order) => order.status === OrderStatus.FINISHED)}
 					disabled={fullOrders.filter(
-						(fullOrder) => fullOrder.order.status === OrderStatus.FINISHED
+						(fullOrder) =>
+							fullOrder.order.status === OrderStatus.FINISHED ||
+							fullOrder.order.status === OrderStatus.PICKED_UP
 					).length !== fullOrders.length}
 				></WhatsAppButton>
 			</div>

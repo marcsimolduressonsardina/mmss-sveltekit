@@ -10,36 +10,37 @@
 	export let message: string;
 	export let customer: Customer;
 	export let disabled: boolean = false;
-	export let order: Order | undefined = undefined;
+	export let orders: Order[] = [];
 	export let notifyOrder: boolean = false;
+	export let tooltipText: string | undefined = undefined;
 
 	async function handleNotify() {
-		if (order == null) {
+		if (orders.length === 0) {
 			return;
 		}
 
 		const tempLabel = label;
 		label = 'Cargando...';
-		await fetch(`/api/orders/${order.id}/notify`, {
+		const promises = orders.map((order) => notifySingleOrder(order.id));
+		await Promise.all(promises);
+		label = `${tempLabel}`;
+
+		const newWindowUrl = CustomerUtilites.getWhatsappLink(customer, message);
+		window.open(newWindowUrl, '_blank');
+	}
+
+	async function notifySingleOrder(orderId: string) {
+		fetch(`/api/orders/${orderId}/notify`, {
 			method: 'GET',
 			headers: {
 				'content-type': 'application/json'
 			}
 		});
-		label = `${tempLabel} (YA AVISADO)`;
-
-		const newWindowUrl = CustomerUtilites.getWhatsappLink(customer, message);
-		window.open(newWindowUrl, '_blank');
 	}
 </script>
 
-{#if notifyOrder}
-	<ClickButton
-		onClick={handleNotify}
-		{disabled}
-		icon={faWhatsapp}
-		text={label}
-		colorClasses={WHATSAPP_COLORS}
+{#if notifyOrder && !disabled}
+	<ClickButton onClick={handleNotify} icon={faWhatsapp} text={label} colorClasses={WHATSAPP_COLORS}
 	></ClickButton>
 {:else}
 	<Button
@@ -47,6 +48,7 @@
 		newWindow={true}
 		text={label}
 		{disabled}
+		{tooltipText}
 		link={CustomerUtilites.getWhatsappLink(customer, message)}
 		colorClasses={WHATSAPP_COLORS}
 	></Button>

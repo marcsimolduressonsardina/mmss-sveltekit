@@ -18,12 +18,14 @@
 	import {
 		ACCIONES_NEUTRES_COLORS,
 		ACCIONES_RESGUARDO_COLORS,
-		ELIMINAR_COLORS
+		ELIMINAR_COLORS,
+		WHATSAPP_COLORS
 	} from '$lib/ui/ui.constants';
 	import Divider from '$lib/components/Divider.svelte';
 	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
 	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 	import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
+	import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
 
 	let formLoading = false;
 
@@ -43,6 +45,8 @@
 			{#if !formLoading}
 				<div class="flex w-full flex-col gap-1 pt-4 md:grid md:grid-cols-2 lg:grid-cols-3">
 					<Button
+						disabled={!info.hasFiles}
+						tooltipText={'Faltan fotos'}
 						icon={faPrint}
 						colorClasses={ACCIONES_RESGUARDO_COLORS}
 						text="Imprimir"
@@ -51,10 +55,19 @@
 					></Button>
 
 					{#if info.order.status === OrderStatus.QUOTE}
-						<QuoteButtons order={info.order} hasFiles={info.hasFiles}></QuoteButtons>
+						<QuoteButtons order={info.order}></QuoteButtons>
 					{:else}
-						<OrderButtons hasFiles={info.hasFiles} order={info.order}></OrderButtons>
+						<OrderButtons order={info.order}></OrderButtons>
 					{/if}
+					<Divider></Divider>
+					<Button
+						icon={faWhatsapp}
+						text={'Enviar mensaje'}
+						tooltipText={'Faltan fotos'}
+						disabled={!info.hasFiles}
+						link={`/orders/${info.order.id}/whatsapp`}
+						colorClasses={WHATSAPP_COLORS}
+					></Button>
 					<Divider hideOnDesktop={true}></Divider>
 					<Button
 						icon={faEdit}

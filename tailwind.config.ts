@@ -21,7 +21,7 @@ const config = {
 				}
 			},
 			animation: {
-				loadtwo: 'loadtwo 2.5s ease-in-out infinite'
+				loadtwo: 'loadtwo 3s ease-in-out infinite'
 			}
 		}
 	},

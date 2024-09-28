@@ -13,9 +13,21 @@
 	export let newWindow: boolean = false;
 	export let textWhite: boolean = true;
 	export let homeButton: boolean = false;
+	export let tooltipText: string | undefined = undefined;
 </script>
 
-{#if (!newWindow || disabled) && !forceLink}
+{#if disabled}
+	<ClickButton
+		{text}
+		{disabled}
+		{textWhite}
+		{colorClasses}
+		{homeButton}
+		{icon}
+		{tooltipText}
+		onClick={() => goto(link)}
+	></ClickButton>
+{:else if !newWindow && !forceLink}
 	<ClickButton
 		{text}
 		{disabled}
