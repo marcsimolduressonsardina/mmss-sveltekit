@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { Icon } from 'svelte-awesome';
-	import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
+	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
 	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { dateProxy, superForm } from 'sveltekit-superforms';
@@ -14,9 +14,9 @@
 </script>
 
 <div class="space-y-4 p-4">
-	<div class="rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white shadow-md">
+	<div class="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white shadow-md">
 		<div class="flex items-center space-x-4">
-			<Icon scale={3} data={faClipboardList} />
+			<Icon scale={3} data={faClockRotateLeft} />
 			<div>
 				<h3 class="text-xl font-bold">Convertir presupuesto en pedido</h3>
 				<p class="text-sm">

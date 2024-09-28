@@ -2,14 +2,25 @@
 	import type { LayoutData } from './$types';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { Toast, storePopup, initializeStores } from '@skeletonlabs/skeleton';
+	import { navigating } from '$app/stores';
 	import { AppBar, AppShell } from '@skeletonlabs/skeleton';
 	import '../../app.pcss';
 	import { Icon } from 'svelte-awesome';
 	import home from 'svelte-awesome/icons/home';
 	import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons/faRightFromBracket';
 	import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
+	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	initializeStores();
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
+
+	let isNavigating = false;
+	const unsubscribe = navigating.subscribe(($navigating) => {
+		if ($navigating) {
+			isNavigating = true;
+		} else {
+			isNavigating = false;
+		}
+	});
 
 	export let data: LayoutData;
 </script>
@@ -33,5 +44,11 @@
 			</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>
-	<div class="h-full bg-slate-100 p-2"><slot /></div>
+	<div class="h-full bg-slate-100 p-2">
+		{#if isNavigating}
+			<ProgressBar></ProgressBar>
+		{:else}
+			<slot />
+		{/if}
+	</div>
 </AppShell>

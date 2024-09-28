@@ -14,7 +14,16 @@ const config = {
 		join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}')
 	],
 	theme: {
-		extend: {}
+		extend: {
+			keyframes: {
+				loadtwo: {
+					'50%': { transform: 'rotate(-80deg)' }
+				}
+			},
+			animation: {
+				loadtwo: 'loadtwo 2.5s ease-in-out infinite'
+			}
+		}
 	},
 	plugins: [
 		forms,

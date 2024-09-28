@@ -8,6 +8,8 @@
 	import Button from '$lib/components/button/Button.svelte';
 	import WhatsAppButton from '$lib/components/button/WhatsAppButton.svelte';
 	import { PEDIDOS_COLORS } from '$lib/ui/ui.constants';
+	import { faClipboardList } from '@fortawesome/free-solid-svg-icons';
+	import { getStatusUIInfo } from '$lib/ui/ui.helper';
 
 	export let hasFiles: boolean;
 	export let order: Order;
@@ -21,6 +23,13 @@
 	colorClasses={PEDIDOS_COLORS}
 	text="Pedidos del día"
 	link={`/orders/${order.id}/day`}
+></Button>
+
+<Button
+	icon={faClipboardList}
+	colorClasses={getStatusUIInfo(OrderStatus.QUOTE).colors}
+	text="Convertir en presupuesto"
+	link={`/orders/${order.id}/denote`}
 ></Button>
 
 {#if hasFiles}

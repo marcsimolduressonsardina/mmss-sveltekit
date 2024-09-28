@@ -19,6 +19,8 @@ import type { AllPrices } from '$lib/shared/pricing.utilites';
 type OrderTypeForm = z.infer<typeof orderSchema>;
 type QuoteTypeForm = z.infer<typeof quoteSchema>;
 
+export const quoteDeliveryDate = DateTime.fromFormat('31/12/9999', 'dd/MM/yyyy').toJSDate();
+
 export type OrderCreationFormData = {
 	pricing: Promise<AllPrices>;
 	form: SuperValidated<OrderTypeForm | QuoteTypeForm>;
@@ -40,9 +42,7 @@ export class OrderCreationUtilities {
 			extraInfo: part.extraInfo
 		}));
 
-		const deliveryDate = isQuote
-			? DateTime.fromFormat('31/12/9999', 'dd/MM/yyyy').toJSDate()
-			: form.data.deliveryDate;
+		const deliveryDate = isQuote ? quoteDeliveryDate : form.data.deliveryDate;
 		if (deliveryDate == null) {
 			throw Error('Delivery date can not be empty');
 		}

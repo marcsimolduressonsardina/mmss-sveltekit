@@ -22,6 +22,7 @@ import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 import type { OrderCreationWithCustomerDto } from './dto/order-creation.dto';
 import type { OrderCreationDto } from './dto/order-creation.dto';
 import { DateTime } from 'luxon';
+import { quoteDeliveryDate } from '../shared/order/order-creation.utilities';
 
 export interface ISameDayOrderCounters {
 	finishedCount: number;
@@ -163,6 +164,20 @@ export class OrderService {
 		order.item.deliveryDate = deliveryDate;
 		order.statusUpdated = DateTime.now().toJSDate();
 		order.status = OrderStatus.PENDING;
+		const newDto = OrderService.toDto(order);
+		await this.repository.updateFullOrder(oldDto, newDto);
+		return order;
+	}
+
+	async moveOrderToQuote(order: Order): Promise<Order> {
+		if (order.status === OrderStatus.QUOTE) return order;
+		const oldDto = OrderService.toDto(order);
+		order.createdAt = DateTime.now().toJSDate();
+		order.item.deliveryDate = quoteDeliveryDate;
+		order.statusUpdated = DateTime.now().toJSDate();
+		order.status = OrderStatus.QUOTE;
+		order.notified = false;
+		order.amountPayed = 0;
 		const newDto = OrderService.toDto(order);
 		await this.repository.updateFullOrder(oldDto, newDto);
 		return order;
