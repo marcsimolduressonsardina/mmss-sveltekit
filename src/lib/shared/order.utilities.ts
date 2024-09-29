@@ -82,12 +82,12 @@ export class OrderUtilites {
 
 	public static getWhatsappTicketText(order: Order): string {
 		const url = `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
-		return `Su pedido ${OrderUtilites.getOrderPublicId(order)} ha sido registrado correctamente, puede consultar aquí su resguardo ${url} . Marcs i Moldures Son Sardina.`;
+		return `Su pedido \`\`\`${OrderUtilites.getOrderPublicId(order)}\`\`\` ha sido registrado correctamente, puede consultar aquí su resguardo ${url} . Marcs i Moldures Son Sardina.`;
 	}
 
 	public static getWhatsappQuoteText(order: Order): string {
 		const url = `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
-		return `Aquí tiene una copia de su presupuesto ${OrderUtilites.getOrderPublicId(order)} :  ${url} . Marcs i Moldures Son Sardina.`;
+		return `Aquí tiene una copia de su presupuesto \`\`\`${OrderUtilites.getOrderPublicId(order)}\`\`\` :  ${url} . Marcs i Moldures Son Sardina.`;
 	}
 
 	public static getWhatsappFinishedText(orders: Order[]): string {
@@ -95,16 +95,16 @@ export class OrderUtilites {
 			'Nuestro horario es de lunes a viernes de 09:00 a 18:00 y los sábados de 09:30 a 13:15. Marcs i Moldures Son Sardina.';
 		if (orders.length === 1) {
 			const url = `${PUBLIC_DOMAIN_URL}/s/${orders[0].shortId}`;
-			return `Hemos terminado su pedido ${OrderUtilites.getOrderPublicId(orders[0])}, puede pasar a buscarlo. Aquí tiene el resguardo ${url} . ${greeting}`;
+			return `Hemos terminado su pedido \`\`\`${OrderUtilites.getOrderPublicId(orders[0])}\`\`\` puede pasar a buscarlo. Aquí tiene el resguardo ${url} . ${greeting}`;
 		} else {
 			const orderLines = orders
 				.map(
 					(order) =>
-						`${OrderUtilites.getOrderPublicId(order)} - Resguardo ${PUBLIC_DOMAIN_URL}/s/${order.shortId}`
+						`* \`\`\`${OrderUtilites.getOrderPublicId(order)}\`\`\` \n ${PUBLIC_DOMAIN_URL}/s/${order.shortId}`
 				)
 				.join('\n');
 
-			return `Hemos terminado sus pedidos:\n${orderLines}\nPuede pasar a buscarlos. ${greeting}`;
+			return `\n Hemos terminado sus pedidos:\n${orderLines}\nPuede pasar a buscarlos. ${greeting}`;
 		}
 	}
 

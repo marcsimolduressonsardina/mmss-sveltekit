@@ -6,8 +6,16 @@
 	import { OrderStatus } from '$lib/type/order.type';
 	import Box from '$lib/components/Box.svelte';
 	import WhatsAppButton from '$lib/components/button/WhatsAppButton.svelte';
+	import Banner from '$lib/components/Banner.svelte';
+	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
+	import { getStatusUIInfo } from '$lib/ui/ui.helper';
 
 	export let data: PageData;
+	let whatsAppNotified = false;
+
+	function handleAfterNotify() {
+		whatsAppNotified = true;
+	}
 </script>
 
 <div class="space flex w-full flex-col gap-2 p-3">
@@ -26,6 +34,7 @@
 					customer={fullOrders[0].order.customer}
 					tooltipText="Hay pedidos pendientes"
 					notifyOrder={true}
+					{handleAfterNotify}
 					orders={fullOrders
 						.map((fullOrder) => fullOrder.order)
 						.filter((order) => order.status === OrderStatus.FINISHED)}
@@ -37,6 +46,15 @@
 				></WhatsAppButton>
 			</div>
 		</Box>
+
+		{#if whatsAppNotified}
+			<Banner
+				icon={faCheckCircle}
+				gradientClasses={getStatusUIInfo(OrderStatus.PICKED_UP).gradientClasses}
+				title="Cliente avisado"
+				text="El mensaje de finalizado se ha enviado para todos los pedidos"
+			></Banner>
+		{/if}
 
 		<div class="flex w-full flex-col gap-3 lg:grid lg:grid-cols-4">
 			{#each fullOrders as fullOrder (fullOrder.order.id)}
