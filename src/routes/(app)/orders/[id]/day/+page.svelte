@@ -24,7 +24,7 @@
 							.filter((order) => order.status === OrderStatus.FINISHED)
 					)}
 					customer={fullOrders[0].order.customer}
-					tooltipText="Hay pedidos sin finalizar"
+					tooltipText="Hay pedidos pendientes"
 					notifyOrder={true}
 					orders={fullOrders
 						.map((fullOrder) => fullOrder.order)

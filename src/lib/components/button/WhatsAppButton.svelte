@@ -13,6 +13,7 @@
 	export let orders: Order[] = [];
 	export let notifyOrder: boolean = false;
 	export let tooltipText: string | undefined = undefined;
+	export let handleAfterNotify: () => void = () => {};
 
 	async function handleNotify() {
 		if (orders.length === 0) {
@@ -27,6 +28,11 @@
 
 		const newWindowUrl = CustomerUtilites.getWhatsappLink(customer, message);
 		window.open(newWindowUrl, '_blank');
+		orders.forEach((order) => {
+			order.notified = true;
+		});
+
+		handleAfterNotify();
 	}
 
 	async function notifySingleOrder(orderId: string) {

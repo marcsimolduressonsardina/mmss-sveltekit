@@ -26,7 +26,7 @@ import { quoteDeliveryDate } from '../shared/order/order-creation.utilities';
 
 export interface ISameDayOrderCounters {
 	finishedCount: number;
-	unfinishedCount: number;
+	pendingCount: number;
 	totalCount: number;
 }
 
@@ -99,12 +99,12 @@ export class OrderService {
 		const dtos = await this.getSameDayOrdersDtos(order);
 		const orderDtos = dtos.filter((dto) => dto.status !== OrderStatus.QUOTE.toString());
 		const finishedCount = orderDtos.filter(
-			(dto) =>
-				dto.status === OrderStatus.FINISHED.toString() ||
-				dto.status === OrderStatus.PICKED_UP.toString()
+			(dto) => dto.status === OrderStatus.FINISHED.toString()
 		).length;
-		const unfinishedCount = orderDtos.length - finishedCount;
-		return { unfinishedCount, finishedCount, totalCount: orderDtos.length };
+		const pendingCount = orderDtos.filter(
+			(dto) => dto.status === OrderStatus.PENDING.toString()
+		).length;
+		return { pendingCount, finishedCount, totalCount: orderDtos.length };
 	}
 
 	async getOrdersOnSameDay(order: Order): Promise<FullOrder[]> {

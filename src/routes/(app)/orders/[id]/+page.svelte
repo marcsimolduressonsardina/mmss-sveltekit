@@ -9,8 +9,6 @@
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { isOrderTemp } from '$lib/shared/order.utilities';
 	import { OrderStatus } from '$lib/type/order.type';
-	import OrderButtons from '$lib/components/order/OrderButtons.svelte';
-	import QuoteButtons from '$lib/components/order/QuoteButtons.svelte';
 	import OrderInfo from '$lib/components/order/OrderInfo.svelte';
 	import OrderElements from '$lib/components/order/OrderElements.svelte';
 	import OrderHeader from '$lib/components/order/OrderHeader.svelte';
@@ -19,13 +17,16 @@
 		ACCIONES_NEUTRES_COLORS,
 		ACCIONES_RESGUARDO_COLORS,
 		ELIMINAR_COLORS,
-		WHATSAPP_COLORS
+		PEDIDOS_COLORS
 	} from '$lib/ui/ui.constants';
 	import Divider from '$lib/components/Divider.svelte';
 	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
 	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 	import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
-	import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
+	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
+	import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
+	import { getStatusUIInfo } from '$lib/ui/ui.helper';
+	import WhatsAppOrderButtons from '$lib/components/order/WhatsAppOrderButtons.svelte';
 
 	let formLoading = false;
 
@@ -42,8 +43,40 @@
 			{goto(`/orders/${info.order.id}/link`)}
 		{:else}
 			<OrderHeader order={info.order} calculatedItem={info.calculatedItem}></OrderHeader>
+
 			{#if !formLoading}
 				<div class="flex w-full flex-col gap-1 pt-4 md:grid md:grid-cols-2 lg:grid-cols-3">
+					{#if info.order.status === OrderStatus.QUOTE}
+						<Button
+							textWhite={false}
+							icon={faBox}
+							colorClasses={PEDIDOS_COLORS}
+							text="Convertir en pedido"
+							link={`/orders/${info.order.id}/promote`}
+						></Button>
+					{:else}
+						<Button
+							textWhite={false}
+							icon={faBox}
+							colorClasses={PEDIDOS_COLORS}
+							text="Pedidos del día"
+							link={`/orders/${info.order.id}/day`}
+						></Button>
+
+						<Button
+							icon={faClipboardList}
+							colorClasses={getStatusUIInfo(OrderStatus.QUOTE).colors}
+							text="Convertir en presupuesto"
+							link={`/orders/${info.order.id}/denote`}
+						></Button>
+					{/if}
+
+					<WhatsAppOrderButtons
+						order={info.order}
+						counters={info.unfinishedSameDayCount}
+						hasFiles={info.hasFiles}
+					></WhatsAppOrderButtons>
+					<Divider hideOnDesktop={true}></Divider>
 					<Button
 						disabled={!info.hasFiles}
 						tooltipText={'Faltan fotos'}
@@ -53,22 +86,6 @@
 						forceLink={true}
 						link={`/orders/${info.order.id}/print`}
 					></Button>
-
-					{#if info.order.status === OrderStatus.QUOTE}
-						<QuoteButtons order={info.order}></QuoteButtons>
-					{:else}
-						<OrderButtons order={info.order}></OrderButtons>
-					{/if}
-					<Divider></Divider>
-					<Button
-						icon={faWhatsapp}
-						text={'Enviar mensaje'}
-						tooltipText={'Faltan fotos'}
-						disabled={!info.hasFiles}
-						link={`/orders/${info.order.id}/whatsapp`}
-						colorClasses={WHATSAPP_COLORS}
-					></Button>
-					<Divider hideOnDesktop={true}></Divider>
 					<Button
 						icon={faEdit}
 						colorClasses={ACCIONES_NEUTRES_COLORS}
