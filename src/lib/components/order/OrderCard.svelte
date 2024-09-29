@@ -134,7 +134,7 @@
 				<div class="flex animate-pulse items-center rounded-full bg-green-100 p-1">
 					<Icon scale={1} data={faCheckCircle} class="text-green-500" />
 				</div>
-				<span class="text-sm text-green-600"> Cliente avisado </span>
+				<span class="text-sm font-semibold text-green-600"> Cliente avisado </span>
 			{/if}
 		</div>
 		<div class="flex justify-end">

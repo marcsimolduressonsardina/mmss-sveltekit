@@ -20,7 +20,7 @@
 			<div class="flex items-center rounded-full bg-{baseColor}-100 animate-pulse p-1">
 				<Icon scale={1} data={icon} class="text-{baseColor}-500" />
 			</div>
-			<h3 class="text-md font-semibold text-{baseColor}-700">{title}</h3>
+			<h3 class="text-md font-semibold text-{baseColor}-600">{title}</h3>
 		</div>
 	{:else}
 		<div class="flex flex-row items-center space-x-4">
