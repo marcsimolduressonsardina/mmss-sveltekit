@@ -1003,14 +1003,26 @@
 				</button>
 			</div>
 
-			<label class="label" for="deliveryDate">
-				<span>Fecha de entrega (Sólo pedidos):</span>
+			{#if !$form.instantDelivery}
+				<label class="label" for="deliveryDate">
+					<span>Fecha de entrega (Sólo pedidos):</span>
+					<input
+						class="input {$errors.deliveryDate ? 'input-error' : ''}"
+						name="deliveryDate"
+						type="date"
+						bind:value={$proxyDate}
+					/>
+				</label>
+			{/if}
+
+			<label class="label flex items-center space-x-2" for="instantDelivery">
 				<input
-					class="input {$errors.deliveryDate ? 'input-error' : ''}"
-					name="deliveryDate"
-					type="date"
-					bind:value={$proxyDate}
+					class="checkbox"
+					type="checkbox"
+					name="instantDelivery"
+					bind:checked={$form.instantDelivery}
 				/>
+				<p>Entrega inmediata</p>
 			</label>
 
 			<label class="label" for="discount">

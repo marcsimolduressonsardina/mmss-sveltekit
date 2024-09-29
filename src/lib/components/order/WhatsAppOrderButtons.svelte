@@ -11,6 +11,7 @@
 	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 	import { getStatusUIInfo } from '$lib/ui/ui.helper';
 	import Banner from '../Banner.svelte';
+	import { Icon } from 'svelte-awesome';
 
 	export let order: Order;
 	export let counters: ISameDayOrderCounters;
@@ -42,13 +43,18 @@
 {/if}
 {#if order.status === OrderStatus.FINISHED}
 	{#if order.notified || whatsAppNotified}
-		<Banner
-			small={true}
-			icon={faCheckCircle}
-			gradientClasses={getStatusUIInfo(OrderStatus.PICKED_UP).gradientClasses}
-			title="Cliente avisado"
-			text="El mensaje de finalizado ya ha sido enviado para este pedido."
-		></Banner>
+		<div
+			class={`rounded-lg bg-gradient-to-r p-1 text-white shadow-md ${getStatusUIInfo(OrderStatus.PICKED_UP).gradientClasses}`}
+		>
+			<div
+				class="flex flex-row items-center justify-center space-x-3 rounded-md bg-white p-2 shadow-inner md:p-1"
+			>
+				<div class="flex animate-pulse items-center rounded-full bg-green-100 p-1">
+					<Icon scale={1} data={faCheckCircle} class="text-green-500" />
+				</div>
+				<h3 class="text-md font-semibold text-green-600">Cliente avisado</h3>
+			</div>
+		</div>
 	{/if}
 	{#if counters.totalCount === 1}
 		<WhatsAppButton

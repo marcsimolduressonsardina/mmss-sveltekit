@@ -364,7 +364,8 @@ export class OrderService {
 				deliveryDate: dto.deliveryDate,
 				partsToCalculate: OrderService.optimizePartsToCalculate(dto.partsToCalculate),
 				exteriorWidth: dto.exteriorWidth,
-				exteriorHeight: dto.exteriorHeight
+				exteriorHeight: dto.exteriorHeight,
+				instantDelivery: dto.instantDelivery
 			}
 		};
 
@@ -506,7 +507,8 @@ export class OrderService {
 				extraInfo: part.extraInfo
 			})),
 			exteriorHeight: dto.exteriorHeight,
-			exteriorWidth: dto.exteriorWidth
+			exteriorWidth: dto.exteriorWidth,
+			instantDelivery: dto.instantDelivery ?? false
 		};
 	}
 }

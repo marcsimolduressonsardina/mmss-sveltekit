@@ -293,8 +293,12 @@
 					<tr>
 						{#if !isQuote}
 							<td>
-								{esWeekDay}
-								{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+								{#if order.item.instantDelivery}
+									Al momento
+								{:else}
+									{esWeekDay}
+									{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+								{/if}
 							</td>
 						{/if}
 						<td> {order.customer.name} </td>

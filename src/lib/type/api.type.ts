@@ -98,6 +98,7 @@ export type Item = {
 	quantity: number;
 	createdAt: Date;
 	deliveryDate: Date;
+	instantDelivery: boolean;
 	partsToCalculate: PreCalculatedItemPart[];
 	exteriorWidth?: number;
 	exteriorHeight?: number;

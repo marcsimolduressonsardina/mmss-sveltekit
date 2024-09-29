@@ -210,12 +210,26 @@ export const baseOderSchema = z.object({
 	predefinedObservations: z.array(z.string()).default([]),
 	hasArrow: z.boolean().default(false),
 	exteriorWidth: z.number().optional(),
-	exteriorHeight: z.number().optional()
+	exteriorHeight: z.number().optional(),
+	instantDelivery: z.boolean().default(false)
 });
 
-export const orderSchema = baseOderSchema.extend({
-	deliveryDate: z.date().min(OrderUtilites.getYesterday())
-});
+export const orderSchema = baseOderSchema
+	.extend({
+		deliveryDate: z.date().optional()
+	})
+	.superRefine((data, ctx) => {
+		const yesterday = OrderUtilites.getYesterday();
+
+		// If isExpress is false and deliveryDate is missing or invalid
+		if (!data.instantDelivery && (!data.deliveryDate || data.deliveryDate < yesterday)) {
+			ctx.addIssue({
+				code: 'custom', // Add the required 'code' property
+				path: ['deliveryDate'], // The path of the property causing the error
+				message: 'If not instantDelivery, delivery date must be set and after yesterday'
+			});
+		}
+	});
 
 export const promoteOrderSchema = z.object({
 	deliveryDate: z.date().min(OrderUtilites.getYesterday())

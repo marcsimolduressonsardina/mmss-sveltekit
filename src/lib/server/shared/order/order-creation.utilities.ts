@@ -42,7 +42,8 @@ export class OrderCreationUtilities {
 			extraInfo: part.extraInfo
 		}));
 
-		const deliveryDate = isQuote ? quoteDeliveryDate : form.data.deliveryDate;
+		const deliveryDate =
+			isQuote || form.data.instantDelivery ? quoteDeliveryDate : form.data.deliveryDate;
 		if (deliveryDate == null) {
 			throw Error('Delivery date can not be empty');
 		}
@@ -64,7 +65,8 @@ export class OrderCreationUtilities {
 			hasArrow: form.data.hasArrow,
 			ppDimensions: form.data.ppDimensions,
 			exteriorWidth: form.data.exteriorWidth,
-			exteriorHeight: form.data.exteriorHeight
+			exteriorHeight: form.data.exteriorHeight,
+			instantDelivery: form.data.instantDelivery
 		};
 	}
 

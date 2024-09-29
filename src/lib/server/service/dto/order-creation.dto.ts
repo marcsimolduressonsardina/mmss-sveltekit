@@ -22,6 +22,7 @@ type OrderCreationDtoBase = {
 	ppDimensions?: PPDimensions;
 	exteriorWidth?: number;
 	exteriorHeight?: number;
+	instantDelivery: boolean;
 };
 
 export type OrderCreationDto = OrderCreationDtoBase & { customerId?: string };

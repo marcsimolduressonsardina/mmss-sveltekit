@@ -13,6 +13,7 @@
 	import { getStatusUIInfo } from '$lib/ui/ui.helper';
 	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 	import Banner from '$lib/components/Banner.svelte';
+	import { Icon } from 'svelte-awesome';
 
 	export let data: PageData;
 	let whatsAppNotified = false;
