@@ -129,17 +129,12 @@
 
 	<!-- Footer Section -->
 	<div class="flex justify-between bg-gray-50 p-3">
-		<div class="group relative px-3">
+		<div class="flex flex-row items-center justify-between gap-1 px-3">
 			{#if order.status === OrderStatus.FINISHED && order.notified}
 				<div class="flex animate-pulse items-center rounded-full bg-green-100 p-1">
 					<Icon scale={1} data={faCheckCircle} class="text-green-500" />
 				</div>
-
-				<div
-					class="absolute bottom-full left-1/2 mb-2 hidden -translate-x-1/2 transform rounded-lg bg-gray-800 px-2 py-1 text-xs text-white group-hover:block"
-				>
-					Cliente avisado
-				</div>
+				<span class="text-sm text-green-600"> Cliente avisado </span>
 			{/if}
 		</div>
 		<div class="flex justify-end">
