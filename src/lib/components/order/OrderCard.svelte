@@ -16,6 +16,7 @@
 	import { OrderStatus } from '$lib/type/order.type';
 	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 	import { getStatusUIInfo, getStatusUIInfoWithPaymentInfo } from '$lib/ui/ui.helper';
+	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 
 	export let fullOrder: FullOrder;
 	export let showCustomer: boolean = true;
@@ -127,19 +128,34 @@
 	</div>
 
 	<!-- Footer Section -->
-	<div class="flex justify-end bg-gray-50 p-3">
-		<button
-			class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white shadow transition-all duration-200 hover:bg-blue-700"
-			on:click={() => goto(`/orders/${order.id}`)}
-		>
-			{#if order.customer.id === tempCustomerUuid}
-				<Icon class="mr-1" data={faChain} />
-				{order.status === OrderStatus.QUOTE ? 'Vincular presupuesto' : 'Vincular pedido'}
-			{:else if order.status === OrderStatus.QUOTE}
-				<Icon class="mr-1" data={faEye} /> Ver presupuesto
-			{:else}
-				<Icon class="mr-1" data={faEye} /> Ver pedido
+	<div class="flex justify-between bg-gray-50 p-3">
+		<div class="group relative px-3">
+			{#if order.status === OrderStatus.FINISHED && order.notified}
+				<div class="flex animate-pulse items-center rounded-full bg-green-100 p-1">
+					<Icon scale={1} data={faCheckCircle} class="text-green-500" />
+				</div>
+
+				<div
+					class="absolute bottom-full left-1/2 mb-2 hidden -translate-x-1/2 transform rounded-lg bg-gray-800 px-2 py-1 text-xs text-white group-hover:block"
+				>
+					Cliente avisado
+				</div>
 			{/if}
-		</button>
+		</div>
+		<div class="flex justify-end">
+			<button
+				class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white shadow transition-all duration-200 hover:bg-blue-700"
+				on:click={() => goto(`/orders/${order.id}`)}
+			>
+				{#if order.customer.id === tempCustomerUuid}
+					<Icon class="mr-1" data={faChain} />
+					{order.status === OrderStatus.QUOTE ? 'Vincular presupuesto' : 'Vincular pedido'}
+				{:else if order.status === OrderStatus.QUOTE}
+					<Icon class="mr-1" data={faEye} /> Ver presupuesto
+				{:else}
+					<Icon class="mr-1" data={faEye} /> Ver pedido
+				{/if}
+			</button>
+		</div>
 	</div>
 </div>
