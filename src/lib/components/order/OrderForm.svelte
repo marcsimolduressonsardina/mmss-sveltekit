@@ -40,7 +40,7 @@
 	} from '$lib/ui/ui.constants';
 	import { onMount } from 'svelte';
 	import type { OrderCreationFormData } from '$lib/server/shared/order/order-creation.utilities';
-	import { OrderStatus } from '$lib/type/order.type';
+	import { DimensionsType, OrderStatus } from '$lib/type/order.type';
 	import Box from '../Box.svelte';
 	import { faRectangleList } from '@fortawesome/free-solid-svg-icons';
 
@@ -99,9 +99,6 @@
 	// Size vars
 	let totalHeightBox = 0;
 	let totalWidthBox = 0;
-	let exteriorDimensions =
-		($form.exteriorHeight != null && $form.exteriorHeight > 0) ||
-		($form.exteriorWidth != null && $form.exteriorWidth > 0);
 
 	const noObservationsLabel = 'No hay observaciones';
 	const defaultObservations = [
@@ -428,7 +425,8 @@
 		glass: boolean,
 		observations: boolean,
 		description: boolean,
-		discount: boolean
+		discount: boolean,
+		exteriorDimensions: boolean
 	) {
 		const parts = [];
 		if (!pp) {
@@ -471,11 +469,16 @@
 			parts.push('Falta descuento');
 		}
 
+		if (!exteriorDimensions) {
+			parts.push('Faltan medidas exteriores');
+		}
+
 		return parts;
 	}
 
 	// Added vars
 
+	$: exteriorDimensions = $form.dimenstionsType === DimensionsType.EXTERIOR;
 	$: addedOther = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.OTHER).length > 0;
 	$: addedPP = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.PP).length > 0;
 	$: addedHanger =
@@ -492,6 +495,8 @@
 	$: addedObservations = $form.observations.length > 0 || $form.predefinedObservations.length > 0;
 	$: addedDescription = $form.description.length > 0;
 	$: addedDiscount = typeof $form.discount === 'number' && !isNaN($form.discount);
+	$: addedExteriorDimensions =
+		!exteriorDimensions || ($form.exteriorHeight != null && $form.exteriorWidth != null);
 	$: descriptionChipList = $form.description.length > 0 ? [] : ['Sin obra'];
 	$: missingReasons = calculateMissingLabels(
 		addedPP,
@@ -503,7 +508,8 @@
 		addedGlass,
 		addedObservations,
 		addedDescription,
-		addedDiscount
+		addedDiscount,
+		addedExteriorDimensions
 	);
 
 	$: {
@@ -522,8 +528,6 @@
 		);
 		updateFabricPrices(partsToCalulatePreview.filter((p) => p.pre.type === PricingType.MOLD));
 		updateTotal(partsToCalulatePreview, extraParts, $form.discount, $form.quantity);
-		if (!exteriorDimensions) $form.exteriorHeight = undefined;
-		if (!exteriorDimensions) $form.exteriorWidth = undefined;
 	}
 
 	onMount(async () => {
@@ -713,15 +717,49 @@
 				</div>
 			</div>
 
-			<label class="label flex items-center space-x-2 lg:col-span-2" for="ppAsymetric">
-				<input
-					class="checkbox"
-					type="checkbox"
-					bind:checked={exteriorDimensions}
-					on:change={() => handleDimensionsChangeEvent()}
-				/>
-				<p>Medidas exteriores del marco</p>
-			</label>
+			<div class="col-span-2 flex flex-row justify-between space-x-2">
+				<label class="flex items-center space-x-2">
+					<input
+						class="radio"
+						type="radio"
+						checked
+						name="radio-direct"
+						bind:group={$form.dimenstionsType}
+						value={DimensionsType.NORMAL}
+					/>
+					<p>Nor.</p>
+				</label>
+				<label class="flex items-center space-x-2">
+					<input
+						class="radio"
+						type="radio"
+						bind:group={$form.dimenstionsType}
+						name="radio-direct"
+						value={DimensionsType.EXTERIOR}
+					/>
+					<p>Ext.</p>
+				</label>
+				<label class="flex items-center space-x-2">
+					<input
+						class="radio"
+						type="radio"
+						name="radio-direct"
+						bind:group={$form.dimenstionsType}
+						value={DimensionsType.ROUNDED}
+					/>
+					<p>Redo.</p>
+				</label>
+				<label class="flex items-center space-x-2">
+					<input
+						class="radio"
+						type="radio"
+						name="radio-direct"
+						bind:group={$form.dimenstionsType}
+						value={DimensionsType.WINDOW}
+					/>
+					<p>Vent.</p>
+				</label>
+			</div>
 
 			{#if exteriorDimensions}
 				<label class="label" for="exteriorHeight">

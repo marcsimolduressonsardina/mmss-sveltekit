@@ -14,14 +14,37 @@
 	} from '$lib/ui/ui.constants';
 	import { faCircleXmark, faCoins } from '@fortawesome/free-solid-svg-icons';
 	import Divider from '$lib/components/Divider.svelte';
+	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 
 	export let data: PageData;
+	const order = data.order!;
+	const calculatedItem = data.calculatedItem!;
+	const totalOrder = CalculatedItemUtilities.getTotal(calculatedItem);
 	let loading = false;
-	const statuses = OrderUtilites.getPossibleNextStatuses(data.order!.status);
 </script>
 
 <Box title="Pagos">
 	<div class="flex flex-col gap-2">
+		{#if order.amountPayed > 0 && order.amountPayed !== totalOrder}
+			<div class="flex flex-col">
+				<div class="flex items-center text-lg text-gray-800 line-through">
+					<span>{totalOrder.toFixed(2)} €</span>
+				</div>
+				<div class="flex items-center text-lg text-gray-800">
+					<span>{order.amountPayed.toFixed(2)} € pagado</span>
+				</div>
+				<div class="flex items-center text-xl font-bold text-gray-800">
+					<span>{(totalOrder - order.amountPayed).toFixed(2)} € pendiente</span>
+				</div>
+			</div>
+		{:else}
+			<div class="flex items-center text-xl font-bold text-gray-800">
+				<span>{totalOrder.toFixed(2)} €</span>
+			</div>
+		{/if}
+
+		<Divider></Divider>
+
 		<form
 			method="post"
 			action="?/changePayment"

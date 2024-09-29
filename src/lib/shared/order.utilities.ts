@@ -6,7 +6,7 @@ import type {
 	CalculatedItemPart,
 	CalculatedItemPartWithType
 } from '$lib/type/api.type';
-import { OrderStatus } from '$lib/type/order.type';
+import { DimensionsType, OrderStatus } from '$lib/type/order.type';
 import { PricingType } from '$lib/type/pricing.type';
 import { DateTime } from 'luxon';
 import { z } from 'zod';
@@ -199,6 +199,9 @@ export const baseOderSchema = z.object({
 	description: z.string().default(''),
 	observations: z.string().default(''),
 	quantity: z.number().int().min(1).default(1),
+	dimenstionsType: z
+		.enum(Object.values(DimensionsType) as [string, ...string[]])
+		.default(DimensionsType.NORMAL),
 	pp: z.coerce.number().min(0).default(0),
 	ppDimensions: ppDimensionsSchema.optional(),
 	discount: z

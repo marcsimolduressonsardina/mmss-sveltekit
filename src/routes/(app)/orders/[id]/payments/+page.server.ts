@@ -8,13 +8,13 @@ export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
 	const orderService = new OrderService(appUser);
-	const order = await orderService.getOrderById(id);
+	const fullOrder = await orderService.getFullOrderById(id);
 
-	if (order == null) {
+	if (fullOrder == null) {
 		return fail(404, { missing: true });
 	}
 
-	return { order };
+	return { order: fullOrder.order, calculatedItem: fullOrder.calculatedItem };
 }) satisfies PageServerLoad;
 
 export const actions = {

@@ -1,4 +1,4 @@
-import type { OrderDimensions, OrderStatus } from './order.type';
+import type { DimensionsType, OrderDimensions, OrderStatus } from './order.type';
 import type { Session } from '@auth/core/types';
 import type { PricingFormula, PricingType } from './pricing.type';
 
@@ -102,6 +102,7 @@ export type Item = {
 	partsToCalculate: PreCalculatedItemPart[];
 	exteriorWidth?: number;
 	exteriorHeight?: number;
+	dimensionsType: DimensionsType;
 };
 
 export type CalculatedItem = {

@@ -28,4 +28,5 @@ export type ItemDto = {
 	partsToCalculate: PreCalculatedItemPartDto[];
 	exteriorWidth?: number;
 	exteriorHeight?: number;
+	dimensionsType?: string;
 };

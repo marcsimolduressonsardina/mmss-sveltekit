@@ -17,7 +17,7 @@ import type { ItemDto } from '../repository/dto/item.dto';
 import { PricingType } from '$lib/type/pricing.type';
 import { InvalidDataError } from '../error/invalid-data.error';
 import { isOrderTemp, tempCustomerUuid } from '$lib/shared/order.utilities';
-import { OrderStatus } from '$lib/type/order.type';
+import { DimensionsType, OrderStatus } from '$lib/type/order.type';
 import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 import type { OrderCreationWithCustomerDto } from './dto/order-creation.dto';
 import type { OrderCreationDto } from './dto/order-creation.dto';
@@ -55,6 +55,15 @@ export class OrderService {
 			if (customer) {
 				return OrderService.fromDto(orderDto, customer);
 			}
+		}
+
+		return null;
+	}
+
+	async getFullOrderById(orderId: string): Promise<FullOrder | null> {
+		const order = await this.getOrderById(orderId);
+		if (order != null) {
+			return (await this.getFullOrders([order]))[0];
 		}
 
 		return null;
@@ -362,6 +371,7 @@ export class OrderService {
 				quantity: dto.quantity,
 				createdAt: originalCreationDate ?? new Date(),
 				deliveryDate: dto.deliveryDate,
+				dimensionsType: dto.dimensionsType,
 				partsToCalculate: OrderService.optimizePartsToCalculate(dto.partsToCalculate),
 				exteriorWidth: dto.exteriorWidth,
 				exteriorHeight: dto.exteriorHeight,
@@ -483,7 +493,9 @@ export class OrderService {
 				extraInfo: part.extraInfo
 			})),
 			exteriorHeight: item.exteriorHeight,
-			exteriorWidth: item.exteriorWidth
+			exteriorWidth: item.exteriorWidth,
+			instantDelivery: item.instantDelivery,
+			dimensionsType: item.dimensionsType
 		};
 	}
 
@@ -508,7 +520,12 @@ export class OrderService {
 			})),
 			exteriorHeight: dto.exteriorHeight,
 			exteriorWidth: dto.exteriorWidth,
-			instantDelivery: dto.instantDelivery ?? false
+			instantDelivery: dto.instantDelivery ?? false,
+			dimensionsType: dto.dimensionsType
+				? (dto.dimensionsType as DimensionsType)
+				: dto.exteriorHeight != null || dto.exteriorWidth != null
+					? DimensionsType.EXTERIOR
+					: DimensionsType.NORMAL
 		};
 	}
 }

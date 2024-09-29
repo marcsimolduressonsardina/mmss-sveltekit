@@ -89,7 +89,11 @@
 							<span>Recogida</span>
 						</div>
 						<div class="font-semibold">
-							{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+							{#if order.item.instantDelivery}
+								Al momento
+							{:else}
+								{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+							{/if}
 						</div>
 					</div>
 				{/if}
