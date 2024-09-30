@@ -19,6 +19,7 @@ export type ItemDto = {
 	pp: number;
 	ppDimensions?: PPDimensionsDto;
 	description: string;
+	normalizedDescription: string;
 	predefinedObservations: string[];
 	observations: string;
 	quantity: number;

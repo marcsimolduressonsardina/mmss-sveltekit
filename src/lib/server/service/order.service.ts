@@ -23,6 +23,7 @@ import type { OrderCreationWithCustomerDto } from './dto/order-creation.dto';
 import type { OrderCreationDto } from './dto/order-creation.dto';
 import { DateTime } from 'luxon';
 import { quoteDeliveryDate } from '../shared/order/order-creation.utilities';
+import { SearchUtilities } from '../shared/search/search.utilities';
 
 export interface ISameDayOrderCounters {
 	finishedCount: number;
@@ -76,6 +77,39 @@ export class OrderService {
 		customerMap.set(tempCustomerUuid, OrderService.getTempCustomer(this.storeId));
 		const orders = orderDtos.map((o) => OrderService.fromDto(o, customerMap.get(o.customerUuid)!));
 		return this.getFullOrders(orders);
+	}
+
+	async findOrdersByStatus(status: OrderStatus, query: string): Promise<FullOrder[]> {
+		const orderDtos = await this.repository.findOrdersByStatus(
+			status,
+			SearchUtilities.normalizeString(query),
+			this.storeId
+		);
+		const customerIds = orderDtos.map((dto) => dto.customerUuid);
+		const customerMap = await this.customerService.getAllCustomersMap(customerIds);
+		customerMap.set(tempCustomerUuid, OrderService.getTempCustomer(this.storeId));
+		const orders = orderDtos.map((o) => OrderService.fromDto(o, customerMap.get(o.customerUuid)!));
+		return this.getFullOrders(orders);
+	}
+
+	async indexOrders() {
+		const orderDtos = (
+			await Promise.all(
+				Object.values(OrderStatus)
+					.filter((s) => s !== OrderStatus.DELETED)
+					.map((s) => this.repository.getOrdersByStatus(s, this.storeId))
+			)
+		).flat();
+
+		const newOrderDtos = orderDtos.map((order) => ({
+			...order,
+			item: {
+				...order.item,
+				normalizedDescription: SearchUtilities.normalizeString(order.item.description)
+			}
+		}));
+
+		await this.repository.storeOrders(newOrderDtos);
 	}
 
 	async getOrdersByCustomerId(customerId: string): Promise<FullOrder[] | null> {
@@ -480,6 +514,7 @@ export class OrderService {
 			pp: item.pp,
 			ppDimensions: item.ppDimensions,
 			description: item.description,
+			normalizedDescription: SearchUtilities.normalizeString(item.description),
 			predefinedObservations: item.predefinedObservations,
 			observations: item.observations,
 			quantity: item.quantity,

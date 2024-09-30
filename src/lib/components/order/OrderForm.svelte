@@ -1060,7 +1060,7 @@
 					name="instantDelivery"
 					bind:checked={$form.instantDelivery}
 				/>
-				<p>Entrega inmediata</p>
+				<p>Al momento</p>
 			</label>
 
 			<label class="label" for="discount">

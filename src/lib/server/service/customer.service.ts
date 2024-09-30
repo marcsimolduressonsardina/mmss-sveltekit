@@ -8,6 +8,7 @@ import { CustomerRepository } from '../repository/customer.repository';
 import type { CustomerDto } from '../repository/dto/customer.dto';
 import type { Customer, AppUser } from '../../type/api.type';
 import type { OrderDto } from '../repository/dto/order.dto';
+import { SearchUtilities } from '../shared/search/search.utilities';
 
 interface PaginatedCustomers {
 	customers: Customer[];
@@ -40,10 +41,14 @@ export class CustomerService {
 		}
 	}
 
-	public async getAllCustomersMap(filterIds?: string[]): Promise<Map<string, Customer>> {
+	public async getAllCustomersMap(filterIds: string[]): Promise<Map<string, Customer>> {
 		const map = new Map<string, Customer>();
 		const filterSet = new Set<string>(filterIds ?? []);
-		const dtos = await this.repository.getAllCustomers(this.storeId);
+
+		const dtos = (
+			await Promise.all([...filterSet].map((id) => this.repository.getCustomerById(id)))
+		).filter((customer) => customer != null);
+
 		dtos.forEach((dto) => {
 			if (filterIds == null || filterSet.has(dto.uuid)) {
 				const customer = CustomerService.fromDto(dto);
@@ -77,7 +82,7 @@ export class CustomerService {
 	public async searchCustomers(query: string): Promise<Customer[]> {
 		const dtos = await this.repository.searchCustomer(
 			this.storeId,
-			CustomerService.normalizeName(query)
+			SearchUtilities.normalizeString(query)
 		);
 
 		return dtos.map((dto) => CustomerService.fromDto(dto));
@@ -160,22 +165,6 @@ export class CustomerService {
 		}
 	}
 
-	private static normalizeName(input: string): string {
-		// Convert to lowercase
-		let normalized = input.toLowerCase();
-
-		// Remove diacritics (accents)
-		normalized = normalized.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-
-		// Remove special characters (anything that is not a letter, number, or whitespace)
-		normalized = normalized.replace(/[^a-z0-9\s]/g, '');
-
-		// Trim whitespace
-		normalized = normalized.trim();
-
-		return normalized;
-	}
-
 	private static fromDto(dto: CustomerDto): Customer {
 		return {
 			id: dto.uuid,
@@ -191,7 +180,7 @@ export class CustomerService {
 			name: customer.name,
 			phone: customer.phone,
 			storeId: customer.storeId,
-			normalizedName: CustomerService.normalizeName(customer.name)
+			normalizedName: SearchUtilities.normalizeString(customer.name)
 		};
 	}
 }

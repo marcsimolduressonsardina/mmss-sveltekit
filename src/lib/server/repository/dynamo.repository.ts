@@ -182,18 +182,62 @@ export abstract class DynamoRepository<T> {
 		}
 	}
 
+	protected async searchInNestedFields(
+		partitionKeyValue: string,
+		query: string,
+		nestedAttributesMap: Map<string, string>,
+		ascendent: boolean = true,
+		indexName?: string,
+		partitionKeyName?: string
+	): Promise<T[]> {
+		if (indexName != null && partitionKeyName == null) {
+			throw Error('partitionKeyName is missing');
+		}
+
+		const pkExpression = { '#pk': indexName ? partitionKeyName! : this.partitionKey };
+		const nestedAttributes = { ...pkExpression, ...Object.fromEntries(nestedAttributesMap) };
+		const nestedQuery = `contains(${[...nestedAttributesMap.keys()].join('.')}, :query)`;
+
+		const params: QueryCommandInput = {
+			IndexName: indexName,
+			TableName: this.table,
+			KeyConditionExpression: '#pk = :pkv',
+			FilterExpression: nestedQuery,
+			ExpressionAttributeNames: nestedAttributes,
+			ExpressionAttributeValues: {
+				':pkv': partitionKeyValue,
+				':query': query
+			},
+			ScanIndexForward: ascendent
+		};
+
+		try {
+			return this.executeQueryCommandWithoutPagination(params);
+		} catch (error: unknown) {
+			this.logError('nested search', error);
+			throw error;
+		}
+	}
+
 	protected async search(
 		partitionKeyValue: string,
 		query: string,
 		queryField: string,
-		ascendent: boolean = true
+		ascendent: boolean = true,
+		indexName?: string,
+		partitionKeyName?: string
 	): Promise<T[]> {
+		if (indexName != null && partitionKeyName == null) {
+			throw Error('partitionKeyName is missing');
+		}
+
 		const params: QueryCommandInput = {
+			IndexName: indexName,
 			TableName: this.table,
 			KeyConditionExpression: '#pk = :pkv',
 			FilterExpression: 'contains(#attribute, :query)',
 			ExpressionAttributeNames: {
-				'#pk': this.partitionKey,
+				'#pk': indexName ? partitionKeyName! : this.partitionKey,
 				'#attribute': queryField
 			},
 			ExpressionAttributeValues: {
@@ -240,6 +284,44 @@ export abstract class DynamoRepository<T> {
 			ExpressionAttributeNames: {
 				'#field': fieldName
 			},
+			ExpressionAttributeValues: {
+				':value': value
+			}
+		};
+
+		try {
+			await this.client.send(new UpdateCommand(params));
+		} catch (error: unknown) {
+			this.logError('updateField', error);
+			throw error;
+		}
+	}
+
+	protected async updateNestedField(
+		partitionKeyValue: string,
+		nestedAttributesMap: Map<string, string>,
+		value: string | number | ItemDto | boolean | undefined,
+		sortKeyValue?: string | number
+	) {
+		const key: { [x: string]: string | number } = {
+			[this.partitionKey]: partitionKeyValue
+		};
+
+		if (this.sortKey && !sortKeyValue) {
+			throw Error("Sort key value can't be null");
+		}
+
+		if (this.sortKey && sortKeyValue) {
+			key[this.sortKey] = sortKeyValue;
+		}
+
+		const updateExpresion = `set ${[...nestedAttributesMap.keys()].join('.')} = :value)`;
+
+		const params: UpdateCommandInput = {
+			TableName: this.table,
+			Key: key,
+			UpdateExpression: updateExpresion,
+			ExpressionAttributeNames: Object.fromEntries(nestedAttributesMap),
 			ExpressionAttributeValues: {
 				':value': value
 			}

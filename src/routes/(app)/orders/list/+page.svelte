@@ -11,13 +11,9 @@
 
 	export let data: PageData;
 	let searchValue = '';
-
-	function normalizeString(str: string): string {
-		return str
-			.normalize('NFD')
-			.replace(/[\u0300-\u036f]/g, '')
-			.toLocaleLowerCase();
-	}
+	let timer: NodeJS.Timeout;
+	let searchOrders: FullOrder[] = [];
+	let loading = false;
 
 	function getStatus(statusStr: string) {
 		const status = statusStr as OrderStatus;
@@ -29,74 +25,101 @@
 		}
 	}
 
-	function isWordPresent(inputString1: string, inputString2: string): boolean {
-		const normalizedInputString1 = normalizeString(inputString1);
-		const normalizedInputString2 = normalizeString(inputString2);
+	async function search(query: string): Promise<FullOrder[]> {
+		if (query.length < 3) {
+			return [];
+		}
 
-		const words1 = normalizedInputString1.split(' ');
-		const words2 = normalizedInputString2.split(' ');
-
-		for (const word1 of words1) {
-			if (words2.some((word2) => word2.includes(word1))) {
-				return true;
+		const response = await fetch('/api/orders/search', {
+			method: 'POST',
+			body: JSON.stringify({ query, status: data.status }),
+			headers: {
+				'content-type': 'application/json'
 			}
-		}
+		});
 
-		return false;
+		const body: { results: FullOrder[] } = await response.json();
+		return body.results.map((fo) => ({
+			calculatedItem: fo.calculatedItem,
+			order: {
+				...fo.order,
+				item: {
+					...fo.order.item,
+					createdAt: new Date(fo.order.item.createdAt),
+					deliveryDate: new Date(fo.order.item.deliveryDate)
+				},
+				createdAt: new Date(fo.order.createdAt)
+			}
+		}));
 	}
 
-	function filterOrders(orders: FullOrder[], search: string): FullOrder[] {
-		if (searchValue.length === 0) {
-			return orders;
-		}
-
-		return orders.filter((o) => isWordPresent(search, o.order.item.description));
-	}
+	const debounce = (v: string) => {
+		clearTimeout(timer);
+		loading = true;
+		searchOrders = [];
+		timer = setTimeout(async () => {
+			searchOrders = await search(v);
+			loading = false;
+		}, 400);
+	};
 </script>
 
 <div class="space flex w-full flex-col gap-4 p-3">
-	{#await data.orders}
-		<Box title={''}>
-			<ProgressBar />
-		</Box>
-	{:then fullOrders}
-		<Box title={`${getStatus(data.status)}`}>
-			{#if data.status !== OrderStatus.QUOTE}
-				<div
-					class="flex w-full flex-col place-content-center items-center justify-center gap-3 md:grid md:grid-cols-2"
-				>
-					<Button
-						text="Ver pedidos finalizados"
-						link={`/orders/list?status=${OrderStatus.FINISHED}`}
-						colorClasses={getStatusUIInfo(OrderStatus.FINISHED).colors}
-						icon={getStatusUIInfo(OrderStatus.FINISHED).statusIcon}
-					></Button>
+	<Box title={`${getStatus(data.status)}`}>
+		{#if data.status !== OrderStatus.QUOTE}
+			<div
+				class="flex w-full flex-col place-content-center items-center justify-center gap-3 md:grid md:grid-cols-2"
+			>
+				<Button
+					text="Ver pedidos finalizados"
+					link={`/orders/list?status=${OrderStatus.FINISHED}`}
+					colorClasses={getStatusUIInfo(OrderStatus.FINISHED).colors}
+					icon={getStatusUIInfo(OrderStatus.FINISHED).statusIcon}
+				></Button>
 
-					<Button
-						text="Ver pedidos pendientes"
-						link={`/orders/list?status=${OrderStatus.PENDING}`}
-						colorClasses={getStatusUIInfo(OrderStatus.PENDING).colors}
-						icon={getStatusUIInfo(OrderStatus.PENDING).statusIcon}
-					></Button>
-				</div>
-			{/if}
-
-			<div class="mt-4">
-				<input
-					bind:value={searchValue}
-					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm"
-					type="text"
-					placeholder="Buscar en descripción..."
-				/>
+				<Button
+					text="Ver pedidos pendientes"
+					link={`/orders/list?status=${OrderStatus.PENDING}`}
+					colorClasses={getStatusUIInfo(OrderStatus.PENDING).colors}
+					icon={getStatusUIInfo(OrderStatus.PENDING).statusIcon}
+				></Button>
 			</div>
-		</Box>
+		{/if}
 
-		{#if data.isAdmin || searchValue.length > 0}
+		<div class="mt-4">
+			<input
+				bind:value={searchValue}
+				on:keyup={() => debounce(searchValue)}
+				class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm"
+				type="text"
+				placeholder="Buscar en descripción..."
+			/>
+		</div>
+	</Box>
+
+	{#if data.isAdmin && searchValue.length === 0}
+		{#await data.orders}
+			<ProgressBar text="Cargando listado" />
+		{:then fullOrders}
 			<div class="flex w-full flex-col gap-3 lg:grid lg:grid-cols-4">
-				{#each filterOrders(fullOrders, searchValue) as fullOrder}
+				{#each fullOrders as fullOrder}
 					<OrderCard {fullOrder} />
 				{/each}
 			</div>
+		{/await}
+	{/if}
+
+	{#if searchValue.length > 0}
+		{#if searchValue.length < 3}
+			<div class="w-full text-center">Escribe más de 3 carácteres</div>
+		{:else if loading}
+			<ProgressBar text="Buscando" />
+		{:else}
+			{#each searchOrders as fullOrder}
+				<div class="flex w-full flex-col gap-3 lg:grid lg:grid-cols-4">
+					<OrderCard {fullOrder} />
+				</div>
+			{/each}
 		{/if}
-	{/await}
+	{/if}
 </div>

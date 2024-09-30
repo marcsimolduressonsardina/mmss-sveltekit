@@ -36,6 +36,27 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 		return dtos.filter((dto) => dto.storeId === storeId);
 	}
 
+	public async findOrdersByStatus(
+		status: string,
+		query: string,
+		storeId: string
+	): Promise<OrderDto[]> {
+		const nestedAttributesMap = new Map([
+			['#item', 'item'],
+			['#description', 'normalizedDescription']
+		]);
+
+		const dtos = await this.searchInNestedFields(
+			status,
+			query,
+			nestedAttributesMap,
+			true,
+			'statusIndex',
+			'status'
+		);
+		return dtos.filter((dto) => dto.storeId === storeId);
+	}
+
 	public async getOrdersBetweenTs(
 		customerUuid: string,
 		startTs: number,
@@ -87,6 +108,10 @@ export class OrderRepository extends DynamoRepository<OrderDto> {
 
 	public async updateAmountPayed(order: OrderDto) {
 		this.updateField(order.customerUuid, 'amountPayed', order.amountPayed, order.timestamp);
+	}
+
+	public async storeOrders(orders: OrderDto[]) {
+		await this.batchPut(orders);
 	}
 
 	public async deleteOrder(customerUuid: string, timestamp: number) {
