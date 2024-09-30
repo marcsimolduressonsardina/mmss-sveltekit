@@ -115,11 +115,11 @@
 		{:else if loading}
 			<ProgressBar text="Buscando" />
 		{:else}
-			{#each searchOrders as fullOrder}
-				<div class="flex w-full flex-col gap-3 lg:grid lg:grid-cols-4">
+			<div class="flex w-full flex-col gap-3 lg:grid lg:grid-cols-4">
+				{#each searchOrders as fullOrder}
 					<OrderCard {fullOrder} />
-				</div>
-			{/each}
+				{/each}
+			</div>
 		{/if}
 	{/if}
 </div>
