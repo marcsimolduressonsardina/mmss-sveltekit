@@ -111,6 +111,8 @@ export class OrderCreationUtilities {
 				form.data.predefinedObservations = order.item.predefinedObservations;
 				form.data.quantity = order.item.quantity;
 				form.data.width = order.item.width;
+				form.data.dimenstionsType = order.item.dimensionsType;
+				form.data.instantDelivery = order.item.instantDelivery;
 			}
 		}
 
