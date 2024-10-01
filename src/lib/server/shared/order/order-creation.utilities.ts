@@ -15,9 +15,12 @@ import { CalculatedItemService } from '$lib/server/service/calculated-item.servi
 import { cornersId, otherExtraId } from '$lib/shared/calculated-item.utilites';
 import { OrderStatus } from '$lib/type/order.type';
 import type { AllPrices } from '$lib/shared/pricing.utilites';
+import { DimensionsType } from '../../../type/order.type';
 
 type OrderTypeForm = z.infer<typeof orderSchema>;
 type QuoteTypeForm = z.infer<typeof quoteSchema>;
+
+export const quoteDeliveryDate = DateTime.fromFormat('31/12/9999', 'dd/MM/yyyy').toJSDate();
 
 export type OrderCreationFormData = {
 	pricing: Promise<AllPrices>;
@@ -40,12 +43,17 @@ export class OrderCreationUtilities {
 			extraInfo: part.extraInfo
 		}));
 
-		const deliveryDate = isQuote
-			? DateTime.fromFormat('31/12/9999', 'dd/MM/yyyy').toJSDate()
-			: form.data.deliveryDate;
+		const deliveryDate =
+			isQuote || form.data.instantDelivery ? quoteDeliveryDate : form.data.deliveryDate;
 		if (deliveryDate == null) {
 			throw Error('Delivery date can not be empty');
 		}
+
+		const { exteriorHeight, exteriorWidth } = OrderCreationUtilities.getExteriorDimensions(
+			form.data.dimenstionsType as DimensionsType,
+			form.data.exteriorWidth,
+			form.data.exteriorHeight
+		);
 
 		return {
 			customerId,
@@ -63,8 +71,10 @@ export class OrderCreationUtilities {
 			discount: form.data.discount,
 			hasArrow: form.data.hasArrow,
 			ppDimensions: form.data.ppDimensions,
-			exteriorWidth: form.data.exteriorWidth,
-			exteriorHeight: form.data.exteriorHeight
+			exteriorWidth: exteriorWidth,
+			exteriorHeight: exteriorHeight,
+			dimensionsType: form.data.dimenstionsType as DimensionsType,
+			instantDelivery: form.data.instantDelivery
 		};
 	}
 
@@ -81,6 +91,7 @@ export class OrderCreationUtilities {
 		if (order != null) {
 			const calculatedItemService = new CalculatedItemService();
 			const calculatedItem = await calculatedItemService.getCalculatedItem(order.id);
+
 			if (calculatedItem != null) {
 				if (editing && order.status !== OrderStatus.QUOTE) {
 					form.data.deliveryDate = order.item.deliveryDate;
@@ -100,6 +111,8 @@ export class OrderCreationUtilities {
 				form.data.predefinedObservations = order.item.predefinedObservations;
 				form.data.quantity = order.item.quantity;
 				form.data.width = order.item.width;
+				form.data.dimenstionsType = order.item.dimensionsType;
+				form.data.instantDelivery = order.item.instantDelivery;
 			}
 		}
 
@@ -184,12 +197,24 @@ export class OrderCreationUtilities {
 		if (customerId == null) {
 			return redirect(302, `/orders/${orderId}/link`);
 		} else {
-			return redirect(302, `/orders/${orderId}`);
+			return redirect(302, `/orders/${orderId}/files`);
 		}
 	}
 
 	private static getExtraParts(calculatedItem: CalculatedItem): CalculatedItemPart[] {
 		const extraPartIds = [cornersId, otherExtraId];
 		return calculatedItem.parts.filter((part) => extraPartIds.indexOf(part.priceId) > -1);
+	}
+
+	private static getExteriorDimensions(
+		dimensionsType: DimensionsType,
+		exteriorWidth?: number,
+		exteriorHeight?: number
+	): { exteriorHeight?: number; exteriorWidth?: number } {
+		if (dimensionsType === DimensionsType.EXTERIOR) {
+			return { exteriorHeight, exteriorWidth };
+		}
+
+		return { exteriorHeight: undefined, exteriorWidth: undefined };
 	}
 }

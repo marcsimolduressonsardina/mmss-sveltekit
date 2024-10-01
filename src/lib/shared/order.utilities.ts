@@ -6,7 +6,7 @@ import type {
 	CalculatedItemPart,
 	CalculatedItemPartWithType
 } from '$lib/type/api.type';
-import { OrderStatus } from '$lib/type/order.type';
+import { DimensionsType, OrderStatus } from '$lib/type/order.type';
 import { PricingType } from '$lib/type/pricing.type';
 import { DateTime } from 'luxon';
 import { z } from 'zod';
@@ -82,12 +82,12 @@ export class OrderUtilites {
 
 	public static getWhatsappTicketText(order: Order): string {
 		const url = `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
-		return `Su pedido ${OrderUtilites.getOrderPublicId(order)} ha sido registrado correctamente, puede consultar aquí su resguardo ${url} . Marcs i Moldures Son Sardina.`;
+		return `Su pedido \`\`\`${OrderUtilites.getOrderPublicId(order)}\`\`\` ha sido registrado correctamente, puede consultar aquí su resguardo ${url} . Marcs i Moldures Son Sardina.`;
 	}
 
 	public static getWhatsappQuoteText(order: Order): string {
 		const url = `${PUBLIC_DOMAIN_URL}/s/${order.shortId}`;
-		return `Aquí tiene una copia de su presupuesto ${OrderUtilites.getOrderPublicId(order)} :  ${url} . Marcs i Moldures Son Sardina.`;
+		return `Aquí tiene una copia de su presupuesto \`\`\`${OrderUtilites.getOrderPublicId(order)}\`\`\` :  ${url} . Marcs i Moldures Son Sardina.`;
 	}
 
 	public static getWhatsappFinishedText(orders: Order[]): string {
@@ -95,16 +95,16 @@ export class OrderUtilites {
 			'Nuestro horario es de lunes a viernes de 09:00 a 18:00 y los sábados de 09:30 a 13:15. Marcs i Moldures Son Sardina.';
 		if (orders.length === 1) {
 			const url = `${PUBLIC_DOMAIN_URL}/s/${orders[0].shortId}`;
-			return `Hemos terminado su pedido ${OrderUtilites.getOrderPublicId(orders[0])}, puede pasar a buscarlo. Aquí tiene el resguardo ${url} . ${greeting}`;
+			return `Hemos terminado su pedido \`\`\`${OrderUtilites.getOrderPublicId(orders[0])}\`\`\` puede pasar a buscarlo. Aquí tiene el resguardo ${url} . ${greeting}`;
 		} else {
 			const orderLines = orders
 				.map(
 					(order) =>
-						`${OrderUtilites.getOrderPublicId(order)} - Resguardo ${PUBLIC_DOMAIN_URL}/s/${order.shortId}`
+						`* \`\`\`${OrderUtilites.getOrderPublicId(order)}\`\`\` \n ${PUBLIC_DOMAIN_URL}/s/${order.shortId}`
 				)
 				.join('\n');
 
-			return `Hemos terminado sus pedidos:\n${orderLines}\nPuede pasar a buscarlos. ${greeting}`;
+			return `\n Hemos terminado sus pedidos:\n${orderLines}\nPuede pasar a buscarlos. ${greeting}`;
 		}
 	}
 
@@ -199,20 +199,40 @@ export const baseOderSchema = z.object({
 	description: z.string().default(''),
 	observations: z.string().default(''),
 	quantity: z.number().int().min(1).default(1),
+	dimenstionsType: z
+		.enum(Object.values(DimensionsType) as [string, ...string[]])
+		.default(DimensionsType.NORMAL),
 	pp: z.coerce.number().min(0).default(0),
 	ppDimensions: ppDimensionsSchema.optional(),
-	discount: z.number().min(0).default(0),
+	discount: z
+		.number()
+		.min(0)
+		.default('' as unknown as number),
 	extraParts: z.array(extraPartSchema),
 	partsToCalculate: z.array(partToCalculateSchema),
 	predefinedObservations: z.array(z.string()).default([]),
 	hasArrow: z.boolean().default(false),
 	exteriorWidth: z.number().optional(),
-	exteriorHeight: z.number().optional()
+	exteriorHeight: z.number().optional(),
+	instantDelivery: z.boolean().default(false)
 });
 
-export const orderSchema = baseOderSchema.extend({
-	deliveryDate: z.date().min(OrderUtilites.getYesterday())
-});
+export const orderSchema = baseOderSchema
+	.extend({
+		deliveryDate: z.date().optional()
+	})
+	.superRefine((data, ctx) => {
+		const yesterday = OrderUtilites.getYesterday();
+
+		// If isExpress is false and deliveryDate is missing or invalid
+		if (!data.instantDelivery && (!data.deliveryDate || data.deliveryDate < yesterday)) {
+			ctx.addIssue({
+				code: 'custom', // Add the required 'code' property
+				path: ['deliveryDate'], // The path of the property causing the error
+				message: 'If not instantDelivery, delivery date must be set and after yesterday'
+			});
+		}
+	});
 
 export const promoteOrderSchema = z.object({
 	deliveryDate: z.date().min(OrderUtilites.getYesterday())

@@ -31,12 +31,7 @@
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import ChipSet from '$lib/components/item/ChipSet.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import {
-		PricingUtilites,
-		fabricDefaultPricing,
-		fabricIds,
-		type AllPrices
-	} from '$lib/shared/pricing.utilites';
+	import { PricingUtilites, fabricDefaultPricing, fabricIds } from '$lib/shared/pricing.utilites';
 	import {
 		ACCIONES_NEUTRES_COLORS,
 		BUTTON_DEFAULT_CLASSES,
@@ -45,7 +40,9 @@
 	} from '$lib/ui/ui.constants';
 	import { onMount } from 'svelte';
 	import type { OrderCreationFormData } from '$lib/server/shared/order/order-creation.utilities';
-	import { OrderStatus } from '$lib/type/order.type';
+	import { DimensionsType, OrderStatus } from '$lib/type/order.type';
+	import Box from '../Box.svelte';
+	import { faRectangleList } from '@fortawesome/free-solid-svg-icons';
 
 	export let data: OrderCreationFormData;
 
@@ -102,11 +99,10 @@
 	// Size vars
 	let totalHeightBox = 0;
 	let totalWidthBox = 0;
-	let exteriorDimensions =
-		($form.exteriorHeight != null && $form.exteriorHeight > 0) ||
-		($form.exteriorWidth != null && $form.exteriorWidth > 0);
 
+	const noObservationsLabel = 'No hay observaciones';
 	const defaultObservations = [
+		noObservationsLabel,
 		'Sabe que puede ondular',
 		'No pegar',
 		'Muy delicado',
@@ -161,6 +157,10 @@
 		predefinedObservations.push(observation);
 		predefinedObservations = [...predefinedObservations];
 		$form.predefinedObservations = predefinedObservations;
+	}
+
+	function addDescription(description: string) {
+		$form.description = description;
 	}
 
 	function removeObservation(observation: string) {
@@ -415,8 +415,70 @@
 		fabricPrices = newPrices;
 	}
 
+	function calculateMissingLabels(
+		pp: boolean,
+		hanger: boolean,
+		transport: boolean,
+		back: boolean,
+		labour: boolean,
+		mold: boolean,
+		glass: boolean,
+		observations: boolean,
+		description: boolean,
+		discount: boolean,
+		exteriorDimensions: boolean
+	) {
+		const parts = [];
+		if (!pp) {
+			parts.push('Falta PP');
+		}
+
+		if (!hanger) {
+			parts.push('Falta colgadores');
+		}
+
+		if (!transport) {
+			parts.push('Falta transporte');
+		}
+
+		if (!labour) {
+			parts.push('Falta suministros');
+		}
+
+		if (!back) {
+			parts.push('Falta trasera');
+		}
+
+		if (!mold) {
+			parts.push('Falta moldura / marco');
+		}
+
+		if (!glass) {
+			parts.push('Falta cristal');
+		}
+
+		if (!observations) {
+			parts.push('Faltan observaciones');
+		}
+
+		if (!description) {
+			parts.push('Falta descripción');
+		}
+
+		if (!discount) {
+			parts.push('Falta descuento');
+		}
+
+		if (!exteriorDimensions) {
+			parts.push('Faltan medidas exteriores');
+		}
+
+		return parts;
+	}
+
 	// Added vars
 
+	$: exteriorDimensions = $form.dimenstionsType === DimensionsType.EXTERIOR;
 	$: addedOther = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.OTHER).length > 0;
 	$: addedPP = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.PP).length > 0;
 	$: addedHanger =
@@ -430,6 +492,25 @@
 		).length > 0;
 	$: addedMold = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.MOLD).length > 0;
 	$: addedGlass = partsToCalulatePreview.filter((p) => p.pre.type === PricingType.GLASS).length > 0;
+	$: addedObservations = $form.observations.length > 0 || $form.predefinedObservations.length > 0;
+	$: addedDescription = $form.description.length > 0;
+	$: addedDiscount = typeof $form.discount === 'number' && !isNaN($form.discount);
+	$: addedExteriorDimensions =
+		!exteriorDimensions || ($form.exteriorHeight != null && $form.exteriorWidth != null);
+	$: descriptionChipList = $form.description.length > 0 ? [] : ['Sin obra'];
+	$: missingReasons = calculateMissingLabels(
+		addedPP,
+		addedHanger,
+		addedTransport,
+		addedBack,
+		addedLabour,
+		addedMold,
+		addedGlass,
+		addedObservations,
+		addedDescription,
+		addedDiscount,
+		addedExteriorDimensions
+	);
 
 	$: {
 		updatePP(
@@ -447,8 +528,6 @@
 		);
 		updateFabricPrices(partsToCalulatePreview.filter((p) => p.pre.type === PricingType.MOLD));
 		updateTotal(partsToCalulatePreview, extraParts, $form.discount, $form.quantity);
-		if (!exteriorDimensions) $form.exteriorHeight = undefined;
-		if (!exteriorDimensions) $form.exteriorWidth = undefined;
 	}
 
 	onMount(async () => {
@@ -638,15 +717,49 @@
 				</div>
 			</div>
 
-			<label class="label flex items-center space-x-2 lg:col-span-2" for="ppAsymetric">
-				<input
-					class="checkbox"
-					type="checkbox"
-					bind:checked={exteriorDimensions}
-					on:change={() => handleDimensionsChangeEvent()}
-				/>
-				<p>Medidas exteriores del marco</p>
-			</label>
+			<div class="col-span-2 flex flex-row justify-between space-x-2">
+				<label class="flex items-center space-x-2">
+					<input
+						class="radio"
+						type="radio"
+						checked
+						name="radio-direct"
+						bind:group={$form.dimenstionsType}
+						value={DimensionsType.NORMAL}
+					/>
+					<p>Nor.</p>
+				</label>
+				<label class="flex items-center space-x-2">
+					<input
+						class="radio"
+						type="radio"
+						bind:group={$form.dimenstionsType}
+						name="radio-direct"
+						value={DimensionsType.EXTERIOR}
+					/>
+					<p>Ext.</p>
+				</label>
+				<label class="flex items-center space-x-2">
+					<input
+						class="radio"
+						type="radio"
+						name="radio-direct"
+						bind:group={$form.dimenstionsType}
+						value={DimensionsType.ROUNDED}
+					/>
+					<p>Redo.</p>
+				</label>
+				<label class="flex items-center space-x-2">
+					<input
+						class="radio"
+						type="radio"
+						name="radio-direct"
+						bind:group={$form.dimenstionsType}
+						value={DimensionsType.WINDOW}
+					/>
+					<p>Vent.</p>
+				</label>
+			</div>
 
 			{#if exteriorDimensions}
 				<label class="label" for="exteriorHeight">
@@ -860,18 +973,29 @@
 
 			<Spacer title={'Descripción de la obra'} />
 
-			<label class="label" for="description">
+			<label class="label lg:col-span-2" for="description">
 				<span>Descripción:</span>
 				<textarea
+					class:input-success={addedDescription}
 					class="textarea {$errors.description ? 'input-error' : ''}"
 					name="description"
 					bind:value={$form.description}
 				></textarea>
 			</label>
 
-			<label class="label" for="observations">
+			{#if descriptionChipList.length > 0}
+				<ChipSet
+					observations={descriptionChipList}
+					filledObservations={[]}
+					addFunction={addDescription}
+					removeFunction={removeObservation}
+				/>
+			{/if}
+
+			<label class="label lg:col-span-2" for="observations">
 				<span>Observaciones:</span>
 				<textarea
+					class:input-success={addedObservations}
 					class="textarea {$errors.observations ? 'input-error' : ''}"
 					name="observations"
 					bind:value={$form.observations}
@@ -917,23 +1041,37 @@
 				</button>
 			</div>
 
-			<label class="label" for="deliveryDate">
-				<span>Fecha de entrega (Sólo pedidos):</span>
+			{#if !$form.instantDelivery}
+				<label class="label" for="deliveryDate">
+					<span>Fecha de entrega (Sólo pedidos):</span>
+					<input
+						class="input {$errors.deliveryDate ? 'input-error' : ''}"
+						name="deliveryDate"
+						type="date"
+						bind:value={$proxyDate}
+					/>
+				</label>
+			{/if}
+
+			<label class="label flex items-center space-x-2" for="instantDelivery">
 				<input
-					class="input {$errors.deliveryDate ? 'input-error' : ''}"
-					name="deliveryDate"
-					type="date"
-					bind:value={$proxyDate}
+					class="checkbox"
+					type="checkbox"
+					name="instantDelivery"
+					bind:checked={$form.instantDelivery}
 				/>
+				<p>Al momento</p>
 			</label>
 
 			<label class="label" for="discount">
 				<span>Descuento:</span>
 				<select
 					name="discount"
+					class:input-success={addedDiscount}
 					class="select {$errors.discount ? 'input-error' : ''}"
 					bind:value={$form.discount}
 				>
+					<option></option>
 					<option value={0}>0</option>
 					<option value={10}>1</option>
 					<option value={15}>2</option>
@@ -977,7 +1115,19 @@
 				</span>
 			</div>
 
-			{#if data.editing}
+			{#if missingReasons.length > 0}
+				<div class="pt-3 lg:col-span-2">
+					<Box title={'Rellene todos los campos'} icon={faRectangleList}>
+						<div class="px-4">
+							<ul class="list-disc">
+								{#each missingReasons as reason}
+									<li>{reason}</li>
+								{/each}
+							</ul>
+						</div>
+					</Box>
+				</div>
+			{:else if data.editing}
 				<button
 					class={`${BUTTON_DEFAULT_CLASSES} ${ACCIONES_NEUTRES_COLORS} text-white lg:col-span-2`}
 					type="submit"

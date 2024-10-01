@@ -1,4 +1,4 @@
-import type { OrderDimensions, OrderStatus } from './order.type';
+import type { DimensionsType, OrderDimensions, OrderStatus } from './order.type';
 import type { Session } from '@auth/core/types';
 import type { PricingFormula, PricingType } from './pricing.type';
 
@@ -56,6 +56,12 @@ export type Order = {
 	user: StaticUser;
 	customer: Customer;
 	location: string;
+	notified: boolean;
+};
+
+export type FullOrder = {
+	order: Order;
+	calculatedItem: CalculatedItem;
 };
 
 export enum FileType {
@@ -69,6 +75,7 @@ export type File = {
 	id: string;
 	originalFilename: string;
 	downloadUrl?: string;
+	thumbnailDownloadUrl?: string;
 	uploadUrl?: string;
 	type: FileType;
 };
@@ -91,9 +98,11 @@ export type Item = {
 	quantity: number;
 	createdAt: Date;
 	deliveryDate: Date;
+	instantDelivery: boolean;
 	partsToCalculate: PreCalculatedItemPart[];
 	exteriorWidth?: number;
 	exteriorHeight?: number;
+	dimensionsType: DimensionsType;
 };
 
 export type CalculatedItem = {

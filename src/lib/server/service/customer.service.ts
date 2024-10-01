@@ -8,6 +8,12 @@ import { CustomerRepository } from '../repository/customer.repository';
 import type { CustomerDto } from '../repository/dto/customer.dto';
 import type { Customer, AppUser } from '../../type/api.type';
 import type { OrderDto } from '../repository/dto/order.dto';
+import { SearchUtilities } from '../shared/search/search.utilities';
+
+interface PaginatedCustomers {
+	customers: Customer[];
+	nextKey?: string;
+}
 
 export class CustomerService {
 	private readonly storeId: string;
@@ -35,10 +41,14 @@ export class CustomerService {
 		}
 	}
 
-	public async getAllCustomersMap(filterIds?: string[]): Promise<Map<string, Customer>> {
+	public async getAllCustomersMap(filterIds: string[]): Promise<Map<string, Customer>> {
 		const map = new Map<string, Customer>();
 		const filterSet = new Set<string>(filterIds ?? []);
-		const dtos = await this.repository.getAllCustomers(this.storeId);
+
+		const dtos = (
+			await Promise.all([...filterSet].map((id) => this.repository.getCustomerById(id)))
+		).filter((customer) => customer != null);
+
 		dtos.forEach((dto) => {
 			if (filterIds == null || filterSet.has(dto.uuid)) {
 				const customer = CustomerService.fromDto(dto);
@@ -49,39 +59,45 @@ export class CustomerService {
 		return map;
 	}
 
+	public async getAllCustomersPaginated(nextKey?: string): Promise<PaginatedCustomers> {
+		const paginatedDtos = await this.repository.getAllCustomersPaginated(
+			this.storeId,
+			nextKey ? atob(nextKey) : undefined
+		);
+
+		return {
+			customers: paginatedDtos.elements.map((dto) => CustomerService.fromDto(dto)),
+			nextKey: paginatedDtos.endKey ? btoa(paginatedDtos.endKey as string) : undefined
+		};
+	}
+
+	public async indexCustomers() {
+		const customerDtos = await this.repository.getAllCustomers(this.storeId);
+		const newDtos = customerDtos
+			.map((dto) => CustomerService.fromDto(dto))
+			.map((c) => CustomerService.toDto(c));
+		await this.repository.storeCustomers(newDtos);
+	}
+
+	public async searchCustomers(query: string): Promise<Customer[]> {
+		const dtos = await this.repository.searchCustomer(
+			this.storeId,
+			SearchUtilities.normalizeString(query)
+		);
+
+		return dtos.map((dto) => CustomerService.fromDto(dto));
+	}
+
 	public async updateCustomerData(
 		customer: Customer,
 		name?: string,
 		phone?: string
 	): Promise<Customer> {
-		let newName = name;
-		let newPhone = phone;
-
-		if (newName === customer.name) {
-			newName = undefined;
-		}
-
-		if (newPhone === customer.phone) {
-			newPhone = undefined;
-		}
-
-		if (newName == null && newPhone == null) {
-			return customer;
-		}
-
-		if (newName != null && newPhone == null) {
-			customer.name = newName;
-			CustomerService.validate(customer);
-			await this.repository.updateName(customer.storeId, customer.phone, newName);
-			return customer;
-		}
-
-		const oldCustomerDto = CustomerService.toDto(customer);
-		customer.name = newName ?? customer.name;
-		customer.phone = newPhone ?? customer.phone;
+		customer.name = name ?? customer.name;
+		customer.phone = phone ?? customer.phone;
 		CustomerService.validate(customer);
 		const newCustomerDto = CustomerService.toDto(customer);
-		await this.repository.updateFullCustomer(oldCustomerDto, newCustomerDto);
+		await this.repository.createCustomer(newCustomerDto);
 		return customer;
 	}
 
@@ -160,10 +176,11 @@ export class CustomerService {
 
 	private static toDto(customer: Customer): CustomerDto {
 		return {
-			uuid: customer.id!,
-			name: customer.name!,
-			phone: customer.phone!,
-			storeId: customer.storeId!
+			uuid: customer.id,
+			name: customer.name,
+			phone: customer.phone,
+			storeId: customer.storeId,
+			normalizedName: SearchUtilities.normalizeString(customer.name)
 		};
 	}
 }

@@ -9,18 +9,27 @@ import type {
 	AppUser,
 	PreCalculatedItemPart,
 	Item,
-	CalculatedItem
+	CalculatedItem,
+	FullOrder
 } from '$lib/type/api.type';
 import { CalculatedItemService } from './calculated-item.service';
 import type { ItemDto } from '../repository/dto/item.dto';
 import { PricingType } from '$lib/type/pricing.type';
 import { InvalidDataError } from '../error/invalid-data.error';
 import { isOrderTemp, tempCustomerUuid } from '$lib/shared/order.utilities';
-import { OrderStatus } from '$lib/type/order.type';
+import { DimensionsType, OrderStatus } from '$lib/type/order.type';
 import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 import type { OrderCreationWithCustomerDto } from './dto/order-creation.dto';
 import type { OrderCreationDto } from './dto/order-creation.dto';
 import { DateTime } from 'luxon';
+import { quoteDeliveryDate } from '../shared/order/order-creation.utilities';
+import { SearchUtilities } from '../shared/search/search.utilities';
+
+export interface ISameDayOrderCounters {
+	finishedCount: number;
+	pendingCount: number;
+	totalCount: number;
+}
 
 export class OrderService {
 	private readonly storeId: string;
@@ -52,48 +61,101 @@ export class OrderService {
 		return null;
 	}
 
-	async getOrdersByStatus(status: OrderStatus): Promise<Order[]> {
+	async getFullOrderById(orderId: string): Promise<FullOrder | null> {
+		const order = await this.getOrderById(orderId);
+		if (order != null) {
+			return (await this.getFullOrders([order]))[0];
+		}
+
+		return null;
+	}
+
+	async getOrdersByStatus(status: OrderStatus): Promise<FullOrder[]> {
 		const orderDtos = await this.repository.getOrdersByStatus(status, this.storeId);
 		const customerIds = orderDtos.map((dto) => dto.customerUuid);
 		const customerMap = await this.customerService.getAllCustomersMap(customerIds);
 		customerMap.set(tempCustomerUuid, OrderService.getTempCustomer(this.storeId));
-		return orderDtos.map((o) => OrderService.fromDto(o, customerMap.get(o.customerUuid)!));
+		const orders = orderDtos.map((o) => OrderService.fromDto(o, customerMap.get(o.customerUuid)!));
+		return this.getFullOrders(orders);
 	}
 
-	async getOrdersByCustomerId(customerId: string): Promise<Order[] | null> {
+	async findOrdersByStatus(status: OrderStatus, query: string): Promise<FullOrder[]> {
+		const orderDtos = await this.repository.findOrdersByStatus(
+			status,
+			SearchUtilities.normalizeString(query),
+			this.storeId
+		);
+		const customerIds = orderDtos.map((dto) => dto.customerUuid);
+		const customerMap = await this.customerService.getAllCustomersMap(customerIds);
+		customerMap.set(tempCustomerUuid, OrderService.getTempCustomer(this.storeId));
+		const orders = orderDtos.map((o) => OrderService.fromDto(o, customerMap.get(o.customerUuid)!));
+		return this.getFullOrders(orders);
+	}
+
+	async indexOrders() {
+		const orderDtos = (
+			await Promise.all(
+				Object.values(OrderStatus)
+					.filter((s) => s !== OrderStatus.DELETED)
+					.map((s) => this.repository.getOrdersByStatus(s, this.storeId))
+			)
+		).flat();
+
+		const newOrderDtos = orderDtos.map((order) => ({
+			...order,
+			item: {
+				...order.item,
+				normalizedDescription: SearchUtilities.normalizeString(order.item.description)
+			}
+		}));
+
+		await this.repository.storeOrders(newOrderDtos);
+	}
+
+	async getOrdersByCustomerId(customerId: string): Promise<FullOrder[] | null> {
 		const customer = await this.customerService.getCustomerById(customerId);
 		if (customer === null) return null;
 
 		const orderDtos = await this.repository.getOrdersByCustomerId(customerId);
-		return this.processDtosFromRepository(orderDtos, customer).filter(
+		const orders = this.processDtosFromRepository(orderDtos, customer).filter(
 			(o) => o.status !== OrderStatus.QUOTE
 		);
+
+		return this.getFullOrders(orders);
 	}
 
 	async getOrdersByCustomerIdAndStatus(
 		customerId: string,
 		status: OrderStatus
-	): Promise<Order[] | null> {
+	): Promise<FullOrder[] | null> {
 		const customer = await this.customerService.getCustomerById(customerId);
 		if (customer === null) return null;
 
 		const orderDtos = await this.repository.getOrdersByCustomerId(customerId);
-		return this.processDtosFromRepository(orderDtos, customer).filter((o) => o.status === status);
+		const orders = this.processDtosFromRepository(orderDtos, customer).filter(
+			(o) => o.status === status
+		);
+		return this.getFullOrders(orders);
 	}
 
-	async getOrdersOnSameDay(order: Order): Promise<Order[]> {
-		const firstSecond = new Date(order.createdAt);
-		firstSecond.setHours(0, 0, 0, 0);
-		const startTs = firstSecond.getTime();
+	async getOrdersCountOnSameDay(order: Order): Promise<ISameDayOrderCounters> {
+		const dtos = await this.getSameDayOrdersDtos(order);
+		const orderDtos = dtos.filter((dto) => dto.status !== OrderStatus.QUOTE.toString());
+		const finishedCount = orderDtos.filter(
+			(dto) => dto.status === OrderStatus.FINISHED.toString()
+		).length;
+		const pendingCount = orderDtos.filter(
+			(dto) => dto.status === OrderStatus.PENDING.toString()
+		).length;
+		return { pendingCount, finishedCount, totalCount: orderDtos.length };
+	}
 
-		const lastSecond = new Date(order.createdAt);
-		lastSecond.setHours(23, 59, 59, 999);
-		const endTs = lastSecond.getTime();
-
-		const orderDtos = await this.repository.getOrdersBetweenTs(order.customer.id, startTs, endTs);
-		return this.processDtosFromRepository(orderDtos, order.customer).filter(
+	async getOrdersOnSameDay(order: Order): Promise<FullOrder[]> {
+		const orderDtos = await this.getSameDayOrdersDtos(order);
+		const orders = this.processDtosFromRepository(orderDtos, order.customer).filter(
 			(o) => o.status !== OrderStatus.QUOTE
 		);
+		return this.getFullOrders(orders);
 	}
 
 	async createOrderFromDto(dto: OrderCreationDto): Promise<Order | null> {
@@ -153,6 +215,20 @@ export class OrderService {
 		return order;
 	}
 
+	async moveOrderToQuote(order: Order): Promise<Order> {
+		if (order.status === OrderStatus.QUOTE) return order;
+		const oldDto = OrderService.toDto(order);
+		order.createdAt = DateTime.now().toJSDate();
+		order.item.deliveryDate = quoteDeliveryDate;
+		order.statusUpdated = DateTime.now().toJSDate();
+		order.status = OrderStatus.QUOTE;
+		order.notified = false;
+		order.amountPayed = 0;
+		const newDto = OrderService.toDto(order);
+		await this.repository.updateFullOrder(oldDto, newDto);
+		return order;
+	}
+
 	async setOrderFullyPaid(order: Order) {
 		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
 		if (calculatedItem == null) return;
@@ -183,6 +259,11 @@ export class OrderService {
 		order.location = location ?? '';
 		order.statusUpdated = new Date();
 		this.repository.setOrderStatus(OrderService.toDto(order));
+	}
+
+	async setOrderAsNotified(order: Order) {
+		order.notified = true;
+		await this.repository.setOrderNotified(OrderService.toDto(order));
 	}
 
 	async incrementOrderPayment(order: Order, amount: number) {
@@ -237,11 +318,37 @@ export class OrderService {
 		return [];
 	}
 
+	private async getSameDayOrdersDtos(order: Order): Promise<OrderDto[]> {
+		const firstSecond = new Date(order.createdAt);
+		firstSecond.setHours(0, 0, 0, 0);
+		const startTs = firstSecond.getTime();
+
+		const lastSecond = new Date(order.createdAt);
+		lastSecond.setHours(23, 59, 59, 999);
+		const endTs = lastSecond.getTime();
+
+		return this.repository.getOrdersBetweenTs(order.customer.id, startTs, endTs);
+	}
+
 	private async createOrder(dto: OrderCreationWithCustomerDto): Promise<Order> {
 		const { order, calculatedItem } = await this.generateOrderAndCalculatedItemFromDto(dto);
 		await this.repository.createOrder(OrderService.toDto(order));
 		await this.calculatedItemService.saveCalculatedItem(calculatedItem);
 		return order;
+	}
+
+	private async getFullOrders(orders: Order[]): Promise<FullOrder[]> {
+		const orderMap = new Map(orders.map((order) => [order.id, order]));
+		const calculatedItemsPromises = orders.map((order) =>
+			this.calculatedItemService.getCalculatedItem(order.id)
+		);
+		const calculatedItems = (await Promise.all(calculatedItemsPromises)).filter(
+			(calculatedItem) => calculatedItem != null
+		);
+		return calculatedItems.map((calculatedItem) => ({
+			calculatedItem,
+			order: orderMap.get(calculatedItem.orderId)!
+		}));
 	}
 
 	private async updateOrder(
@@ -255,7 +362,8 @@ export class OrderService {
 			originalOrder.createdAt,
 			originalOrder.status,
 			originalOrder.location,
-			originalOrder.amountPayed
+			originalOrder.amountPayed,
+			originalOrder.notified
 		);
 
 		await this.repository.createOrder(OrderService.toDto(order));
@@ -270,7 +378,8 @@ export class OrderService {
 		originalCreationDate?: Date,
 		originalOrderStatus?: OrderStatus,
 		originalLocation?: string,
-		originalAmountPayed?: number
+		originalAmountPayed?: number,
+		originalNotified?: boolean
 	): Promise<{ order: Order; calculatedItem: CalculatedItem }> {
 		const order: Order = {
 			id: originalId ?? uuidv4(),
@@ -283,6 +392,7 @@ export class OrderService {
 			status: originalOrderStatus ?? (dto.isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING),
 			statusUpdated: new Date(),
 			hasArrow: dto.hasArrow,
+			notified: originalNotified ?? false,
 			location: originalLocation ?? '',
 			item: {
 				width: dto.width,
@@ -295,9 +405,11 @@ export class OrderService {
 				quantity: dto.quantity,
 				createdAt: originalCreationDate ?? new Date(),
 				deliveryDate: dto.deliveryDate,
+				dimensionsType: dto.dimensionsType,
 				partsToCalculate: OrderService.optimizePartsToCalculate(dto.partsToCalculate),
 				exteriorWidth: dto.exteriorWidth,
-				exteriorHeight: dto.exteriorHeight
+				exteriorHeight: dto.exteriorHeight,
+				instantDelivery: dto.instantDelivery
 			}
 		};
 
@@ -347,7 +459,7 @@ export class OrderService {
 	}
 
 	private static verifyItem(item: Item) {
-		if (!item.width || !item.height || !item.quantity || !item.createdAt) {
+		if (!item.quantity || !item.createdAt) {
 			throw new InvalidDataError('Invalid item data');
 		}
 
@@ -371,7 +483,8 @@ export class OrderService {
 			status: dto.status as OrderStatus,
 			statusUpdated: new Date(dto.statusTimestamp),
 			hasArrow: dto.hasArrow ?? false,
-			location: dto.location ?? ''
+			location: dto.location ?? '',
+			notified: dto.notified ?? false
 		};
 	}
 
@@ -389,7 +502,8 @@ export class OrderService {
 			status: order.status,
 			statusTimestamp: Date.parse(order.statusUpdated.toISOString()),
 			hasArrow: order.hasArrow,
-			location: order.location
+			location: order.location,
+			notified: order.notified
 		};
 	}
 
@@ -400,6 +514,7 @@ export class OrderService {
 			pp: item.pp,
 			ppDimensions: item.ppDimensions,
 			description: item.description,
+			normalizedDescription: SearchUtilities.normalizeString(item.description),
 			predefinedObservations: item.predefinedObservations,
 			observations: item.observations,
 			quantity: item.quantity,
@@ -413,7 +528,9 @@ export class OrderService {
 				extraInfo: part.extraInfo
 			})),
 			exteriorHeight: item.exteriorHeight,
-			exteriorWidth: item.exteriorWidth
+			exteriorWidth: item.exteriorWidth,
+			instantDelivery: item.instantDelivery,
+			dimensionsType: item.dimensionsType
 		};
 	}
 
@@ -437,7 +554,13 @@ export class OrderService {
 				extraInfo: part.extraInfo
 			})),
 			exteriorHeight: dto.exteriorHeight,
-			exteriorWidth: dto.exteriorWidth
+			exteriorWidth: dto.exteriorWidth,
+			instantDelivery: dto.instantDelivery ?? false,
+			dimensionsType: dto.dimensionsType
+				? (dto.dimensionsType as DimensionsType)
+				: dto.exteriorHeight != null || dto.exteriorWidth != null
+					? DimensionsType.EXTERIOR
+					: DimensionsType.NORMAL
 		};
 	}
 }

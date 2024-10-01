@@ -43,7 +43,7 @@
 		</div>
 	</Box>
 
-	<!-- <Box title="Pedidos">
+	<Box title="Pedidos">
 		<div
 			class="flex w-full flex-col place-content-center items-center justify-center gap-4 p-2 md:grid md:grid-cols-2 lg:grid-cols-3"
 		>
@@ -54,5 +54,5 @@
 				colorClasses={ACCIONES_NEUTRES_COLORS}
 			></Button>
 		</div>
-	</Box> -->
+	</Box>
 </div>

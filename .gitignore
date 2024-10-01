@@ -11,5 +11,4 @@ vite.config.ts.timestamp-*
 .vscode
 .env
 cdk.out
-# Sentry Config File
-.sentryclirc
+

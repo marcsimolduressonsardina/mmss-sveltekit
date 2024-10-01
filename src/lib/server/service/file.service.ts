@@ -1,6 +1,7 @@
 import mime from 'mime-types';
 import { v4 as uuidv4 } from 'uuid';
 import { S3Client } from '@aws-sdk/client-s3';
+import sharp from 'sharp';
 import { FileRepository } from '../repository/file.repository';
 
 import {
@@ -53,6 +54,47 @@ export class FileService {
 		return file;
 	}
 
+	public async generateOptimizations(orderId: string, id: string) {
+		const fileDto = await this.repository.getFile(orderId, id);
+		if (fileDto == null) return;
+		const file = FileService.fromDto(fileDto);
+
+		if (file.type !== FileType.PHOTO) {
+			return;
+		}
+
+		if (fileDto.optimizedKey != null && fileDto.thumbnailKey != null) {
+			return;
+		}
+
+		const originalFile = await S3Util.getFileFromS3(this.s3Client, FILES_BUCKET, fileDto.key);
+		if (fileDto.optimizedKey == null) {
+			fileDto.optimizedKey = `optimized/${fileDto.key}`;
+			const optimizedImage = await this.optimizeImage(originalFile.file);
+			await S3Util.uploadToS3(
+				this.s3Client,
+				FILES_BUCKET,
+				fileDto.optimizedKey,
+				optimizedImage,
+				originalFile.contentType
+			);
+		}
+
+		if (fileDto.thumbnailKey == null) {
+			fileDto.thumbnailKey = `thumbnail/${fileDto.key}`;
+			const thumbnailImage = await this.generateThumbnail(originalFile.file);
+			await S3Util.uploadToS3(
+				this.s3Client,
+				FILES_BUCKET,
+				fileDto.thumbnailKey,
+				thumbnailImage,
+				originalFile.contentType
+			);
+		}
+
+		await this.repository.createFile(fileDto);
+	}
+
 	public async getFile(orderId: string, id: string): Promise<File | undefined> {
 		const fileDto = await this.repository.getFile(orderId, id);
 		if (fileDto == null) return undefined;
@@ -70,7 +112,7 @@ export class FileService {
 		if (dto == null) return;
 		await Promise.all([
 			await this.repository.deleteFile(orderId, id),
-			await S3Util.deleteFile(this.s3Client, FILES_BUCKET, dto.key)
+			await S3Util.batchDeleteFiles(this.s3Client, FILES_BUCKET, FileService.getAllFileKeys(dto))
 		]);
 	}
 
@@ -82,7 +124,7 @@ export class FileService {
 			await S3Util.batchDeleteFiles(
 				this.s3Client,
 				FILES_BUCKET,
-				dtos.map((d) => d.key)
+				dtos.map((dto) => FileService.getAllFileKeys(dto)).flat()
 			)
 		]);
 	}
@@ -91,10 +133,28 @@ export class FileService {
 		const downloadUrl = await S3Util.getPresignedDownloadUrl(
 			this.s3Client,
 			FILES_BUCKET,
-			fileDto.key,
+			fileDto.optimizedKey ?? fileDto.key,
 			600
 		);
-		return FileService.fromDto(fileDto, downloadUrl);
+
+		const thumbnailDownloadUrl = fileDto.thumbnailKey
+			? await S3Util.getPresignedDownloadUrl(this.s3Client, FILES_BUCKET, fileDto.thumbnailKey, 600)
+			: undefined;
+
+		return FileService.fromDto(fileDto, downloadUrl, thumbnailDownloadUrl);
+	}
+
+	private async optimizeImage(imageBuffer: Buffer) {
+		const optimizedImage = await sharp(imageBuffer)
+			.resize({ width: 2160 })
+			.jpeg({ quality: 80 })
+			.toBuffer();
+		return optimizedImage;
+	}
+
+	private async generateThumbnail(imageBuffer: Buffer) {
+		const optimizedImage = await sharp(imageBuffer).resize(80, 80).toBuffer();
+		return optimizedImage;
 	}
 
 	private static toDto(file: File, key: string): FileDto {
@@ -107,13 +167,18 @@ export class FileService {
 		};
 	}
 
-	private static fromDto(fileDto: FileDto, downloadUrl?: string): File {
+	private static fromDto(
+		fileDto: FileDto,
+		downloadUrl?: string,
+		thumbnailDownloadUrl?: string
+	): File {
 		return {
 			orderId: fileDto.orderUuid,
 			id: fileDto.fileUuid,
 			type: fileDto.type as FileType,
 			originalFilename: fileDto.originalFilename,
-			downloadUrl
+			downloadUrl,
+			thumbnailDownloadUrl
 		};
 	}
 
@@ -132,5 +197,9 @@ export class FileService {
 		const extension =
 			lastDotIndex === -1 || lastDotIndex === 0 ? '' : fileName.substring(lastDotIndex + 1);
 		return `${file.orderId}/${file.type}/${file.id}.${extension.toLowerCase()}`;
+	}
+
+	private static getAllFileKeys(fileDto: FileDto): string[] {
+		return [fileDto.key, fileDto.optimizedKey, fileDto.thumbnailKey].filter((key) => key != null);
 	}
 }

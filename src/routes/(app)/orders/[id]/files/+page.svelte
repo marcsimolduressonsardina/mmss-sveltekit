@@ -18,6 +18,7 @@
 	let currentImageId = '';
 	let overlayVisible = false;
 	let loading = false;
+	let loadingText = '';
 	$: files = data.files ?? [];
 
 	function showOverlay(file: MMSSFile) {
@@ -55,6 +56,7 @@
 			return;
 		}
 
+		loadingText = 'Eliminando archivo';
 		loading = true;
 		const response = await fetch(`/api/orders/${data!.order!.id}/files/${id}`, {
 			method: 'DELETE',
@@ -92,6 +94,19 @@
 		return file;
 	}
 
+	async function optimizeFile(id: string) {
+		const response = await fetch(`/api/orders/${data!.order!.id}/files/${id}/optimize`, {
+			method: 'POST',
+			headers: {
+				'content-type': 'application/json'
+			}
+		});
+
+		if (response.status !== 200) {
+			toastError('Error al procesar fichero');
+		}
+	}
+
 	async function getFile(id: string): Promise<MMSSFile | undefined> {
 		const response = await fetch(`/api/orders/${data!.order!.id}/files/${id}`, {
 			method: 'GET',
@@ -116,6 +131,7 @@
 			return;
 		}
 
+		loadingText = 'Cargando archivo';
 		loading = true;
 		const filesToUpload = [...inputFile.files];
 		const uploads = filesToUpload.map((f) => uploadIndividualFile(f));
@@ -133,6 +149,9 @@
 		const file = await createFile(fileToUpload.name);
 		if (file == null) return;
 		await uploadToS3(file.uploadUrl!, fileToUpload);
+		if (file.type === FileType.PHOTO) {
+			await optimizeFile(file.id);
+		}
 		return getFile(file.id);
 	}
 
@@ -169,16 +188,17 @@
 
 <div class="space flex w-full flex-col gap-1 p-3">
 	{#if loading}
-		<ProgressBar />
+		<ProgressBar text={loadingText} />
 	{:else}
 		<!-- Title and Button Container -->
-		<div class="flex items-center pb-2">
+		<div class="flex flex-row items-center justify-between pb-2">
 			<button
 				on:click={goBackToOrder}
-				class="flex items-center rounded-lg bg-gray-200 px-4 py-1 font-bold text-gray-700 hover:bg-gray-300"
+				class="flex items-center rounded-lg bg-gray-200 px-4 py-1 text-gray-700 hover:bg-gray-300"
 			>
 				<Icon class="mr-1" data={faArrowLeft} /> Volver al pedido
 			</button>
+			<span class="text-md px-4 py-1 text-left">Archivos del pedido</span>
 		</div>
 
 		<span class="mt-4 border-b border-gray-300 pb-1 text-xl font-semibold text-gray-700">
@@ -197,7 +217,7 @@
 							on:click={() => showOverlay(image)}
 						>
 							<img
-								src={image.downloadUrl ?? ''}
+								src={image.thumbnailDownloadUrl ?? image.downloadUrl}
 								alt={image.originalFilename}
 								class="h-full w-full object-cover"
 							/>

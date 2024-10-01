@@ -1,12 +1,14 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { Icon } from 'svelte-awesome';
-	import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
+	import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons/faClockRotateLeft';
 	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { dateProxy, superForm } from 'sveltekit-superforms';
 	import { ACCIONES_NEUTRES_COLORS } from '$lib/ui/ui.constants';
 	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
+	import Banner from '$lib/components/Banner.svelte';
+	import { getStatusUIInfo } from '$lib/ui/ui.helper';
+	import { OrderStatus } from '$lib/type/order.type';
 
 	export let data: PageData;
 	const { form, errors, enhance, submitting } = superForm(data.form);
@@ -14,18 +16,13 @@
 </script>
 
 <div class="space-y-4 p-4">
-	<div class="rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white shadow-md">
-		<div class="flex items-center space-x-4">
-			<Icon scale={3} data={faClipboardList} />
-			<div>
-				<h3 class="text-xl font-bold">Convertir presupuesto en pedido</h3>
-				<p class="text-sm">
-					Rellene la fecha de entrega para el pedido. Esta acción no se puede deshacer. El nuevo
-					pedido conservará todos los elementos, precios y fotos del presupuesto.
-				</p>
-			</div>
-		</div>
-	</div>
+	<Banner
+		icon={faClockRotateLeft}
+		gradientClasses={getStatusUIInfo(OrderStatus.PENDING).gradientClasses}
+		title="Convertir presupuesto en pedido"
+		text="Rellene la fecha de entrega para el pedido. Esta acción no se puede deshacer. El nuevo
+					pedido conservará todos los elementos, precios y fotos del presupuesto."
+	></Banner>
 
 	<div class="rounded-lg bg-white p-4 shadow-md">
 		{#if $submitting}

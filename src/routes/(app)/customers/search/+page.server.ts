@@ -11,10 +11,10 @@ const schema = z.object({
 });
 
 export const load = async ({ locals }) => {
-	await AuthUtilities.checkAuth(locals);
+	const appUser = await AuthUtilities.checkAuth(locals);
 
 	const form = await superValidate(zod(schema));
-	return { form };
+	return { form, canSeeList: appUser.priceManager };
 };
 
 export const actions = {

@@ -4,6 +4,7 @@ import type {
 	PPDimensions,
 	PreCalculatedItemPart
 } from '$lib/type/api.type';
+import type { DimensionsType } from '$lib/type/order.type';
 
 type OrderCreationDtoBase = {
 	width: number;
@@ -22,6 +23,8 @@ type OrderCreationDtoBase = {
 	ppDimensions?: PPDimensions;
 	exteriorWidth?: number;
 	exteriorHeight?: number;
+	instantDelivery: boolean;
+	dimensionsType: DimensionsType;
 };
 
 export type OrderCreationDto = OrderCreationDtoBase & { customerId?: string };

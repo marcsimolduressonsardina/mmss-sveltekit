@@ -5,7 +5,7 @@
 	import { DateTime } from 'luxon';
 	import Qr from '$lib/components/Qr.svelte';
 	import type { CalculatedItem, Order } from '$lib/type/api.type';
-	import { OrderStatus } from '$lib/type/order.type';
+	import { DimensionsType, OrderStatus } from '$lib/type/order.type';
 	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 	import { otherForPrintPricingTypes } from '$lib/shared/pricing.utilites';
 
@@ -182,21 +182,30 @@
 			<td class="inner-td">
 				<table class="inner-table">
 					<tr>
-						<th>Medidas</th>
+						<th>Medidas trabajo</th>
 						<th>Uds</th>
 						<th>Descripción</th>
+						<th>Medidas obra</th>
 					</tr>
 					<tr>
 						<td>
-							Obra: {`${order.item.height}x${order.item.width} cm`} <br />
-							<strong>Trabajo: {OrderUtilites.getWorkingDimensions(order)}</strong>
-							{#if order.item.exteriorHeight || order.item.exteriorWidth}
+							<strong>{OrderUtilites.getWorkingDimensions(order)}</strong>
+							{#if order.item.dimensionsType === DimensionsType.EXTERIOR}
 								<br />
-								Marco exterior: {`${order.item.exteriorHeight}x${order.item.exteriorWidth} cm`}
+								Medidas ext: {`${order.item.exteriorHeight}x${order.item.exteriorWidth} cm`}
+							{/if}
+							{#if order.item.dimensionsType === DimensionsType.WINDOW}
+								<br />
+								A ventana
+							{/if}
+							{#if order.item.dimensionsType === DimensionsType.ROUNDED}
+								<br />
+								Redondas
 							{/if}
 						</td>
 						<td> {order.item.quantity} </td>
 						<td>{order.item.description}</td>
+						<td>{`${order.item.height}x${order.item.width} cm`}</td>
 					</tr>
 				</table>
 			</td>
@@ -293,8 +302,12 @@
 					<tr>
 						{#if !isQuote}
 							<td>
-								{esWeekDay}
-								{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+								{#if order.item.instantDelivery}
+									Al momento
+								{:else}
+									{esWeekDay}
+									{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+								{/if}
 							</td>
 						{/if}
 						<td> {order.customer.name} </td>

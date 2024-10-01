@@ -20,3 +20,10 @@ export enum PaymentStatus {
 	PARTIALLY_PAID = 'partially_paid',
 	UNPAID = 'unpaid'
 }
+
+export enum DimensionsType {
+	NORMAL = 'normal',
+	EXTERIOR = 'exterior',
+	ROUNDED = 'rounded',
+	WINDOW = 'window'
+}

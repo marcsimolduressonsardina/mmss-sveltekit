@@ -14,7 +14,23 @@ const config = {
 		join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}')
 	],
 	theme: {
-		extend: {}
+		extend: {
+			keyframes: {
+				loadtwo: {
+					'50%': { transform: 'rotate(-80deg)' }
+				},
+				glow: {
+					'0%, 100%': {
+						boxShadow: '0 0 15px rgba(236, 72, 153, 0.7), 0 0 20px rgba(59, 130, 246, 0.7)'
+					},
+					'50%': { boxShadow: '0 0 30px rgba(236, 72, 153, 1), 0 0 35px rgba(59, 130, 246, 1)' }
+				}
+			},
+			animation: {
+				loadtwo: 'loadtwo 3s ease-in-out infinite',
+				glow: 'glow 3s ease-in-out infinite'
+			}
+		}
 	},
 	plugins: [
 		forms,

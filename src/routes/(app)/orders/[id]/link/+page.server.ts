@@ -67,6 +67,6 @@ export const actions = {
 			}
 		}
 
-		return redirect(302, `/orders/${id}`);
+		return redirect(302, `/orders/${id}/files`);
 	}
 };

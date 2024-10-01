@@ -7,7 +7,8 @@ import {
 	areaPricing,
 	getCrossbarPrice,
 	linearPricing,
-	fitAreaM2Pricing
+	fitAreaM2Pricing,
+	linearPricingShortSide
 } from '../data/static-pricing';
 import type { ListPriceDto } from '../repository/dto/list-price.dto';
 import { ListPricingRepository } from '../repository/list-pricing.repository';
@@ -195,6 +196,8 @@ export class PricingService {
 				return areaPricing(priceInfo.price, d1t, d2t);
 			case PricingFormula.FORMULA_LINEAR:
 				return linearPricing(priceInfo.price, d1t, d2t);
+			case PricingFormula.FORMULA_LINEAR_SHORT_SIDE:
+				return linearPricingShortSide(priceInfo.price, d1t, d2t);
 			case PricingFormula.NONE:
 				return priceInfo.price;
 			default:

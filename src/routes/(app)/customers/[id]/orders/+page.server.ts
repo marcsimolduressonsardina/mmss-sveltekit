@@ -6,8 +6,8 @@ import { CustomerService } from '$lib/server/service/customer.service';
 export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
-	const customerService = new CustomerService(appUser)
+	const customerService = new CustomerService(appUser);
 	const orderService = new OrderService(appUser, customerService);
-	const customer = await customerService.getCustomerById(id)
+	const customer = await customerService.getCustomerById(id);
 	return { orders: orderService.getOrdersByCustomerId(id), customer };
 }) satisfies PageServerLoad;

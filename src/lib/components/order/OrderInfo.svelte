@@ -3,7 +3,7 @@
 	import type { Order } from '$lib/type/api.type';
 	import { DateTime } from 'luxon';
 	import Box from '$lib/components/Box.svelte';
-	import { OrderStatus } from '$lib/type/order.type';
+	import { DimensionsType, OrderStatus } from '$lib/type/order.type';
 
 	export let order: Order;
 </script>
@@ -18,7 +18,13 @@
 		{#if order.status !== OrderStatus.QUOTE}
 			<div class="flex justify-between">
 				<span class="font-semibold">Fecha de recogida:</span>
-				<span>{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}</span>
+				<span>
+					{#if order.item.instantDelivery}
+						Al momento
+					{:else}
+						{DateTime.fromJSDate(order.item.deliveryDate).toFormat('dd/MM/yyyy')}
+					{/if}
+				</span>
 			</div>
 		{/if}
 
@@ -32,10 +38,23 @@
 			<span>{OrderUtilites.getWorkingDimensions(order)}</span>
 		</div>
 
-		{#if order.item.exteriorHeight || order.item.exteriorWidth}
+		{#if order.item.dimensionsType === DimensionsType.EXTERIOR}
 			<div class="flex justify-between">
 				<span class="font-semibold">Medidas exteriores del marco:</span>
 				<span>{`${order.item.exteriorHeight}x${order.item.exteriorWidth} cm`}</span>
+			</div>
+		{/if}
+
+		{#if order.item.dimensionsType === DimensionsType.ROUNDED || order.item.dimensionsType === DimensionsType.WINDOW}
+			<div class="flex justify-between">
+				<span class="font-semibold">Tipo de medidas:</span>
+				<span>
+					{#if order.item.dimensionsType === DimensionsType.ROUNDED}
+						Redondas
+					{:else}
+						A ventana
+					{/if}
+				</span>
 			</div>
 		{/if}
 

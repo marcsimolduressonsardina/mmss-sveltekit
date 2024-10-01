@@ -19,12 +19,15 @@ export type ItemDto = {
 	pp: number;
 	ppDimensions?: PPDimensionsDto;
 	description: string;
+	normalizedDescription: string;
 	predefinedObservations: string[];
 	observations: string;
 	quantity: number;
 	createdAt: number;
 	deliveryDate: number;
+	instantDelivery?: boolean;
 	partsToCalculate: PreCalculatedItemPartDto[];
 	exteriorWidth?: number;
 	exteriorHeight?: number;
+	dimensionsType?: string;
 };

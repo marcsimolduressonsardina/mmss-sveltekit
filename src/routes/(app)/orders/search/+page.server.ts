@@ -50,12 +50,12 @@ export const actions = {
 		}
 
 		const filteredOrders = orders.filter(
-			(order) => OrderUtilites.getOrderPublicId(order) === form.data.id
+			(fullOrder) => OrderUtilites.getOrderPublicId(fullOrder.order) === form.data.id
 		);
 		if (filteredOrders.length === 0) {
 			return setError(form, 'id', 'Order not found');
 		}
 
-		return redirect(303, `/orders/${filteredOrders[0].id}`);
+		return redirect(303, `/orders/${filteredOrders[0].order.id}`);
 	}
 };

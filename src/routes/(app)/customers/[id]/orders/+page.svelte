@@ -7,7 +7,7 @@
 	export let data: PageData;
 </script>
 
-<div class="p-3 font-medium text-xl">
+<div class="p-3 text-xl font-medium">
 	Pedidos de {data.customer?.name}
 </div>
 
@@ -27,8 +27,8 @@
 		{:else if orders.length === 0}
 			<p class="text-xl">El cliente no tiene pedidos</p>
 		{:else}
-			{#each orders as order (order.id)}
-				<OrderCard {order} showCustomer={false} />
+			{#each orders as fullOrder (fullOrder.order.id)}
+				<OrderCard {fullOrder} showCustomer={false} />
 			{/each}
 		{/if}
 	{:catch error}
