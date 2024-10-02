@@ -120,7 +120,7 @@
 						<th>Hora</th>
 					</tr>
 					<tr>
-						<td>{order.user.name}</td>
+						<td>{order.user.name.split(' ')[0]}</td>
 						<td>
 							{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy')}
 						</td>
@@ -189,18 +189,20 @@
 					</tr>
 					<tr>
 						<td>
-							<strong>{OrderUtilites.getWorkingDimensions(order)}</strong>
+							{OrderUtilites.getWorkingDimensions(order)}
 							{#if order.item.dimensionsType === DimensionsType.EXTERIOR}
 								<br />
-								Medidas ext: {`${order.item.exteriorHeight}x${order.item.exteriorWidth} cm`}
+								<strong>
+									Medidas ext: {`${order.item.exteriorHeight}x${order.item.exteriorWidth} cm`}
+								</strong>
 							{/if}
 							{#if order.item.dimensionsType === DimensionsType.WINDOW}
 								<br />
-								A ventana
+								<strong> A ventana </strong>
 							{/if}
 							{#if order.item.dimensionsType === DimensionsType.ROUNDED}
 								<br />
-								Redondas
+								<strong> Redondas </strong>
 							{/if}
 						</td>
 						<td> {order.item.quantity} </td>

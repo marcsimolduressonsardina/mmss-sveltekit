@@ -39,9 +39,8 @@
 						<Banner
 							icon={faExclamationTriangle}
 							gradientClasses={getStatusUIInfo(OrderStatus.FINISHED).gradientClasses}
-							title="Hay pedidos finalizados"
-							text="Todos los pedidos creados el mismo día están finalizados, accede a los pedidos
-										del día para enviar el mensaje conjunto."
+							title="Todos los pedidos del día están finalizados"
+							text=""
 						></Banner>
 					{/if}
 
@@ -50,7 +49,7 @@
 							icon={faCheckCircle}
 							gradientClasses={getStatusUIInfo(OrderStatus.PICKED_UP).gradientClasses}
 							title="Cliente avisado"
-							text="El mensaje de finalizado ya ha sido enviado para este pedido."
+							text=""
 						></Banner>
 					{/if}
 
