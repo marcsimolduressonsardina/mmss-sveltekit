@@ -421,6 +421,7 @@
 		transport: boolean,
 		back: boolean,
 		labour: boolean,
+		other: boolean,
 		mold: boolean,
 		glass: boolean,
 		observations: boolean,
@@ -442,7 +443,11 @@
 		}
 
 		if (!labour) {
-			parts.push('Falta suministros');
+			parts.push('Faltan montajes');
+		}
+
+		if (!other) {
+			parts.push('Faltan suministros');
 		}
 
 		if (!back) {
@@ -504,6 +509,7 @@
 		addedTransport,
 		addedBack,
 		addedLabour,
+		addedOther,
 		addedMold,
 		addedGlass,
 		addedObservations,
