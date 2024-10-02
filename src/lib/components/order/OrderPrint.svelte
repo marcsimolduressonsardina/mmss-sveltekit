@@ -192,17 +192,17 @@
 							{OrderUtilites.getWorkingDimensions(order)}
 							{#if order.item.dimensionsType === DimensionsType.EXTERIOR}
 								<br />
-								<strong
-									>Medidas ext: {`${order.item.exteriorHeight}x${order.item.exteriorWidth} cm`}</strong
-								>
+								<strong>
+									Medidas ext: {`${order.item.exteriorHeight}x${order.item.exteriorWidth} cm`}
+								</strong>
 							{/if}
 							{#if order.item.dimensionsType === DimensionsType.WINDOW}
 								<br />
-								A ventana
+								<strong> A ventana </strong>
 							{/if}
 							{#if order.item.dimensionsType === DimensionsType.ROUNDED}
 								<br />
-								Redondas
+								<strong> Redondas </strong>
 							{/if}
 						</td>
 						<td> {order.item.quantity} </td>
