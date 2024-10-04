@@ -403,7 +403,6 @@ export class OrderService {
 				predefinedObservations: dto.predefinedObservations,
 				observations: dto.observations,
 				quantity: dto.quantity,
-				createdAt: originalCreationDate ?? new Date(),
 				deliveryDate: dto.deliveryDate,
 				dimensionsType: dto.dimensionsType,
 				partsToCalculate: OrderService.optimizePartsToCalculate(dto.partsToCalculate),
@@ -459,7 +458,7 @@ export class OrderService {
 	}
 
 	private static verifyItem(item: Item) {
-		if (!item.quantity || !item.createdAt) {
+		if (!item.quantity) {
 			throw new InvalidDataError('Invalid item data');
 		}
 
@@ -518,7 +517,6 @@ export class OrderService {
 			predefinedObservations: item.predefinedObservations,
 			observations: item.observations,
 			quantity: item.quantity,
-			createdAt: Date.parse(item.createdAt.toISOString()),
 			deliveryDate: Date.parse(item.deliveryDate.toISOString()),
 			partsToCalculate: item.partsToCalculate.map((part) => ({
 				id: part.id,
@@ -544,7 +542,6 @@ export class OrderService {
 			predefinedObservations: dto.predefinedObservations,
 			observations: dto.observations,
 			quantity: dto.quantity,
-			createdAt: new Date(dto.createdAt),
 			deliveryDate: new Date(dto.deliveryDate),
 			partsToCalculate: dto.partsToCalculate.map((part) => ({
 				id: part.id,

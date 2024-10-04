@@ -96,7 +96,6 @@ export type Item = {
 	predefinedObservations: string[];
 	observations: string;
 	quantity: number;
-	createdAt: Date;
 	deliveryDate: Date;
 	instantDelivery: boolean;
 	partsToCalculate: PreCalculatedItemPart[];

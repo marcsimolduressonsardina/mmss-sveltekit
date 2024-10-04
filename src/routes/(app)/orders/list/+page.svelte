@@ -45,7 +45,6 @@
 				...fo.order,
 				item: {
 					...fo.order.item,
-					createdAt: new Date(fo.order.item.createdAt),
 					deliveryDate: new Date(fo.order.item.deliveryDate)
 				},
 				createdAt: new Date(fo.order.createdAt)
@@ -97,7 +96,7 @@
 		</div>
 	</Box>
 
-	{#if data.isAdmin && searchValue.length === 0}
+	{#if searchValue.length === 0}
 		{#await data.orders}
 			<ProgressBar text="Cargando listado" />
 		{:then fullOrders}
