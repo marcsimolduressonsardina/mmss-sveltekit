@@ -52,7 +52,7 @@
 						<span>Fecha</span>
 					</div>
 					<div class="font-semibold">
-						{DateTime.fromJSDate(order.item.createdAt).toFormat('dd/MM/yyyy HH:mm')}
+						{DateTime.fromJSDate(order.createdAt).toFormat('dd/MM/yyyy HH:mm')}
 					</div>
 				</div>
 
