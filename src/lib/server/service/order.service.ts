@@ -189,13 +189,10 @@ export class OrderService {
 			throw Error('Order not found');
 		}
 
-		const newOrder = await this.updateOrder(order, {
+		return this.updateOrder(order, {
 			...dto,
 			customer
 		});
-
-		await this.orderAuditTrailService.logOrderFullChanges(newOrder, order);
-		return newOrder;
 	}
 
 	async addCustomerToTemporaryOrder(customer: Customer, order: Order): Promise<Order> {
