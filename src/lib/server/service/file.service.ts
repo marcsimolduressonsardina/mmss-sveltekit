@@ -56,7 +56,7 @@ export class FileService {
 		await Promise.all([
 			this.repository.createFile(fileDto),
 			this.orderAuditTrailServiceOrder.storeEntry(orderId, [
-				this.orderAuditTrailServiceOrder.logOrderFileCreated(orderId, id)
+				this.orderAuditTrailServiceOrder.logOrderFileCreated(orderId, fileName)
 			])
 		]);
 		return file;
@@ -122,7 +122,7 @@ export class FileService {
 			this.repository.deleteFile(orderId, id),
 			S3Util.batchDeleteFiles(this.s3Client, FILES_BUCKET, FileService.getAllFileKeys(dto)),
 			this.orderAuditTrailServiceOrder.storeEntry(orderId, [
-				this.orderAuditTrailServiceOrder.logOrderFileDeleted(orderId, id)
+				this.orderAuditTrailServiceOrder.logOrderFileDeleted(orderId, dto.originalFilename)
 			])
 		]);
 	}
@@ -140,7 +140,7 @@ export class FileService {
 			this.orderAuditTrailServiceOrder.storeEntry(
 				orderId,
 				dtos.map((dto) =>
-					this.orderAuditTrailServiceOrder.logOrderFileDeleted(orderId, dto.fileUuid)
+					this.orderAuditTrailServiceOrder.logOrderFileDeleted(orderId, dto.originalFilename)
 				)
 			)
 		]);
