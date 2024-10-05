@@ -12,7 +12,7 @@ export class AuthService {
 		}
 
 		return {
-			id: session.user.id!,
+			id: session.user.email!,
 			name: session.user.name!,
 			storeId: session.userMetadata.storeId,
 			priceManager: session.userMetadata.priceManager ?? false

@@ -11,7 +11,6 @@ export type OrderDto = {
 	amountPayed: number;
 	item: ItemDto;
 	status: string;
-	statusTimestamp: number;
 	hasArrow?: boolean;
 	location?: string;
 	notified?: boolean;

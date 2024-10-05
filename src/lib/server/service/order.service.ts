@@ -211,15 +211,16 @@ export class OrderService {
 		const oldDto = OrderService.toDto(order);
 		order.createdAt = DateTime.now().toJSDate();
 		order.item.deliveryDate = deliveryDate;
-		order.statusUpdated = DateTime.now().toJSDate();
 		order.status = OrderStatus.PENDING;
 		const newDto = OrderService.toDto(order);
 		await this.repository.updateFullOrder(oldDto, newDto);
-		await this.orderAuditTrailService.logOrderStatusChanged(
-			order.id,
-			OrderStatus.QUOTE,
-			OrderStatus.PENDING
-		);
+		await this.orderAuditTrailService.storeEntry(order.id, [
+			this.orderAuditTrailService.logOrderStatusChanged(
+				order.id,
+				OrderStatus.PENDING,
+				OrderStatus.QUOTE
+			)
+		]);
 		return order;
 	}
 
@@ -229,13 +230,14 @@ export class OrderService {
 		const oldDto = OrderService.toDto(order);
 		order.createdAt = DateTime.now().toJSDate();
 		order.item.deliveryDate = quoteDeliveryDate;
-		order.statusUpdated = DateTime.now().toJSDate();
 		order.status = OrderStatus.QUOTE;
 		order.notified = false;
 		order.amountPayed = 0;
 		const newDto = OrderService.toDto(order);
 		await this.repository.updateFullOrder(oldDto, newDto);
-		await this.orderAuditTrailService.logOrderStatusChanged(order.id, oldStatus, OrderStatus.QUOTE);
+		await this.orderAuditTrailService.storeEntry(order.id, [
+			this.orderAuditTrailService.logOrderStatusChanged(order.id, OrderStatus.QUOTE, oldStatus)
+		]);
 		return order;
 	}
 
@@ -246,7 +248,9 @@ export class OrderService {
 		const total = CalculatedItemUtilities.getTotal(calculatedItem);
 		order.amountPayed = total;
 		await this.repository.updateAmountPayed(OrderService.toDto(order));
-		await this.orderAuditTrailService.logOrderPayment(order.id, order.amountPayed, oldAmount);
+		await this.orderAuditTrailService.storeEntry(order.id, [
+			this.orderAuditTrailService.logOrderPayment(order.id, order.amountPayed, oldAmount)
+		]);
 	}
 
 	async setOrderPartiallyPaid(order: Order, amount: number) {
@@ -265,7 +269,9 @@ export class OrderService {
 		}
 
 		await this.repository.updateAmountPayed(OrderService.toDto(order));
-		await this.orderAuditTrailService.logOrderPayment(order.id, order.amountPayed, oldAmount);
+		await this.orderAuditTrailService.storeEntry(order.id, [
+			this.orderAuditTrailService.logOrderPayment(order.id, order.amountPayed, oldAmount)
+		]);
 	}
 
 	async setOrderStatus(order: Order, status: OrderStatus, location?: string) {
@@ -273,20 +279,19 @@ export class OrderService {
 		const oldLocation = order.location;
 		order.status = status;
 		order.location = location ?? '';
-		order.statusUpdated = new Date();
 		this.repository.setOrderStatus(OrderService.toDto(order));
-		await this.orderAuditTrailService.logOrderStatusChanged(order.id, status, oldStatus);
-		await this.orderAuditTrailService.logOrderLocationChanged(
-			order.id,
-			order.location,
-			oldLocation
-		);
+		await this.orderAuditTrailService.storeEntry(order.id, [
+			this.orderAuditTrailService.logOrderStatusChanged(order.id, status, oldStatus),
+			this.orderAuditTrailService.logOrderLocationChanged(order.id, order.location, oldLocation)
+		]);
 	}
 
 	async setOrderAsNotified(order: Order) {
 		order.notified = true;
 		await this.repository.setOrderNotified(OrderService.toDto(order));
-		await this.orderAuditTrailService.logOrderNotified(order.id);
+		await this.orderAuditTrailService.storeEntry(order.id, [
+			this.orderAuditTrailService.logOrderNotified(order.id)
+		]);
 	}
 
 	static async getPublicOrder(publicId: string): Promise<Order | null> {
@@ -338,7 +343,9 @@ export class OrderService {
 		const { order, calculatedItem } = await this.generateOrderAndCalculatedItemFromDto(dto);
 		await this.repository.createOrder(OrderService.toDto(order));
 		await this.calculatedItemService.saveCalculatedItem(calculatedItem);
-		await this.orderAuditTrailService.logOrderStatusChanged(order.id, order.status);
+		await this.orderAuditTrailService.storeEntry(order.id, [
+			this.orderAuditTrailService.logOrderStatusChanged(order.id, order.status)
+		]);
 		return order;
 	}
 
@@ -373,7 +380,11 @@ export class OrderService {
 
 		await this.repository.createOrder(OrderService.toDto(order));
 		await this.calculatedItemService.saveCalculatedItem(calculatedItem);
-		await this.orderAuditTrailService.logOrderFullChanges(order, originalOrder);
+		await this.orderAuditTrailService.storeEntry(
+			order.id,
+			[],
+			[this.orderAuditTrailService.logOrderFullChanges(order, originalOrder)]
+		);
 		return order;
 	}
 
@@ -396,7 +407,6 @@ export class OrderService {
 			user: this.currentUser,
 			amountPayed: originalAmountPayed ?? 0,
 			status: originalOrderStatus ?? (dto.isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING),
-			statusUpdated: new Date(),
 			hasArrow: dto.hasArrow,
 			notified: originalNotified ?? false,
 			location: originalLocation ?? '',
@@ -487,7 +497,6 @@ export class OrderService {
 			amountPayed: order.amountPayed,
 			item: OrderService.toDtoItem(order.item),
 			status: order.status,
-			statusTimestamp: Date.parse(order.statusUpdated.toISOString()),
 			hasArrow: order.hasArrow,
 			location: order.location,
 			notified: order.notified
@@ -505,7 +514,6 @@ export class OrderService {
 			amountPayed: dto.amountPayed,
 			item: OrderService.fromDtoItem(dto.item),
 			status: dto.status as OrderStatus,
-			statusUpdated: new Date(dto.statusTimestamp),
 			hasArrow: dto.hasArrow ?? false,
 			location: dto.location ?? '',
 			notified: dto.notified ?? false

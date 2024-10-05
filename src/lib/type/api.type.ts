@@ -51,7 +51,6 @@ export type Order = {
 	amountPayed: number;
 	item: Item;
 	status: OrderStatus;
-	statusUpdated: Date;
 	hasArrow: boolean;
 	user: StaticUser;
 	customer: Customer;

@@ -39,19 +39,25 @@ export enum OrderAuditTrailType {
 	LOCATION = 'location'
 }
 
-type OrderAuditTrailEntryBase = {
+export type OrderAuditTrailEntry = {
 	orderId: string;
 	userId: string;
-	type: OrderAuditTrailType;
+	userName: string;
 	createdAt: Date;
+	events: (OrderAuditTrailEvent | OrderAuditTrailEventWithFullChanges)[];
 };
 
-export type OrderAuditTrailEntry = {
+type OrderAuditTrailEventBase = {
+	orderId: string;
+	type: OrderAuditTrailType;
+};
+
+export type OrderAuditTrailEvent = {
 	oldValue?: string | number | boolean | OrderStatus;
 	newValue: string | number | boolean | OrderStatus;
-} & OrderAuditTrailEntryBase;
+} & OrderAuditTrailEventBase;
 
-export type OrderAuditTrailEntrWithFullChanges = {
+export type OrderAuditTrailEventWithFullChanges = {
 	oldValue: Order;
 	newValue: Order;
-} & OrderAuditTrailEntryBase;
+} & OrderAuditTrailEventBase;

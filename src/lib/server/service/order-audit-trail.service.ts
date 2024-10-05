@@ -2,10 +2,14 @@ import type { AppUser, Order } from '$lib/type/api.type';
 import {
 	OrderAuditTrailType,
 	OrderStatus,
-	type OrderAuditTrailEntrWithFullChanges,
-	type OrderAuditTrailEntry
+	type OrderAuditTrailEventWithFullChanges,
+	type OrderAuditTrailEntry,
+	type OrderAuditTrailEvent
 } from '$lib/type/order.type';
-import type { OrderAuditTrailEntryDto } from '../repository/dto/order-audit-trail-entry.dto';
+import type {
+	OrderAuditTrailEntryDto,
+	OrderAuditTrailEventDto
+} from '../repository/dto/order-audit-trail-entry.dto';
 import { OrderAuditTrailRepository } from '../repository/order-audit-trail.repository';
 import { OrderService } from './order.service';
 
@@ -18,84 +22,139 @@ export class OrderAuditTrailService {
 		this.currentUser = user;
 	}
 
-	async logOrderStatusChanged(orderId: string, newStatus: OrderStatus, oldStatus?: OrderStatus) {
-		await this.logChanges(orderId, OrderAuditTrailType.STATUS, newStatus, oldStatus);
+	logOrderStatusChanged(
+		orderId: string,
+		newStatus: OrderStatus,
+		oldStatus?: OrderStatus
+	): OrderAuditTrailEvent | undefined {
+		return this.logChanges(orderId, OrderAuditTrailType.STATUS, newStatus, oldStatus);
 	}
 
-	async logOrderLocationChanged(orderId: string, newLocation: string, oldLocation?: string) {
-		await this.logChanges(orderId, OrderAuditTrailType.LOCATION, newLocation, oldLocation);
+	logOrderLocationChanged(
+		orderId: string,
+		newLocation: string,
+		oldLocation?: string
+	): OrderAuditTrailEvent | undefined {
+		return this.logChanges(orderId, OrderAuditTrailType.LOCATION, newLocation, oldLocation);
 	}
 
-	async logOrderNotified(orderId: string) {
-		await this.logChanges(orderId, OrderAuditTrailType.NOTIFICATION, true);
+	logOrderNotified(orderId: string): OrderAuditTrailEvent | undefined {
+		return this.logChanges(orderId, OrderAuditTrailType.NOTIFICATION, true);
 	}
 
-	async logOrderPayment(orderId: string, newAmount: number, oldAmount?: number) {
-		await this.logChanges(orderId, OrderAuditTrailType.PAYMENT, newAmount, oldAmount);
+	logOrderPayment(
+		orderId: string,
+		newAmount: number,
+		oldAmount?: number
+	): OrderAuditTrailEvent | undefined {
+		return this.logChanges(orderId, OrderAuditTrailType.PAYMENT, newAmount, oldAmount);
 	}
 
-	async logOrderFullChanges(newOrder: Order, oldOrder: Order) {
+	logOrderFullChanges(
+		newOrder: Order,
+		oldOrder: Order
+	): OrderAuditTrailEventWithFullChanges | undefined {
 		if (oldOrder.id !== newOrder.id) {
-			return;
+			return undefined;
 		}
 
-		const auditTrail: OrderAuditTrailEntrWithFullChanges = {
+		return {
 			orderId: newOrder.id,
-			userId: this.currentUser.id,
-			createdAt: new Date(),
 			type: OrderAuditTrailType.DATA,
 			newValue: newOrder,
 			oldValue: oldOrder
 		};
-
-		await this.auditRepository.createOrderAuditTrailEntry(
-			OrderAuditTrailService.toDtoFullOrder(auditTrail)
-		);
 	}
 
-	private async logChanges(
+	async storeEntry(
+		orderId: string,
+		events: (OrderAuditTrailEvent | undefined)[] = [],
+		fullEvents: (OrderAuditTrailEventWithFullChanges | undefined)[] = []
+	) {
+		const ids = [
+			...new Set([
+				...events.filter((event) => event != null).map((event) => event.orderId),
+				...fullEvents.filter((event) => event != null).map((event) => event.orderId)
+			])
+		];
+
+		if (ids.length === 0) {
+			return;
+		}
+
+		if (ids.length !== 1 || ids[0] !== orderId) {
+			throw Error('Id does not match');
+		}
+
+		const eventDtos = events
+			.filter((event) => event != null)
+			.map((event) => OrderAuditTrailService.toDtoEvent(event));
+		const fullEventDtos = fullEvents
+			.filter((event) => event != null)
+			.map((event) => OrderAuditTrailService.toDtoEventWithFullChanges(event));
+		const allEventDtos = [...eventDtos, ...fullEventDtos];
+		if (allEventDtos.length === 0) {
+			return;
+		}
+
+		const entry: OrderAuditTrailEntry = {
+			orderId: orderId,
+			userId: this.currentUser.id,
+			userName: this.currentUser.name,
+			createdAt: new Date(),
+			events: [] // not needed
+		};
+
+		const dto = OrderAuditTrailService.toDto(entry, allEventDtos);
+		await this.auditRepository.createOrderAuditTrailEntry(dto);
+	}
+
+	private logChanges(
 		orderId: string,
 		type: OrderAuditTrailType,
 		newValue: string | number | boolean | OrderStatus,
 		oldValue?: string | number | boolean | OrderStatus
-	) {
+	): OrderAuditTrailEvent | undefined {
 		if (newValue === oldValue) {
-			return;
+			return undefined;
 		}
 
-		const auditTrail: OrderAuditTrailEntry = {
-			orderId: orderId,
-			userId: this.currentUser.id,
-			createdAt: new Date(),
+		return {
+			orderId,
 			type,
 			newValue,
 			oldValue
 		};
-
-		await this.auditRepository.createOrderAuditTrailEntry(OrderAuditTrailService.toDto(auditTrail));
 	}
 
-	private static toDto(entry: OrderAuditTrailEntry): OrderAuditTrailEntryDto {
-		return {
-			orderUuid: entry.orderId,
-			userId: entry.userId,
-			type: entry.type,
-			oldValue: entry.oldValue,
-			newValue: entry.newValue,
-			timestamp: Date.parse(entry.createdAt.toISOString())
-		};
-	}
-
-	private static toDtoFullOrder(
-		entry: OrderAuditTrailEntrWithFullChanges
+	private static toDto(
+		entry: OrderAuditTrailEntry,
+		events: OrderAuditTrailEventDto[] = []
 	): OrderAuditTrailEntryDto {
 		return {
 			orderUuid: entry.orderId,
 			userId: entry.userId,
-			type: entry.type,
-			oldValue: OrderService.toDto(entry.oldValue),
-			newValue: OrderService.toDto(entry.newValue),
+			userName: entry.userName,
+			events,
 			timestamp: Date.parse(entry.createdAt.toISOString())
+		};
+	}
+
+	private static toDtoEvent(event: OrderAuditTrailEvent): OrderAuditTrailEventDto {
+		return {
+			type: event.type,
+			oldValue: event.oldValue,
+			newValue: event.newValue
+		};
+	}
+
+	private static toDtoEventWithFullChanges(
+		event: OrderAuditTrailEventWithFullChanges
+	): OrderAuditTrailEventDto {
+		return {
+			type: event.type,
+			oldValue: OrderService.toDto(event.oldValue),
+			newValue: OrderService.toDto(event.newValue)
 		};
 	}
 }
