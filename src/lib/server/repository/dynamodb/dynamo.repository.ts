@@ -15,12 +15,8 @@ import {
 	type NativeAttributeValue
 } from '@aws-sdk/lib-dynamodb';
 import _ from 'lodash';
-import type { ItemDto } from './dto/item.dto';
-
-export interface IPaginatedDtoResult<T> {
-	elements: T[];
-	endKey?: string | number;
-}
+import type { ItemDto } from '../dto/item.dto';
+import type { IPaginatedDtoResult } from '../dto/paginated-result.dto.interface';
 
 export abstract class DynamoRepository<T> {
 	protected readonly defaultLimit: number = 25;

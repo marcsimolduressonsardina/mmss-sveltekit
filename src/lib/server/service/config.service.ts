@@ -1,15 +1,16 @@
 import type { AppUser } from '$lib/type/api.type';
-import { ConfigRepository } from '../repository/config.repository';
+import { ConfigRepositoryDynamoDb } from '../repository/dynamodb/config.repository.dynamodb';
 import type { ConfigDto } from '../repository/dto/config.dto';
 import { LOCATIONS_CONFIG_ID, type LocationsConfigType } from './constants/config.constants';
+import type { IConfigRepository } from '../repository/config.repository.interface';
 
 export class ConfigService {
 	private readonly storeId: string;
-	private repository: ConfigRepository;
+	private repository: IConfigRepository;
 
 	constructor(user: AppUser) {
 		this.storeId = user.storeId;
-		this.repository = new ConfigRepository();
+		this.repository = new ConfigRepositoryDynamoDb();
 	}
 
 	public async getLocationsList(): Promise<LocationsConfigType> {

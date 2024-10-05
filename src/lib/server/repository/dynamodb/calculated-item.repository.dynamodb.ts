@@ -1,9 +1,13 @@
 import { CALCULATED_ITEM_ORDER_TABLE } from '$env/static/private';
+import type { ICalculatedItemRepository } from '../calculated-item.repository.interface';
 
-import type { CalculatedItemDto } from './dto/calculated-item.dto';
+import type { CalculatedItemDto } from '../dto/calculated-item.dto';
 import { DynamoRepository } from './dynamo.repository';
 
-export class CalculatedItemRepository extends DynamoRepository<CalculatedItemDto> {
+export class CalculatedItemRepositoryDynamoDb
+	extends DynamoRepository<CalculatedItemDto>
+	implements ICalculatedItemRepository
+{
 	constructor() {
 		super(CALCULATED_ITEM_ORDER_TABLE, 'orderUuid');
 	}

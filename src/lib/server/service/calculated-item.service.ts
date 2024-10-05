@@ -1,5 +1,5 @@
 import { PricingService } from './pricing.service';
-import { CalculatedItemRepository } from '../repository/calculated-item.repository';
+import { CalculatedItemRepositoryDynamoDb } from '../repository/dynamodb/calculated-item.repository.dynamodb';
 import type { CalculatedItemDto } from '../repository/dto/calculated-item.dto';
 import type {
 	CalculatedItem,
@@ -10,13 +10,14 @@ import type {
 import { PricingType } from '../../type/pricing.type';
 import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 import type { OrderDimensions } from '$lib/type/order.type';
+import type { ICalculatedItemRepository } from '../repository/calculated-item.repository.interface';
 
 export class CalculatedItemService {
-	private calculatedItemRepository: CalculatedItemRepository;
+	private calculatedItemRepository: ICalculatedItemRepository;
 	private pricingProvider: PricingService;
 
 	constructor() {
-		this.calculatedItemRepository = new CalculatedItemRepository();
+		this.calculatedItemRepository = new CalculatedItemRepositoryDynamoDb();
 		this.pricingProvider = new PricingService();
 	}
 

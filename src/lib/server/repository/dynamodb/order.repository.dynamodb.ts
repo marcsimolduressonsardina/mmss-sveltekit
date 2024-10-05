@@ -1,9 +1,13 @@
 import { ORDER_TABLE } from '$env/static/private';
 
-import type { OrderDto } from './dto/order.dto';
+import type { OrderDto } from '../dto/order.dto';
+import type { IOrderRepository } from '../order.repository.interface';
 import { DynamoRepository } from './dynamo.repository';
 
-export class OrderRepository extends DynamoRepository<OrderDto> {
+export class OrderRepositoryDynamoDb
+	extends DynamoRepository<OrderDto>
+	implements IOrderRepository
+{
 	constructor() {
 		super(ORDER_TABLE, 'customerUuid', 'timestamp');
 	}

@@ -4,11 +4,12 @@ import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } from '$env/static/private';
 
 import { InvalidDataError } from '../error/invalid-data.error';
-import { CustomerRepository } from '../repository/customer.repository';
+import { CustomerRepositoryDynamoDb } from '../repository/dynamodb/customer.repository.dynamodb';
 import type { CustomerDto } from '../repository/dto/customer.dto';
 import type { Customer, AppUser } from '../../type/api.type';
 import type { OrderDto } from '../repository/dto/order.dto';
 import { SearchUtilities } from '../shared/search/search.utilities';
+import type { ICustomerRepository } from '../repository/customer.repository.interface';
 
 interface PaginatedCustomers {
 	customers: Customer[];
@@ -17,12 +18,12 @@ interface PaginatedCustomers {
 
 export class CustomerService {
 	private readonly storeId: string;
-	private repository: CustomerRepository;
+	private repository: ICustomerRepository;
 	private snsClient?: SNSClient;
 
 	constructor(user: AppUser) {
 		this.storeId = user.storeId;
-		this.repository = new CustomerRepository();
+		this.repository = new CustomerRepositoryDynamoDb();
 	}
 
 	public async getCustomerById(customerId: string): Promise<Customer | null> {
@@ -131,7 +132,7 @@ export class CustomerService {
 	}
 
 	public static async getPublicCustomerForPublicOrder(order: OrderDto): Promise<Customer | null> {
-		const repo = new CustomerRepository();
+		const repo = new CustomerRepositoryDynamoDb();
 		const customerDto = await repo.getCustomerById(order.customerUuid);
 		if (customerDto && customerDto.storeId === order.storeId) {
 			return CustomerService.fromDto(customerDto);

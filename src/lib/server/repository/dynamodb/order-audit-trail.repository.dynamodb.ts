@@ -1,9 +1,13 @@
 import { ORDER_AUDIT_TRAIL_TABLE } from '$env/static/private';
 
-import type { OrderAuditTrailEntryDto } from './dto/order-audit-trail-entry.dto';
+import type { OrderAuditTrailEntryDto } from '../dto/order-audit-trail-entry.dto';
+import type { IOrderAuditTrailRepository } from '../order-audit-trail.repository.interface';
 import { DynamoRepository } from './dynamo.repository';
 
-export class OrderAuditTrailRepository extends DynamoRepository<OrderAuditTrailEntryDto> {
+export class OrderAuditTrailRepositoryDynamoDb
+	extends DynamoRepository<OrderAuditTrailEntryDto>
+	implements IOrderAuditTrailRepository
+{
 	constructor() {
 		super(ORDER_AUDIT_TRAIL_TABLE, 'orderUuid', 'timestamp');
 	}

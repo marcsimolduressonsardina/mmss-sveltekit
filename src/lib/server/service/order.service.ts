@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { AuthService } from './auth.service';
 import { CustomerService } from './customer.service';
 import type { OrderDto } from '../repository/dto/order.dto';
-import { OrderRepository } from '../repository/order.repository';
+import { OrderRepositoryDynamoDb } from '../repository/dynamodb/order.repository.dynamodb';
 import type {
 	Customer,
 	Order,
@@ -25,6 +25,7 @@ import { DateTime } from 'luxon';
 import { quoteDeliveryDate } from '../shared/order/order-creation.utilities';
 import { SearchUtilities } from '../shared/search/search.utilities';
 import { OrderAuditTrailService } from './order-audit-trail.service';
+import type { IOrderRepository } from '../repository/order.repository.interface';
 
 export interface ISameDayOrderCounters {
 	finishedCount: number;
@@ -34,7 +35,7 @@ export interface ISameDayOrderCounters {
 
 export class OrderService {
 	private readonly storeId: string;
-	private repository: OrderRepository;
+	private repository: IOrderRepository;
 	private customerService: CustomerService;
 	private orderAuditTrailService: OrderAuditTrailService;
 	private calculatedItemService: CalculatedItemService;
@@ -42,7 +43,7 @@ export class OrderService {
 
 	constructor(user: AppUser, customerService?: CustomerService) {
 		this.storeId = user.storeId;
-		this.repository = new OrderRepository();
+		this.repository = new OrderRepositoryDynamoDb();
 		this.customerService = customerService ?? new CustomerService(user);
 		this.orderAuditTrailService = new OrderAuditTrailService(user);
 		this.currentUser = user;
@@ -307,7 +308,7 @@ export class OrderService {
 	}
 
 	static async getPublicOrder(publicId: string): Promise<Order | null> {
-		const repo = new OrderRepository();
+		const repo = new OrderRepositoryDynamoDb();
 		const orderDto = await repo.getOrderByShortId(publicId);
 		if (orderDto) {
 			const publicCustomer = await CustomerService.getPublicCustomerForPublicOrder(orderDto);

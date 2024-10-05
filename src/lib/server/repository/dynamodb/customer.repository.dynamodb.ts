@@ -1,9 +1,14 @@
 import { CUSTOMER_TABLE } from '$env/static/private';
+import type { ICustomerRepository } from '../customer.repository.interface';
 
-import type { CustomerDto } from './dto/customer.dto';
-import { DynamoRepository, type IPaginatedDtoResult } from './dynamo.repository';
+import type { CustomerDto } from '../dto/customer.dto';
+import type { IPaginatedDtoResult } from '../dto/paginated-result.dto.interface';
+import { DynamoRepository } from './dynamo.repository';
 
-export class CustomerRepository extends DynamoRepository<CustomerDto> {
+export class CustomerRepositoryDynamoDb
+	extends DynamoRepository<CustomerDto>
+	implements ICustomerRepository
+{
 	constructor() {
 		super(CUSTOMER_TABLE, 'storeId', 'phone');
 	}

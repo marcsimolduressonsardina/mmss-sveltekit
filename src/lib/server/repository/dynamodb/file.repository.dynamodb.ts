@@ -1,8 +1,9 @@
-import type { FileDto } from './dto/file.dto';
+import type { FileDto } from '../dto/file.dto';
 import { DynamoRepository } from './dynamo.repository';
 import { FILE_TABLE } from '$env/static/private';
+import type { IFileRepository } from '../file.repository.interface';
 
-export class FileRepository extends DynamoRepository<FileDto> {
+export class FileRepositoryDynamoDb extends DynamoRepository<FileDto> implements IFileRepository {
 	constructor() {
 		super(FILE_TABLE, 'orderUuid', 'fileUuid');
 	}

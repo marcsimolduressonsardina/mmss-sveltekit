@@ -2,7 +2,7 @@ import mime from 'mime-types';
 import { v4 as uuidv4 } from 'uuid';
 import { S3Client } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
-import { FileRepository } from '../repository/file.repository';
+import { FileRepositoryDynamoDb } from '../repository/dynamodb/file.repository.dynamodb';
 
 import {
 	FILES_BUCKET,
@@ -14,14 +14,15 @@ import { FileType, type AppUser, type File } from '$lib/type/api.type';
 import type { FileDto } from '../repository/dto/file.dto';
 import { S3Util } from '../data/s3.util';
 import { OrderAuditTrailService } from './order-audit-trail.service';
+import type { IFileRepository } from '../repository/file.repository.interface';
 
 export class FileService {
-	private repository: FileRepository;
+	private repository: IFileRepository;
 	private orderAuditTrailServiceOrder: OrderAuditTrailService;
 	private s3Client: S3Client;
 
 	constructor(user: AppUser) {
-		this.repository = new FileRepository();
+		this.repository = new FileRepositoryDynamoDb();
 		this.orderAuditTrailServiceOrder = new OrderAuditTrailService(user);
 		this.s3Client = new S3Client({
 			region: AWS_REGION,

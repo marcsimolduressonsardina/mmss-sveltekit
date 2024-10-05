@@ -11,7 +11,7 @@ import {
 	linearPricingShortSide
 } from '../data/static-pricing';
 import type { ListPriceDto } from '../repository/dto/list-price.dto';
-import { ListPricingRepository } from '../repository/list-pricing.repository';
+import { ListPricingRepositoryDynamoDb } from '../repository/dynamodb/list-pricing.repository.dynamodb';
 import { PricingFormula, PricingType } from '../../type/pricing.type';
 import { InvalidSizeError } from '../error/invalid-size.error';
 import type { ListPrice, MaxArea, MaxAreaM2 } from '../../type/api.type';
@@ -23,12 +23,13 @@ import {
 	noDimensionCheckPricingTypes
 } from '$lib/shared/pricing.utilites';
 import type { OrderDimensions } from '$lib/type/order.type';
+import type { IListPricingRepository } from '../repository/list-pricing.repository.interface';
 
 export class PricingService {
-	private listPricingRepository: ListPricingRepository;
+	private listPricingRepository: IListPricingRepository;
 
 	constructor() {
-		this.listPricingRepository = new ListPricingRepository();
+		this.listPricingRepository = new ListPricingRepositoryDynamoDb();
 	}
 
 	public async getPricingList(type: PricingType): Promise<ListPrice[]> {

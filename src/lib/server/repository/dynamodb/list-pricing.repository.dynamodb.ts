@@ -1,10 +1,14 @@
 import { LIST_PRICING_TABLE } from '$env/static/private';
 
-import type { ListPriceDto } from './dto/list-price.dto';
+import type { ListPriceDto } from '../dto/list-price.dto';
 import { DynamoRepository } from './dynamo.repository';
-import { PricingType } from '../../type/pricing.type';
+import { PricingType } from '../../../type/pricing.type';
+import type { IListPricingRepository } from '../list-pricing.repository.interface';
 
-export class ListPricingRepository extends DynamoRepository<ListPriceDto> {
+export class ListPricingRepositoryDynamoDb
+	extends DynamoRepository<ListPriceDto>
+	implements IListPricingRepository
+{
 	constructor() {
 		super(LIST_PRICING_TABLE, 'type', 'id');
 	}

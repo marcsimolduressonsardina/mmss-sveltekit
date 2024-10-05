@@ -10,15 +10,16 @@ import type {
 	OrderAuditTrailEntryDto,
 	OrderAuditTrailEventDto
 } from '../repository/dto/order-audit-trail-entry.dto';
-import { OrderAuditTrailRepository } from '../repository/order-audit-trail.repository';
+import { OrderAuditTrailRepositoryDynamoDb } from '../repository/dynamodb/order-audit-trail.repository.dynamodb';
+import type { IOrderAuditTrailRepository } from '../repository/order-audit-trail.repository.interface';
 import { OrderService } from './order.service';
 
 export class OrderAuditTrailService {
-	private auditRepository: OrderAuditTrailRepository;
+	private auditRepository: IOrderAuditTrailRepository;
 	private currentUser: AppUser;
 
 	constructor(user: AppUser) {
-		this.auditRepository = new OrderAuditTrailRepository();
+		this.auditRepository = new OrderAuditTrailRepositoryDynamoDb();
 		this.currentUser = user;
 	}
 

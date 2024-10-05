@@ -1,9 +1,13 @@
 import { CONFIG_TABLE } from '$env/static/private';
+import type { IConfigRepository } from '../config.repository.interface';
 
-import type { ConfigDto, ConfigValue } from './dto/config.dto';
+import type { ConfigDto, ConfigValue } from '../dto/config.dto';
 import { DynamoRepository } from './dynamo.repository';
 
-export class ConfigRepository extends DynamoRepository<ConfigDto> {
+export class ConfigRepositoryDynamoDb
+	extends DynamoRepository<ConfigDto>
+	implements IConfigRepository
+{
 	constructor() {
 		super(CONFIG_TABLE, 'storeId', 'id');
 	}
