@@ -10,16 +10,19 @@ import {
 	AWS_ACCESS_KEY_ID,
 	AWS_SECRET_ACCESS_KEY
 } from '$env/static/private';
-import { FileType, type File } from '$lib/type/api.type';
+import { FileType, type AppUser, type File } from '$lib/type/api.type';
 import type { FileDto } from '../repository/dto/file.dto';
 import { S3Util } from '../data/s3.util';
+import { OrderAuditTrailService } from './order-audit-trail.service';
 
 export class FileService {
 	private repository: FileRepository;
+	private orderAuditTrailServiceOrder: OrderAuditTrailService;
 	private s3Client: S3Client;
 
-	constructor() {
+	constructor(user: AppUser) {
 		this.repository = new FileRepository();
+		this.orderAuditTrailServiceOrder = new OrderAuditTrailService(user);
 		this.s3Client = new S3Client({
 			region: AWS_REGION,
 			credentials: {
@@ -50,7 +53,12 @@ export class FileService {
 			300
 		);
 		file.uploadUrl = uploadUrl;
-		await this.repository.createFile(fileDto);
+		await Promise.all([
+			this.repository.createFile(fileDto),
+			this.orderAuditTrailServiceOrder.storeEntry(orderId, [
+				this.orderAuditTrailServiceOrder.logOrderFileCreated(orderId, fileName)
+			])
+		]);
 		return file;
 	}
 
@@ -111,8 +119,11 @@ export class FileService {
 		const dto = await this.repository.getFile(orderId, id);
 		if (dto == null) return;
 		await Promise.all([
-			await this.repository.deleteFile(orderId, id),
-			await S3Util.batchDeleteFiles(this.s3Client, FILES_BUCKET, FileService.getAllFileKeys(dto))
+			this.repository.deleteFile(orderId, id),
+			S3Util.batchDeleteFiles(this.s3Client, FILES_BUCKET, FileService.getAllFileKeys(dto)),
+			this.orderAuditTrailServiceOrder.storeEntry(orderId, [
+				this.orderAuditTrailServiceOrder.logOrderFileDeleted(orderId, dto.originalFilename)
+			])
 		]);
 	}
 
@@ -120,11 +131,17 @@ export class FileService {
 		const dtos = await this.repository.getFilesByOrder(orderId);
 		if (dtos.length === 0) return;
 		await Promise.all([
-			await this.repository.deleteFiles(dtos),
-			await S3Util.batchDeleteFiles(
+			this.repository.deleteFiles(dtos),
+			S3Util.batchDeleteFiles(
 				this.s3Client,
 				FILES_BUCKET,
 				dtos.map((dto) => FileService.getAllFileKeys(dto)).flat()
+			),
+			this.orderAuditTrailServiceOrder.storeEntry(
+				orderId,
+				dtos.map((dto) =>
+					this.orderAuditTrailServiceOrder.logOrderFileDeleted(orderId, dto.originalFilename)
+				)
 			)
 		]);
 	}

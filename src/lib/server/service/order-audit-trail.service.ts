@@ -50,6 +50,14 @@ export class OrderAuditTrailService {
 		return this.logChanges(orderId, OrderAuditTrailType.PAYMENT, newAmount, oldAmount);
 	}
 
+	logOrderFileCreated(orderId: string, fileId: string): OrderAuditTrailEvent | undefined {
+		return this.logChanges(orderId, OrderAuditTrailType.ATTACHMENT, fileId, '');
+	}
+
+	logOrderFileDeleted(orderId: string, fileId: string): OrderAuditTrailEvent | undefined {
+		return this.logChanges(orderId, OrderAuditTrailType.ATTACHMENT, '', fileId);
+	}
+
 	logOrderFullChanges(
 		newOrder: Order,
 		oldOrder: Order

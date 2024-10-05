@@ -4,8 +4,6 @@ import { OrderService } from '$lib/server/service/order.service.js';
 import type { CustomSession } from '$lib/type/api.type';
 import { json } from '@sveltejs/kit';
 
-const fileService = new FileService();
-
 export async function POST({ request, locals, params }) {
 	const session = await locals.auth();
 	const appUser = AuthService.generateUserFromAuth(session as CustomSession);
@@ -14,6 +12,7 @@ export async function POST({ request, locals, params }) {
 	}
 
 	const { id } = params;
+	const fileService = new FileService(appUser);
 	const orderService = new OrderService(appUser);
 	const order = await orderService.getOrderById(id);
 	if (order == null) {
