@@ -213,13 +213,15 @@ export class OrderService {
 		order.item.deliveryDate = deliveryDate;
 		order.status = OrderStatus.PENDING;
 		const newDto = OrderService.toDto(order);
-		await this.repository.updateFullOrder(oldDto, newDto);
-		await this.orderAuditTrailService.storeEntry(order.id, [
-			this.orderAuditTrailService.logOrderStatusChanged(
-				order.id,
-				OrderStatus.PENDING,
-				OrderStatus.QUOTE
-			)
+		await Promise.all([
+			this.repository.updateFullOrder(oldDto, newDto),
+			this.orderAuditTrailService.storeEntry(order.id, [
+				this.orderAuditTrailService.logOrderStatusChanged(
+					order.id,
+					OrderStatus.PENDING,
+					OrderStatus.QUOTE
+				)
+			])
 		]);
 		return order;
 	}
@@ -234,9 +236,11 @@ export class OrderService {
 		order.notified = false;
 		order.amountPayed = 0;
 		const newDto = OrderService.toDto(order);
-		await this.repository.updateFullOrder(oldDto, newDto);
-		await this.orderAuditTrailService.storeEntry(order.id, [
-			this.orderAuditTrailService.logOrderStatusChanged(order.id, OrderStatus.QUOTE, oldStatus)
+		await Promise.all([
+			this.repository.updateFullOrder(oldDto, newDto),
+			this.orderAuditTrailService.storeEntry(order.id, [
+				this.orderAuditTrailService.logOrderStatusChanged(order.id, OrderStatus.QUOTE, oldStatus)
+			])
 		]);
 		return order;
 	}
@@ -247,9 +251,11 @@ export class OrderService {
 		if (calculatedItem == null) return;
 		const total = CalculatedItemUtilities.getTotal(calculatedItem);
 		order.amountPayed = total;
-		await this.repository.updateAmountPayed(OrderService.toDto(order));
-		await this.orderAuditTrailService.storeEntry(order.id, [
-			this.orderAuditTrailService.logOrderPayment(order.id, order.amountPayed, oldAmount)
+		await Promise.all([
+			this.repository.updateAmountPayed(OrderService.toDto(order)),
+			this.orderAuditTrailService.storeEntry(order.id, [
+				this.orderAuditTrailService.logOrderPayment(order.id, order.amountPayed, oldAmount)
+			])
 		]);
 	}
 
@@ -268,9 +274,11 @@ export class OrderService {
 			order.amountPayed = amount;
 		}
 
-		await this.repository.updateAmountPayed(OrderService.toDto(order));
-		await this.orderAuditTrailService.storeEntry(order.id, [
-			this.orderAuditTrailService.logOrderPayment(order.id, order.amountPayed, oldAmount)
+		await Promise.all([
+			this.repository.updateAmountPayed(OrderService.toDto(order)),
+			this.orderAuditTrailService.storeEntry(order.id, [
+				this.orderAuditTrailService.logOrderPayment(order.id, order.amountPayed, oldAmount)
+			])
 		]);
 	}
 
@@ -279,18 +287,22 @@ export class OrderService {
 		const oldLocation = order.location;
 		order.status = status;
 		order.location = location ?? '';
-		this.repository.setOrderStatus(OrderService.toDto(order));
-		await this.orderAuditTrailService.storeEntry(order.id, [
-			this.orderAuditTrailService.logOrderStatusChanged(order.id, status, oldStatus),
-			this.orderAuditTrailService.logOrderLocationChanged(order.id, order.location, oldLocation)
+		await Promise.all([
+			this.repository.setOrderStatus(OrderService.toDto(order)),
+			this.orderAuditTrailService.storeEntry(order.id, [
+				this.orderAuditTrailService.logOrderStatusChanged(order.id, status, oldStatus),
+				this.orderAuditTrailService.logOrderLocationChanged(order.id, order.location, oldLocation)
+			])
 		]);
 	}
 
 	async setOrderAsNotified(order: Order) {
 		order.notified = true;
-		await this.repository.setOrderNotified(OrderService.toDto(order));
-		await this.orderAuditTrailService.storeEntry(order.id, [
-			this.orderAuditTrailService.logOrderNotified(order.id)
+		await Promise.all([
+			this.repository.setOrderNotified(OrderService.toDto(order)),
+			this.orderAuditTrailService.storeEntry(order.id, [
+				this.orderAuditTrailService.logOrderNotified(order.id)
+			])
 		]);
 	}
 
@@ -341,10 +353,12 @@ export class OrderService {
 
 	private async createOrder(dto: OrderCreationWithCustomerDto): Promise<Order> {
 		const { order, calculatedItem } = await this.generateOrderAndCalculatedItemFromDto(dto);
-		await this.repository.createOrder(OrderService.toDto(order));
-		await this.calculatedItemService.saveCalculatedItem(calculatedItem);
-		await this.orderAuditTrailService.storeEntry(order.id, [
-			this.orderAuditTrailService.logOrderStatusChanged(order.id, order.status)
+		await Promise.all([
+			this.repository.createOrder(OrderService.toDto(order)),
+			this.calculatedItemService.saveCalculatedItem(calculatedItem),
+			this.orderAuditTrailService.storeEntry(order.id, [
+				this.orderAuditTrailService.logOrderStatusChanged(order.id, order.status)
+			])
 		]);
 		return order;
 	}
@@ -378,13 +392,15 @@ export class OrderService {
 			originalOrder.notified
 		);
 
-		await this.repository.createOrder(OrderService.toDto(order));
-		await this.calculatedItemService.saveCalculatedItem(calculatedItem);
-		await this.orderAuditTrailService.storeEntry(
-			order.id,
-			[],
-			[this.orderAuditTrailService.logOrderFullChanges(order, originalOrder)]
-		);
+		await Promise.all([
+			this.repository.createOrder(OrderService.toDto(order)),
+			this.calculatedItemService.saveCalculatedItem(calculatedItem),
+			this.orderAuditTrailService.storeEntry(
+				order.id,
+				[],
+				[this.orderAuditTrailService.logOrderFullChanges(order, originalOrder)]
+			)
+		]);
 		return order;
 	}
 
