@@ -4,8 +4,6 @@ import { OrderService } from '$lib/server/service/order.service.js';
 import type { CustomSession } from '$lib/type/api.type';
 import { json } from '@sveltejs/kit';
 
-const fileService = new FileService();
-
 export async function DELETE({ locals, params }) {
 	const session = await locals.auth();
 	const appUser = AuthService.generateUserFromAuth(session as CustomSession);
@@ -14,6 +12,7 @@ export async function DELETE({ locals, params }) {
 	}
 
 	const { id, fileId } = params;
+	const fileService = new FileService(appUser);
 	const orderService = new OrderService(appUser);
 	const order = await orderService.getOrderById(id);
 	if (order == null) {
@@ -38,6 +37,7 @@ export async function GET({ locals, params }) {
 		return json({ error: 'Order not found' }, { status: 404 });
 	}
 
+	const fileService = new FileService(appUser);
 	const file = await fileService.getFile(id, fileId);
 	if (file == null) {
 		return json({ error: 'File not found' }, { status: 404 });
