@@ -14,6 +14,7 @@ export type DynamoTableSet = {
 	listPricingTable: Table;
 	fileTable: Table;
 	configTable: Table;
+	orderAuditTrailTable: Table;
 };
 
 export type BucketSet = {

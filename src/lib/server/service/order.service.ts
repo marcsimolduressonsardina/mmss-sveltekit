@@ -24,6 +24,7 @@ import type { OrderCreationDto } from './dto/order-creation.dto';
 import { DateTime } from 'luxon';
 import { quoteDeliveryDate } from '../shared/order/order-creation.utilities';
 import { SearchUtilities } from '../shared/search/search.utilities';
+import { OrderAuditTrailService } from './order-audit-trail.service';
 
 export interface ISameDayOrderCounters {
 	finishedCount: number;
@@ -35,6 +36,7 @@ export class OrderService {
 	private readonly storeId: string;
 	private repository: OrderRepository;
 	private customerService: CustomerService;
+	private orderAuditTrailService: OrderAuditTrailService;
 	private calculatedItemService: CalculatedItemService;
 	private currentUser: AppUser;
 
@@ -42,6 +44,7 @@ export class OrderService {
 		this.storeId = user.storeId;
 		this.repository = new OrderRepository();
 		this.customerService = customerService ?? new CustomerService(user);
+		this.orderAuditTrailService = new OrderAuditTrailService(user);
 		this.currentUser = user;
 		this.calculatedItemService = new CalculatedItemService();
 	}
@@ -208,36 +211,50 @@ export class OrderService {
 		const oldDto = OrderService.toDto(order);
 		order.createdAt = DateTime.now().toJSDate();
 		order.item.deliveryDate = deliveryDate;
-		order.statusUpdated = DateTime.now().toJSDate();
 		order.status = OrderStatus.PENDING;
 		const newDto = OrderService.toDto(order);
 		await this.repository.updateFullOrder(oldDto, newDto);
+		await this.orderAuditTrailService.storeEntry(order.id, [
+			this.orderAuditTrailService.logOrderStatusChanged(
+				order.id,
+				OrderStatus.PENDING,
+				OrderStatus.QUOTE
+			)
+		]);
 		return order;
 	}
 
 	async moveOrderToQuote(order: Order): Promise<Order> {
 		if (order.status === OrderStatus.QUOTE) return order;
+		const oldStatus = order.status;
 		const oldDto = OrderService.toDto(order);
 		order.createdAt = DateTime.now().toJSDate();
 		order.item.deliveryDate = quoteDeliveryDate;
-		order.statusUpdated = DateTime.now().toJSDate();
 		order.status = OrderStatus.QUOTE;
 		order.notified = false;
 		order.amountPayed = 0;
 		const newDto = OrderService.toDto(order);
 		await this.repository.updateFullOrder(oldDto, newDto);
+		await this.orderAuditTrailService.storeEntry(order.id, [
+			this.orderAuditTrailService.logOrderStatusChanged(order.id, OrderStatus.QUOTE, oldStatus)
+		]);
 		return order;
 	}
 
 	async setOrderFullyPaid(order: Order) {
+		const oldAmount = order.amountPayed;
 		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
 		if (calculatedItem == null) return;
 		const total = CalculatedItemUtilities.getTotal(calculatedItem);
 		order.amountPayed = total;
-		await this.setOrderPartiallyPaid(order, total);
+		await this.repository.updateAmountPayed(OrderService.toDto(order));
+		await this.orderAuditTrailService.storeEntry(order.id, [
+			this.orderAuditTrailService.logOrderPayment(order.id, order.amountPayed, oldAmount)
+		]);
 	}
 
 	async setOrderPartiallyPaid(order: Order, amount: number) {
+		const oldAmount = order.amountPayed;
 		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
 		if (calculatedItem == null) return;
 		const total = CalculatedItemUtilities.getTotal(calculatedItem);
@@ -252,37 +269,29 @@ export class OrderService {
 		}
 
 		await this.repository.updateAmountPayed(OrderService.toDto(order));
+		await this.orderAuditTrailService.storeEntry(order.id, [
+			this.orderAuditTrailService.logOrderPayment(order.id, order.amountPayed, oldAmount)
+		]);
 	}
 
 	async setOrderStatus(order: Order, status: OrderStatus, location?: string) {
+		const oldStatus = order.status;
+		const oldLocation = order.location;
 		order.status = status;
 		order.location = location ?? '';
-		order.statusUpdated = new Date();
 		this.repository.setOrderStatus(OrderService.toDto(order));
+		await this.orderAuditTrailService.storeEntry(order.id, [
+			this.orderAuditTrailService.logOrderStatusChanged(order.id, status, oldStatus),
+			this.orderAuditTrailService.logOrderLocationChanged(order.id, order.location, oldLocation)
+		]);
 	}
 
 	async setOrderAsNotified(order: Order) {
 		order.notified = true;
 		await this.repository.setOrderNotified(OrderService.toDto(order));
-	}
-
-	async incrementOrderPayment(order: Order, amount: number) {
-		const calculatedItem = await this.calculatedItemService.getCalculatedItem(order.id);
-		if (calculatedItem == null) return;
-		if (amount < 0) {
-			throw new InvalidDataError('Invalid amount');
-		}
-
-		const calculatedTotal = CalculatedItemUtilities.getTotal(calculatedItem);
-		const total = order.amountPayed + amount;
-
-		if (total > calculatedTotal) {
-			order.amountPayed = calculatedTotal;
-		} else {
-			order.amountPayed = total;
-		}
-
-		await this.repository.updateAmountPayed(OrderService.toDto(order));
+		await this.orderAuditTrailService.storeEntry(order.id, [
+			this.orderAuditTrailService.logOrderNotified(order.id)
+		]);
 	}
 
 	static async getPublicOrder(publicId: string): Promise<Order | null> {
@@ -334,6 +343,9 @@ export class OrderService {
 		const { order, calculatedItem } = await this.generateOrderAndCalculatedItemFromDto(dto);
 		await this.repository.createOrder(OrderService.toDto(order));
 		await this.calculatedItemService.saveCalculatedItem(calculatedItem);
+		await this.orderAuditTrailService.storeEntry(order.id, [
+			this.orderAuditTrailService.logOrderStatusChanged(order.id, order.status)
+		]);
 		return order;
 	}
 
@@ -368,6 +380,11 @@ export class OrderService {
 
 		await this.repository.createOrder(OrderService.toDto(order));
 		await this.calculatedItemService.saveCalculatedItem(calculatedItem);
+		await this.orderAuditTrailService.storeEntry(
+			order.id,
+			[],
+			[this.orderAuditTrailService.logOrderFullChanges(order, originalOrder)]
+		);
 		return order;
 	}
 
@@ -390,7 +407,6 @@ export class OrderService {
 			user: this.currentUser,
 			amountPayed: originalAmountPayed ?? 0,
 			status: originalOrderStatus ?? (dto.isQuote ? OrderStatus.QUOTE : OrderStatus.PENDING),
-			statusUpdated: new Date(),
 			hasArrow: dto.hasArrow,
 			notified: originalNotified ?? false,
 			location: originalLocation ?? '',
@@ -469,25 +485,7 @@ export class OrderService {
 		}
 	}
 
-	private static fromDto(dto: OrderDto, customer: Customer): Order {
-		return {
-			id: dto.uuid,
-			shortId: dto.shortId,
-			customer,
-			createdAt: new Date(dto.timestamp),
-			storeId: dto.storeId,
-			user: AuthService.generateStaticUser(dto.userId, dto.userName, dto.storeId),
-			amountPayed: dto.amountPayed,
-			item: OrderService.fromDtoItem(dto.item),
-			status: dto.status as OrderStatus,
-			statusUpdated: new Date(dto.statusTimestamp),
-			hasArrow: dto.hasArrow ?? false,
-			location: dto.location ?? '',
-			notified: dto.notified ?? false
-		};
-	}
-
-	private static toDto(order: Order): OrderDto {
+	public static toDto(order: Order): OrderDto {
 		return {
 			uuid: order.id!,
 			shortId: order.shortId,
@@ -499,10 +497,26 @@ export class OrderService {
 			amountPayed: order.amountPayed,
 			item: OrderService.toDtoItem(order.item),
 			status: order.status,
-			statusTimestamp: Date.parse(order.statusUpdated.toISOString()),
 			hasArrow: order.hasArrow,
 			location: order.location,
 			notified: order.notified
+		};
+	}
+
+	private static fromDto(dto: OrderDto, customer: Customer): Order {
+		return {
+			id: dto.uuid,
+			shortId: dto.shortId,
+			customer,
+			createdAt: new Date(dto.timestamp),
+			storeId: dto.storeId,
+			user: AuthService.generateStaticUser(dto.userId, dto.userName, dto.storeId),
+			amountPayed: dto.amountPayed,
+			item: OrderService.fromDtoItem(dto.item),
+			status: dto.status as OrderStatus,
+			hasArrow: dto.hasArrow ?? false,
+			location: dto.location ?? '',
+			notified: dto.notified ?? false
 		};
 	}
 
@@ -532,7 +546,7 @@ export class OrderService {
 		};
 	}
 
-	public static fromDtoItem(dto: ItemDto): Item {
+	private static fromDtoItem(dto: ItemDto): Item {
 		return {
 			width: dto.width,
 			height: dto.height,

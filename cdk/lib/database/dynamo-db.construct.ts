@@ -9,7 +9,8 @@ export function createDynamoTables(scope: Construct, envName: string): DynamoTab
 		calculatedItemOrderTable: createCalculatedItemOrderTable(scope, envName),
 		listPricingTable: createListPricingTable(scope, envName),
 		fileTable: createFileTable(scope, envName),
-		configTable: createConfigTable(scope, envName)
+		configTable: createConfigTable(scope, envName),
+		orderAuditTrailTable: createOrderAuditTrailTable(scope, envName)
 	};
 }
 
@@ -126,6 +127,22 @@ function createCalculatedItemOrderTable(scope: Construct, envName: string): Tabl
 		name: 'orderUuid',
 		type: AttributeType.STRING
 	});
+}
+
+function createOrderAuditTrailTable(scope: Construct, envName: string): Table {
+	return createTable(
+		scope,
+		envName,
+		`${envName}-order-audit-trail`,
+		{
+			name: 'orderUuid',
+			type: AttributeType.STRING
+		},
+		{
+			name: 'timestamp',
+			type: AttributeType.NUMBER
+		}
+	);
 }
 
 function createTable(

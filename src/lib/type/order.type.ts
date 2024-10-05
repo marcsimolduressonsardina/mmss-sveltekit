@@ -1,3 +1,5 @@
+import type { Order } from './api.type';
+
 export enum OrderStatus {
 	PENDING = 'pending',
 	FINISHED = 'finished',
@@ -27,3 +29,35 @@ export enum DimensionsType {
 	ROUNDED = 'rounded',
 	WINDOW = 'window'
 }
+
+export enum OrderAuditTrailType {
+	STATUS = 'status',
+	ATTACHMENT = 'attachment',
+	DATA = 'data',
+	NOTIFICATION = 'notification',
+	PAYMENT = 'payment',
+	LOCATION = 'location'
+}
+
+export type OrderAuditTrailEntry = {
+	orderId: string;
+	userId: string;
+	userName: string;
+	createdAt: Date;
+	events: (OrderAuditTrailEvent | OrderAuditTrailEventWithFullChanges)[];
+};
+
+type OrderAuditTrailEventBase = {
+	orderId: string;
+	type: OrderAuditTrailType;
+};
+
+export type OrderAuditTrailEvent = {
+	oldValue?: string | number | boolean | OrderStatus;
+	newValue: string | number | boolean | OrderStatus;
+} & OrderAuditTrailEventBase;
+
+export type OrderAuditTrailEventWithFullChanges = {
+	oldValue: Order;
+	newValue: Order;
+} & OrderAuditTrailEventBase;
