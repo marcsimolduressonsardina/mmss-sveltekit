@@ -38,7 +38,6 @@ export class AuthService {
 			orderAuditTrailQueueUrl: ORDER_AUDIT_TRAIL_QUEUE_URL,
 			orderAuditTrailTable: ORDER_AUDIT_TRAIL_TABLE,
 			orderTable: ORDER_TABLE,
-			disableOrderAuditTrail: true,
 			credentials: {
 				accessKeyId: AWS_ACCESS_KEY_ID,
 				secretAccessKey: AWS_SECRET_ACCESS_KEY
