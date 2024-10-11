@@ -1,7 +1,6 @@
 import { AuthService } from '$lib/server/service/auth.service';
 import type { CustomSession } from '$lib/type/api.type';
 import { FileService, OrderService } from '@marcsimolduressonsardina/core';
-import sharp from 'sharp';
 import { json } from '@sveltejs/kit';
 
 export async function POST({ locals, params }) {
@@ -20,24 +19,6 @@ export async function POST({ locals, params }) {
 		return json({ error: 'Order not found' }, { status: 404 });
 	}
 
-	const fileBuffer = await fileService.getImageBufferForOptimization(id, fileId);
-	if (fileBuffer != null) {
-		const optimizedImage = await sharp(fileBuffer.file)
-			.resize(FileService.optimizedImageSize)
-			.jpeg(FileService.optimizedImageQuality)
-			.toBuffer();
-
-		const thumbnail = await sharp(fileBuffer.file)
-			.resize(FileService.thumbnailImageSize)
-			.toBuffer();
-
-		await fileService.storeOptimizations(
-			id,
-			fileId,
-			fileBuffer.contentType,
-			optimizedImage,
-			thumbnail
-		);
-	}
+	await fileService.generateOptimizations(id, fileId);
 	return json({ result: 'ok' });
 }
