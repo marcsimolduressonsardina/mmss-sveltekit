@@ -3,10 +3,10 @@ import { setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 
-import { CustomerService } from '$lib/server/service/customer.service';
-import { OrderService } from '$lib/server/service/order.service';
 import { OrderUtilites } from '$lib/shared/order.utilities';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
+import { AuthService } from '$lib/server/service/auth.service';
+import { CustomerService, OrderService } from '@marcsimolduressonsardina/core';
 
 const schema = z.object({
 	id: z.string().min(15).includes('/').includes('/')
@@ -36,14 +36,15 @@ export const actions = {
 			return setError(form, 'id', 'Invalid ID format');
 		}
 
-		const customerService = new CustomerService(appUser);
+		const config = AuthService.generateConfiguration(appUser);
+		const customerService = new CustomerService(config);
+		const orderService = new OrderService(config, customerService);
 		const existingCustomer = await customerService.getCustomerByPhone(`+${splits[2]}`);
 		console.log(existingCustomer);
 		if (existingCustomer == null) {
 			return setError(form, 'id', 'Invalid ID format');
 		}
 
-		const orderService = new OrderService(appUser, customerService);
 		const orders = await orderService.getOrdersByCustomerId(existingCustomer.id);
 		if (orders == null) {
 			return setError(form, 'id', 'Invalid ID format');

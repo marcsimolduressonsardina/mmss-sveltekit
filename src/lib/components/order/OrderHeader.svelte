@@ -8,10 +8,7 @@
 		faLocationDot
 	} from '@fortawesome/free-solid-svg-icons';
 	import { DateTime } from 'luxon';
-	import { OrderStatus } from '$lib/type/order.type';
-	import { orderStatusMap, OrderUtilites, tempCustomerUuid } from '$lib/shared/order.utilities';
-	import type { CalculatedItem, Order } from '$lib/type/api.type';
-	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
+	import { orderStatusMap, OrderUtilites } from '$lib/shared/order.utilities';
 	import Button from '../button/Button.svelte';
 	import {
 		ACCIONES_NEUTRES_COLORS,
@@ -20,6 +17,13 @@
 		LISTADO_FINALIZADOS
 	} from '$lib/ui/ui.constants';
 	import { getStatusUIInfo, getStatusUIInfoWithPaymentInfo } from '$lib/ui/ui.helper';
+	import {
+		OrderStatus,
+		CalculatedItemUtilities,
+		OrderUtilities as CoreOrderUtilities,
+		type CalculatedItem,
+		type Order
+	} from '@marcsimolduressonsardina/core';
 
 	export let order: Order;
 	export let calculatedItem: CalculatedItem;
@@ -46,7 +50,7 @@
 	<!-- Order Details -->
 	<div class="space-y-1 rounded-lg bg-white px-2 py-4 shadow-md">
 		<!-- Customer Name -->
-		{#if order.customer.id !== tempCustomerUuid}
+		{#if !CoreOrderUtilities.isOrderTemp(order)}
 			<Button
 				colorClasses={ACCIONES_VER_COLORS}
 				text={order.customer.name}

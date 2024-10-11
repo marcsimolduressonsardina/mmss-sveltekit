@@ -1,7 +1,8 @@
 import type { PageServerLoad } from './$types';
 import { PricingHelper } from '$lib/server/shared/pricing/pricing.helper';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
-import { PricingType } from '$lib/type/pricing.type';
+import { PricingService, PricingType } from '@marcsimolduressonsardina/core';
+import { AuthService } from '$lib/server/service/auth.service';
 
 function getPricingType(value?: string): PricingType {
 	if (!Object.values(PricingType).includes(value as PricingType) || value === PricingType.FABRIC) {
@@ -15,6 +16,11 @@ export const load = (async ({ locals, url }) => {
 	const type = url.searchParams.get('type') ?? PricingType.MOLD;
 	const pricingType = getPricingType(type);
 
-	await AuthUtilities.checkAuth(locals, true);
-	return { pricing: PricingHelper.getPricing(), pricingType };
+	const appUser = await AuthUtilities.checkAuth(locals, true);
+	return {
+		pricing: PricingHelper.getPricing(
+			new PricingService(AuthService.generateConfiguration(appUser))
+		),
+		pricingType
+	};
 }) satisfies PageServerLoad;

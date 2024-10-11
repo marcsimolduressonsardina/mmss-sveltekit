@@ -1,15 +1,14 @@
-import { OrderService } from '$lib/server/service/order.service';
 import type { PageServerLoad } from './$types';
 import { redirect, type Actions } from '@sveltejs/kit';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
-import { OrderStatus } from '$lib/type/order.type';
-import { ConfigService } from '$lib/server/service/config.service';
+import { ConfigService, OrderService, OrderStatus } from '@marcsimolduressonsardina/core';
+import { AuthService } from '$lib/server/service/auth.service';
 
 export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
-	const orderService = new OrderService(appUser);
-
+	const config = AuthService.generateConfiguration(appUser);
+	const orderService = new OrderService(config);
 	const order = await orderService.getOrderById(id);
 	if (!order) {
 		return redirect(302, `/`);
@@ -19,7 +18,7 @@ export const load = (async ({ params, locals }) => {
 		return redirect(302, `/orders/${id}`);
 	}
 
-	const configService = new ConfigService(appUser);
+	const configService = new ConfigService(config);
 	const locations = await configService.getLocationsList();
 	return { locations };
 }) satisfies PageServerLoad;
@@ -28,7 +27,7 @@ export const actions: Actions = {
 	saveLocation: async ({ request, locals, params }) => {
 		const appUser = await AuthUtilities.checkAuth(locals);
 		const { id } = params;
-		const orderService = new OrderService(appUser);
+		const orderService = new OrderService(AuthService.generateConfiguration(appUser));
 
 		const order = await orderService.getOrderById(id!);
 		if (!order) {

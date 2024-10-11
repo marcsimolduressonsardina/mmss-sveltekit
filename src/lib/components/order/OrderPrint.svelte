@@ -1,13 +1,17 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { OrderUtilites } from '$lib/shared/order.utilities';
-	import { PricingType } from '$lib/type/pricing.type';
 	import { DateTime } from 'luxon';
 	import Qr from '$lib/components/Qr.svelte';
-	import type { CalculatedItem, Order } from '$lib/type/api.type';
-	import { DimensionsType, OrderStatus } from '$lib/type/order.type';
-	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 	import { otherForPrintPricingTypes } from '$lib/shared/pricing.utilites';
+	import {
+		DimensionsType,
+		OrderStatus,
+		PricingType,
+		CalculatedItemUtilities,
+		type CalculatedItem,
+		type Order
+	} from '@marcsimolduressonsardina/core';
 
 	export let order: Order;
 	export let calculatedItem: CalculatedItem;

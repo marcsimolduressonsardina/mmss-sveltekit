@@ -1,16 +1,16 @@
-import { OrderService } from '$lib/server/service/order.service';
 import { superValidate } from 'sveltekit-superforms';
 import type { PageServerLoad } from './$types';
 import { zod } from 'sveltekit-superforms/adapters';
 import { promoteOrderSchema } from '$lib/shared/order.utilities';
 import { fail, redirect } from '@sveltejs/kit';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
-import { OrderStatus } from '$lib/type/order.type';
+import { OrderService, OrderStatus } from '@marcsimolduressonsardina/core';
+import { AuthService } from '$lib/server/service/auth.service';
 
 export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
-	const orderService = new OrderService(appUser);
+	const orderService = new OrderService(AuthService.generateConfiguration(appUser));
 
 	const order = await orderService.getOrderById(id);
 	if (!order) {
@@ -30,8 +30,7 @@ export const actions = {
 		const appUser = await AuthUtilities.checkAuth(locals);
 
 		const { id } = params;
-		const orderService = new OrderService(appUser);
-
+		const orderService = new OrderService(AuthService.generateConfiguration(appUser));
 		const order = await orderService.getOrderById(id);
 		if (!order || order.status !== OrderStatus.QUOTE) {
 			return fail(404, { missing: true });

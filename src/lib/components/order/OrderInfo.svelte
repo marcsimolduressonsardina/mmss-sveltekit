@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { OrderUtilites } from '$lib/shared/order.utilities';
-	import type { Order } from '$lib/type/api.type';
 	import { DateTime } from 'luxon';
 	import Box from '$lib/components/Box.svelte';
-	import { DimensionsType, OrderStatus } from '$lib/type/order.type';
+	import { DimensionsType, OrderStatus, type Order } from '@marcsimolduressonsardina/core';
 
 	export let order: Order;
 </script>

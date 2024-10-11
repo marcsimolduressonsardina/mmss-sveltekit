@@ -1,6 +1,62 @@
-import type { AppUser, CustomSession, StaticUser } from '$lib/type/api.type';
+import {
+	AWS_ACCESS_KEY_ID,
+	AWS_REGION,
+	AWS_SECRET_ACCESS_KEY,
+	CALCULATED_ITEM_ORDER_TABLE,
+	CONFIG_TABLE,
+	CUSTOMER_TABLE,
+	FILE_TABLE,
+	FILES_BUCKET,
+	LIST_PRICING_TABLE,
+	MOLD_PRICES_BUCKET,
+	ORDER_AUDIT_TRAIL_QUEUE_URL,
+	ORDER_AUDIT_TRAIL_TABLE,
+	ORDER_TABLE
+} from '$env/static/private';
+import type { CustomSession } from '$lib/type/api.type';
+import {
+	type ICoreConfiguration,
+	type AppUser,
+	type ICorePublicConfiguration,
+	PUBLIC_REPOSITORY
+} from '@marcsimolduressonsardina/core';
 
 export class AuthService {
+	public static generateConfiguration(user: AppUser): ICoreConfiguration {
+		return {
+			runInAWSLambda: false,
+			user,
+			region: AWS_REGION,
+			calculatedItemTable: CALCULATED_ITEM_ORDER_TABLE,
+			configTable: CONFIG_TABLE,
+			customerTable: CUSTOMER_TABLE,
+			storeId: user.storeId,
+			filesBucket: FILES_BUCKET,
+			moldPricesBucket: MOLD_PRICES_BUCKET,
+			fileTable: FILE_TABLE,
+			listPricingTable: LIST_PRICING_TABLE,
+			orderAuditTrailQueueUrl: ORDER_AUDIT_TRAIL_QUEUE_URL,
+			orderAuditTrailTable: ORDER_AUDIT_TRAIL_TABLE,
+			orderTable: ORDER_TABLE,
+			disableOrderAuditTrail: true,
+			credentials: {
+				accessKeyId: AWS_ACCESS_KEY_ID,
+				secretAccessKey: AWS_SECRET_ACCESS_KEY
+			}
+		};
+	}
+
+	public static generatePublicConfig(): ICorePublicConfiguration {
+		const user = {
+			id: 'public',
+			name: 'public',
+			storeId: PUBLIC_REPOSITORY,
+			priceManager: false
+		};
+
+		return AuthService.generateConfiguration(user) as ICorePublicConfiguration;
+	}
+
 	public static generateUserFromAuth(session?: CustomSession): AppUser | undefined {
 		if (
 			session == null ||
@@ -16,14 +72,6 @@ export class AuthService {
 			name: session.user.name!,
 			storeId: session.userMetadata.storeId,
 			priceManager: session.userMetadata.priceManager ?? false
-		};
-	}
-
-	public static generateStaticUser(id: string, name: string, storeId: string): StaticUser {
-		return {
-			id,
-			storeId,
-			name
 		};
 	}
 }

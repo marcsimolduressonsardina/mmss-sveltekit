@@ -8,7 +8,7 @@
 	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
 	import Banner from '$lib/components/Banner.svelte';
 	import { getStatusUIInfo } from '$lib/ui/ui.helper';
-	import { OrderStatus } from '$lib/type/order.type';
+	import { OrderStatus } from '@marcsimolduressonsardina/core';
 
 	export let data: PageData;
 	const { form, errors, enhance, submitting } = superForm(data.form);

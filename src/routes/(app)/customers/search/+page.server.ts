@@ -3,8 +3,9 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 
-import { CustomerService } from '$lib/server/service/customer.service';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
+import { CustomerService } from '@marcsimolduressonsardina/core';
+import { AuthService } from '$lib/server/service/auth.service';
 
 const schema = z.object({
 	phone: z.string().min(9).default('+34')
@@ -28,7 +29,7 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		const customerService = new CustomerService(appUser);
+		const customerService = new CustomerService(AuthService.generateConfiguration(appUser));
 		const existingCustomer = await customerService.getCustomerByPhone(form.data.phone);
 		if (existingCustomer) {
 			return redirect(302, `/customers/${existingCustomer.id}`);

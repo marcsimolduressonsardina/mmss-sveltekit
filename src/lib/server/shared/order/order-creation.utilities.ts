@@ -1,26 +1,30 @@
-import type { OrderCreationDto } from '$lib/server/service/dto/order-creation.dto';
 import { orderSchema, quoteSchema } from '$lib/shared/order.utilities';
-import type { CalculatedItem, CalculatedItemPart } from '$lib/type/api.type';
 import { setError, superValidate, type SuperValidated } from 'sveltekit-superforms';
-import { OrderService } from '../../service/order.service';
 import { z } from 'zod';
-import type { PricingType } from '$lib/type/pricing.type';
-import { DateTime } from 'luxon';
 import { zod } from 'sveltekit-superforms/adapters';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { fail, redirect } from '@sveltejs/kit';
-import { InvalidSizeError } from '$lib/server/error/invalid-size.error';
 import { PricingHelper } from '../pricing/pricing.helper';
-import { CalculatedItemService } from '$lib/server/service/calculated-item.service';
-import { cornersId, otherExtraId } from '$lib/shared/calculated-item.utilites';
-import { OrderStatus } from '$lib/type/order.type';
-import type { AllPrices } from '$lib/shared/pricing.utilites';
-import { DimensionsType } from '../../../type/order.type';
+import {
+	CalculatedItemService,
+	cornersId,
+	DimensionsType,
+	OrderService,
+	OrderStatus,
+	otherExtraId,
+	PricingService,
+	quoteDeliveryDate,
+	type AllPrices,
+	type CalculatedItem,
+	type CalculatedItemPart,
+	type PricingType,
+	type OrderCreationDto,
+	InvalidSizeError
+} from '@marcsimolduressonsardina/core';
+import { AuthService } from '$lib/server/service/auth.service';
 
 type OrderTypeForm = z.infer<typeof orderSchema>;
 type QuoteTypeForm = z.infer<typeof quoteSchema>;
-
-export const quoteDeliveryDate = DateTime.fromFormat('31/12/9999', 'dd/MM/yyyy').toJSDate();
 
 export type OrderCreationFormData = {
 	pricing: Promise<AllPrices>;
@@ -85,11 +89,12 @@ export class OrderCreationUtilities {
 	): Promise<OrderCreationFormData> {
 		const appUser = await AuthUtilities.checkAuth(locals);
 		const form = await superValidate(zod(orderSchema));
-		const pricing = PricingHelper.getPricing();
-		const orderService = new OrderService(appUser);
+		const config = AuthService.generateConfiguration(appUser);
+		const pricing = PricingHelper.getPricing(new PricingService(config));
+		const orderService = new OrderService(config);
 		const order = orderId != null ? await orderService.getOrderById(orderId) : undefined;
 		if (order != null) {
-			const calculatedItemService = new CalculatedItemService();
+			const calculatedItemService = new CalculatedItemService(config);
 			const calculatedItem = await calculatedItemService.getCalculatedItem(order.id);
 
 			if (calculatedItem != null) {
@@ -121,7 +126,7 @@ export class OrderCreationUtilities {
 
 	static async handleEditOrder(request: Request, locals: App.Locals, orderId: string) {
 		const appUser = await AuthUtilities.checkAuth(locals);
-		const orderService = new OrderService(appUser);
+		const orderService = new OrderService(AuthService.generateConfiguration(appUser));
 		const order = await orderService.getOrderById(orderId);
 		if (order == null) {
 			return fail(404, {});
@@ -168,7 +173,7 @@ export class OrderCreationUtilities {
 			return fail(400, { form });
 		}
 
-		const orderService = new OrderService(appUser);
+		const orderService = new OrderService(AuthService.generateConfiguration(appUser));
 		let orderId = '';
 
 		try {

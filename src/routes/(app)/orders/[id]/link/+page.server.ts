@@ -1,20 +1,24 @@
-import { OrderService } from '$lib/server/service/order.service';
 import { superValidate, setError } from 'sveltekit-superforms';
 import type { PageServerLoad } from './$types';
 import { linkCustomerSchema } from '$lib/shared/customer.utilities';
 import { zod } from 'sveltekit-superforms/adapters';
-import { isOrderTemp } from '$lib/shared/order.utilities';
 import { fail, redirect } from '@sveltejs/kit';
-import { CustomerService } from '$lib/server/service/customer.service';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
-import { OrderStatus } from '$lib/type/order.type';
-import { CalculatedItemService } from '$lib/server/service/calculated-item.service';
+import { AuthService } from '$lib/server/service/auth.service';
+import {
+	CalculatedItemService,
+	CustomerService,
+	OrderService,
+	OrderStatus,
+	OrderUtilities
+} from '@marcsimolduressonsardina/core';
 
 export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
-	const orderService = new OrderService(appUser);
-	const calculatedItemService = new CalculatedItemService();
+	const config = AuthService.generateConfiguration(appUser);
+	const orderService = new OrderService(config);
+	const calculatedItemService = new CalculatedItemService(config);
 
 	const order = await orderService.getOrderById(id);
 	const calculatedItem = await calculatedItemService.getCalculatedItem(id);
@@ -22,7 +26,7 @@ export const load = (async ({ params, locals }) => {
 		return redirect(302, `/`);
 	}
 
-	if (!isOrderTemp(order)) {
+	if (!OrderUtilities.isOrderTemp(order)) {
 		return redirect(302, `/orders/${id}`);
 	}
 
@@ -40,10 +44,12 @@ export const actions = {
 		const appUser = await AuthUtilities.checkAuth(locals);
 
 		const { id } = params;
-		const orderService = new OrderService(appUser);
+		const config = AuthService.generateConfiguration(appUser);
+		const customerService = new CustomerService(config);
+		const orderService = new OrderService(config, customerService);
 
 		const order = await orderService.getOrderById(id);
-		if (!order || !isOrderTemp(order)) {
+		if (!order || !OrderUtilities.isOrderTemp(order)) {
 			return fail(404, { missing: true });
 		}
 
@@ -53,7 +59,6 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		const customerService = new CustomerService(appUser);
 		let customer = undefined;
 		customer = await customerService.getCustomerByPhone(form.data.phone);
 		if (customer != null) {

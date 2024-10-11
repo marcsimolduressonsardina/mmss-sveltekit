@@ -1,9 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { AuthService } from '$lib/server/service/auth.service';
-import { MoldPriceLoader } from '$lib/server/data/mold-price.loader';
 import type { CustomSession } from '$lib/type/api.type.js';
-
-const moldPriceLoader = new MoldPriceLoader();
+import { MoldPriceLoader } from '@marcsimolduressonsardina/core';
 
 export async function GET({ locals }) {
 	const session = await locals.auth();
@@ -12,6 +10,7 @@ export async function GET({ locals }) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
+	const moldPriceLoader = new MoldPriceLoader(AuthService.generateConfiguration(appUser));
 	const { filename, url } = await moldPriceLoader.generateFileUploadUrl();
 	return json({ filename, url });
 }
@@ -29,6 +28,7 @@ export async function POST({ request, locals }) {
 	}
 
 	try {
+		const moldPriceLoader = new MoldPriceLoader(AuthService.generateConfiguration(appUser));
 		await moldPriceLoader.loadMoldPrices(filename);
 	} catch (error: unknown) {
 		console.error(error);

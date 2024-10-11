@@ -9,21 +9,23 @@
 	import { faCircleCheck } from '@fortawesome/free-solid-svg-icons/faCircleCheck';
 	import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 
-	import type {
-		CalculatedItemPart,
-		ListPrice,
-		ListPriceForm,
-		PPDimensions,
-		PreCalculatedItemPart,
-		PreCalculatedItemPartRequest
-	} from '$lib/type/api.type';
-
+	import type { PreCalculatedItemPartRequest } from '$lib/type/api.type';
 	import {
+		type CalculatedItemPart,
+		type ListPrice,
+		type ListPriceWithMold,
+		type PPDimensions,
+		type PreCalculatedItemPart,
+		fabricDefaultPricing,
+		PricingType,
+		DimensionsType,
+		OrderStatus,
 		CalculatedItemUtilities,
 		cornersId,
-		otherExtraId
-	} from '$lib/shared/calculated-item.utilites';
-	import { PricingType } from '$lib/type/pricing.type';
+		otherExtraId,
+		fabricIds,
+		PricingUtilites
+	} from '@marcsimolduressonsardina/core';
 	import CartItem from '$lib/components/item/CartItem.svelte';
 	import PricingSelectorSection from '$lib/components/item/PricingSelectorSection.svelte';
 	import PricingSelectorWithQuantitySection from '$lib/components/item/PricingSelectorWithQuantitySection.svelte';
@@ -31,7 +33,6 @@
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import ChipSet from '$lib/components/item/ChipSet.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { PricingUtilites, fabricDefaultPricing, fabricIds } from '$lib/shared/pricing.utilites';
 	import {
 		ACCIONES_NEUTRES_COLORS,
 		BUTTON_DEFAULT_CLASSES,
@@ -40,7 +41,6 @@
 	} from '$lib/ui/ui.constants';
 	import { onMount } from 'svelte';
 	import type { OrderCreationFormData } from '$lib/server/shared/order/order-creation.utilities';
-	import { DimensionsType, OrderStatus } from '$lib/type/order.type';
 	import Box from '../Box.svelte';
 	import { faRectangleList } from '@fortawesome/free-solid-svg-icons';
 
@@ -86,7 +86,7 @@
 				];
 
 	// Fabric vars
-	let fabricPrices: ListPriceForm[] = [fabricDefaultPricing];
+	let fabricPrices: ListPriceWithMold[] = [fabricDefaultPricing];
 
 	// PP vars
 	let asymetricPP = $form.ppDimensions != null;

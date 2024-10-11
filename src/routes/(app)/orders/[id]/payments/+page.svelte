@@ -1,11 +1,10 @@
 <script lang="ts">
 	import Box from '$lib/components/Box.svelte';
 
-	import { OrderUtilites } from '$lib/shared/order.utilities';
 	import type { PageData } from './$types';
 	import { enhance } from '$app/forms';
 	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
-	import { PaymentStatus } from '$lib/type/order.type';
+	import { PaymentStatus, CalculatedItemUtilities } from '@marcsimolduressonsardina/core';
 	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 	import {
 		ELIMINAR_COLORS,
@@ -14,7 +13,6 @@
 	} from '$lib/ui/ui.constants';
 	import { faCircleXmark, faCoins } from '@fortawesome/free-solid-svg-icons';
 	import Divider from '$lib/components/Divider.svelte';
-	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 
 	export let data: PageData;
 	const order = data.order!;

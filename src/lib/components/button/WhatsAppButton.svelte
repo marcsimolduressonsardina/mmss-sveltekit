@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type { Customer, Order } from '$lib/type/api.type';
 	import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
 	import Button from '$lib/components/button/Button.svelte';
 	import { CustomerUtilites } from '$lib/shared/customer.utilities';
 	import { WHATSAPP_COLORS } from '$lib/ui/ui.constants';
 	import ClickButton from './ClickButton.svelte';
+	import type { Customer, Order } from '@marcsimolduressonsardina/core';
 
 	export let label: string;
 	export let message: string;

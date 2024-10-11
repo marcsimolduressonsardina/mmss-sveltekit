@@ -3,12 +3,12 @@
 	import OrderCard from '$lib/components/order/OrderCard.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { OrderUtilites } from '$lib/shared/order.utilities';
-	import { OrderStatus } from '$lib/type/order.type';
 	import Box from '$lib/components/Box.svelte';
 	import WhatsAppButton from '$lib/components/button/WhatsAppButton.svelte';
 	import Banner from '$lib/components/Banner.svelte';
 	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 	import { getStatusUIInfo } from '$lib/ui/ui.helper';
+	import { OrderStatus } from '@marcsimolduressonsardina/core';
 
 	export let data: PageData;
 	let whatsAppNotified = false;

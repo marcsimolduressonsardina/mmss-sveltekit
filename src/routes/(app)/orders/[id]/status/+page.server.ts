@@ -1,10 +1,13 @@
-import { OrderService } from '$lib/server/service/order.service';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, RouteParams } from './$types';
-import { OrderStatus } from '$lib/type/order.type';
-import type { Order } from '$lib/type/api.type';
-import { ConfigService } from '$lib/server/service/config.service';
+import {
+	ConfigService,
+	OrderService,
+	OrderStatus,
+	type Order
+} from '@marcsimolduressonsardina/core';
+import { AuthService } from '$lib/server/service/auth.service';
 
 async function setOrderStatus(
 	status: OrderStatus,
@@ -19,7 +22,7 @@ async function setOrderStatus(
 		throw fail(403, {});
 	}
 
-	const orderService = new OrderService(appUser);
+	const orderService = new OrderService(AuthService.generateConfiguration(appUser));
 
 	const order = await orderService.getOrderById(id);
 	if (!order) {
@@ -35,9 +38,10 @@ async function setOrderStatus(
 export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
-	const orderService = new OrderService(appUser);
+	const config = AuthService.generateConfiguration(appUser);
+	const orderService = new OrderService(config);
 	const order = await orderService.getOrderById(id);
-	const configService = new ConfigService(appUser);
+	const configService = new ConfigService(config);
 	const locations = await configService.getLocationsList();
 
 	if (order == null) {

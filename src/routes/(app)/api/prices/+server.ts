@@ -1,10 +1,7 @@
 import type { CustomSession, PreCalculatedItemPartRequest } from '$lib/type/api.type';
 import { json } from '@sveltejs/kit';
-import { CalculatedItemService } from '$lib/server/service/calculated-item.service';
 import { AuthService } from '$lib/server/service/auth.service';
-import { InvalidSizeError } from '$lib/server/error/invalid-size.error';
-
-const calculatedItemService = new CalculatedItemService();
+import { CalculatedItemService, InvalidSizeError } from '@marcsimolduressonsardina/core';
 
 export async function POST({ request, locals }) {
 	const session = await locals.auth();
@@ -16,6 +13,9 @@ export async function POST({ request, locals }) {
 	const pricingRequest = (await request.json()) as PreCalculatedItemPartRequest;
 
 	try {
+		const calculatedItemService = new CalculatedItemService(
+			AuthService.generateConfiguration(appUser)
+		);
 		const part = await calculatedItemService.calculatePart(
 			pricingRequest.partToCalculate,
 			pricingRequest.orderDimensions
