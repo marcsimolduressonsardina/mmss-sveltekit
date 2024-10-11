@@ -2,7 +2,7 @@ import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { AuthService } from '$lib/server/service/auth.service';
-import { CustomerService, OrderService } from '@marcsimolduressonsardina/core';
+import { CustomerService, OrderService, OrderStatus } from '@marcsimolduressonsardina/core';
 
 export const load = (async ({ params, locals }) => {
 	const { id } = params;
@@ -12,7 +12,12 @@ export const load = (async ({ params, locals }) => {
 	const orderService = new OrderService(config, customerService);
 	const customer = customerService.getCustomerById(id);
 	const orders = await orderService.getOrdersByCustomerId(id);
-	return { customer, isPriceManager: appUser.priceManager, totalOrders: orders?.length ?? 0 };
+	const quotes = await orderService.getOrdersByCustomerIdAndStatus(id, OrderStatus.QUOTE);
+	return {
+		customer,
+		isPriceManager: appUser.priceManager,
+		totalOrders: (orders?.length ?? 0) + (quotes?.length ?? 0)
+	};
 }) satisfies PageServerLoad;
 
 export const actions = {
@@ -24,7 +29,8 @@ export const actions = {
 			const customerService = new CustomerService(config);
 			const orderService = new OrderService(config, customerService);
 			const orders = await orderService.getOrdersByCustomerId(id);
-			if ((orders?.length ?? 0) === 0) {
+			const quotes = await orderService.getOrdersByCustomerIdAndStatus(id, OrderStatus.QUOTE);
+			if ((orders?.length ?? 0) + (quotes?.length ?? 0) === 0) {
 				await customerService.deleteCustomerById(id);
 			}
 		} else {
