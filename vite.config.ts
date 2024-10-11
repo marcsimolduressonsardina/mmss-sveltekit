@@ -3,9 +3,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [sveltekit()],
-	build: {
-		rollupOptions: {
-			external: ['@marcsimolduressonsardina/core']
-		}
+	ssr: {
+		noExternal: ['@marcsimolduressonsardina/core'] // Exclude from SSR bundling
 	}
 });
