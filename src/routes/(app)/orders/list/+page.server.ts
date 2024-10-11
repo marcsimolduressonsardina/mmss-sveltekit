@@ -1,8 +1,7 @@
-import { OrderService } from '$lib/server/service/order.service';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
-import { OrderStatus } from '$lib/type/order.type';
 import type { PageServerLoad } from './$types';
-import type { FullOrder } from '../../../../lib/type/api.type';
+import { AuthService } from '$lib/server/service/auth.service';
+import { OrderService, OrderStatus, type FullOrder } from '@marcsimolduressonsardina/core';
 
 export const load = (async ({ locals, url }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
@@ -12,7 +11,8 @@ export const load = (async ({ locals, url }) => {
 		status = OrderStatus.PENDING;
 	}
 
-	const orderService = new OrderService(appUser);
+	const config = AuthService.generateConfiguration(appUser);
+	const orderService = new OrderService(config);
 	const emptyArrayPromise = new Promise<FullOrder[]>((resolve) => {
 		resolve([]);
 	});

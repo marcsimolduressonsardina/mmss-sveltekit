@@ -1,13 +1,13 @@
-import { OrderService } from '$lib/server/service/order.service';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { PaymentStatus } from '$lib/type/order.type';
+import { OrderService, PaymentStatus } from '@marcsimolduressonsardina/core';
+import { AuthService } from '$lib/server/service/auth.service';
 
 export const load = (async ({ params, locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals);
 	const { id } = params;
-	const orderService = new OrderService(appUser);
+	const orderService = new OrderService(AuthService.generateConfiguration(appUser));
 	const fullOrder = await orderService.getFullOrderById(id);
 
 	if (fullOrder == null) {
@@ -25,8 +25,7 @@ export const actions = {
 
 		const appUser = await AuthUtilities.checkAuth(locals);
 		const { id } = params;
-		const orderService = new OrderService(appUser);
-
+		const orderService = new OrderService(AuthService.generateConfiguration(appUser));
 		const order = await orderService.getOrderById(id);
 		if (!order) {
 			return fail(500, { missing: true });

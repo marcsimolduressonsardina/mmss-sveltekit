@@ -7,8 +7,7 @@
 	import trash from 'svelte-awesome/icons/trash';
 
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { isOrderTemp } from '$lib/shared/order.utilities';
-	import { OrderStatus } from '$lib/type/order.type';
+	import { OrderUtilities, OrderStatus } from '@marcsimolduressonsardina/core';
 	import OrderInfo from '$lib/components/order/OrderInfo.svelte';
 	import OrderElements from '$lib/components/order/OrderElements.svelte';
 	import OrderHeader from '$lib/components/order/OrderHeader.svelte';
@@ -39,7 +38,7 @@
 	<div class="space flex w-full flex-col p-3">
 		{#if info.order == null || info.calculatedItem == null}
 			<span class="p-5 text-2xl text-red-700">Cliente o pedido no encontrado</span>
-		{:else if isOrderTemp(info.order)}
+		{:else if OrderUtilities.isOrderTemp(info.order)}
 			{goto(`/orders/${info.order.id}/link`)}
 		{:else}
 			<OrderHeader order={info.order} calculatedItem={info.calculatedItem}></OrderHeader>

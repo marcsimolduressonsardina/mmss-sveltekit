@@ -1,11 +1,12 @@
-import { ConfigService } from '$lib/server/service/config.service';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { error, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { AuthService } from '$lib/server/service/auth.service';
+import { ConfigService } from '@marcsimolduressonsardina/core';
 
 export const load = (async ({ locals }) => {
 	const appUser = await AuthUtilities.checkAuth(locals, true);
-	const configService = new ConfigService(appUser);
+	const configService = new ConfigService(AuthService.generateConfiguration(appUser));
 	const locations = await configService.getLocationsList();
 	return { locations };
 }) satisfies PageServerLoad;
@@ -21,7 +22,7 @@ export const actions: Actions = {
 		const locations = formData.get('locations');
 
 		const locationsArray = JSON.parse(locations as string) as string[];
-		const configService = new ConfigService(appUser);
+		const configService = new ConfigService(AuthService.generateConfiguration(appUser));
 		await configService.storeLocationsList(locationsArray);
 		return redirect(302, '/config');
 	}

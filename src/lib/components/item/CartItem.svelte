@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { CalculatedItemPart } from '$lib/type/api.type';
 	import { faCartPlus } from '@fortawesome/free-solid-svg-icons/faCartPlus';
+	import type { CalculatedItemPart } from '@marcsimolduressonsardina/core';
 	import Icon from 'svelte-awesome';
 	import trash from 'svelte-awesome/icons/trash';
 

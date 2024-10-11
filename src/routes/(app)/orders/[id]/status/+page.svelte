@@ -6,7 +6,7 @@
 	import { enhance } from '$app/forms';
 	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
 	import { getStatusUIInfo } from '$lib/ui/ui.helper';
-	import { OrderStatus } from '$lib/type/order.type';
+	import { OrderStatus } from '@marcsimolduressonsardina/core';
 	import Divider from '$lib/components/Divider.svelte';
 
 	export let data: PageData;

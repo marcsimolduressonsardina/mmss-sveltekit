@@ -1,6 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import { AuthService } from '$lib/server/service/auth.service';
-import type { AppUser, CustomSession } from '$lib/type/api.type';
+import type { CustomSession } from '$lib/type/api.type';
+import type { AppUser } from '@marcsimolduressonsardina/core';
 
 export class AuthUtilities {
 	public static async checkAuth(

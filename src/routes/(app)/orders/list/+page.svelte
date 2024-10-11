@@ -3,11 +3,10 @@
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import OrderCard from '$lib/components/order/OrderCard.svelte';
 	import { orderStatusMap } from '$lib/shared/order.utilities';
-	import { OrderStatus } from '$lib/type/order.type';
-	import type { FullOrder } from '$lib/type/api.type';
 	import Box from '$lib/components/Box.svelte';
 	import Button from '$lib/components/button/Button.svelte';
 	import { getStatusUIInfo } from '$lib/ui/ui.helper';
+	import { OrderStatus, type FullOrder } from '@marcsimolduressonsardina/core';
 
 	export let data: PageData;
 	let searchValue = '';

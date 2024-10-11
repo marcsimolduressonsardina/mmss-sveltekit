@@ -1,6 +1,6 @@
 import { AuthService } from '$lib/server/service/auth.service';
-import { OrderService } from '$lib/server/service/order.service.js';
 import type { CustomSession } from '$lib/type/api.type';
+import { OrderService } from '@marcsimolduressonsardina/core';
 import { json } from '@sveltejs/kit';
 
 export async function GET({ locals, params }) {
@@ -11,7 +11,7 @@ export async function GET({ locals, params }) {
 	}
 
 	const { id } = params;
-	const orderService = new OrderService(appUser);
+	const orderService = new OrderService(AuthService.generateConfiguration(appUser));
 	const order = await orderService.getOrderById(id);
 	if (order == null) {
 		return json({ error: 'Order not found' }, { status: 404 });

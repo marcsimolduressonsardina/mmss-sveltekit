@@ -9,11 +9,16 @@
 	import plus from 'svelte-awesome/icons/plus';
 	import { enhance as sEnhance } from '$app/forms';
 
-	import { PricingFormula, PricingType } from '$lib/type/pricing.type';
 	import Spacer from '$lib/components/item/Spacer.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import type { MaxArea, MaxAreaM2 } from '$lib/type/api.type';
-	import { fitFormulas, formulasMap, pricingTypesMap } from '$lib/shared/pricing.utilites';
+	import { formulasMap, pricingTypesMap } from '$lib/shared/pricing.utilites';
+	import {
+		fitFormulas,
+		PricingFormula,
+		PricingType,
+		type MaxArea,
+		type MaxAreaM2
+	} from '@marcsimolduressonsardina/core';
 
 	export let data;
 	export let isNew: boolean;

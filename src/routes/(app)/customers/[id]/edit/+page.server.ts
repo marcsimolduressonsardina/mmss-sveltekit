@@ -1,15 +1,16 @@
-import { CustomerService } from '$lib/server/service/customer.service';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import { superValidate } from 'sveltekit-superforms';
 import type { PageServerLoad } from './$types';
 import { zod } from 'sveltekit-superforms/adapters';
 import { customerSchema } from '$lib/shared/customer.utilities';
 import { fail, redirect } from '@sveltejs/kit';
+import { AuthService } from '$lib/server/service/auth.service';
+import { CustomerService } from '@marcsimolduressonsardina/core';
 
 export const load = (async ({ params, locals }) => {
 	const { id } = params;
 	const appUser = await AuthUtilities.checkAuth(locals);
-	const customerService = new CustomerService(appUser);
+	const customerService = new CustomerService(AuthService.generateConfiguration(appUser));
 	const customer = await customerService.getCustomerById(id);
 	if (customer == null) {
 		throw redirect(302, '/');
@@ -31,7 +32,7 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		const customerService = new CustomerService(appUser);
+		const customerService = new CustomerService(AuthService.generateConfiguration(appUser));
 		const existingCustomer = await customerService.getCustomerById(id);
 		if (existingCustomer == null) {
 			throw redirect(302, '/');

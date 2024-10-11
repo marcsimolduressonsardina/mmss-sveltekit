@@ -104,7 +104,7 @@
 					<Button
 						link={'#'}
 						disabled={true}
-						tooltipText={'El cliente tiene pedidos'}
+						tooltipText={'El cliente tiene pedidos o presupuestos'}
 						icon={trash}
 						text="Eliminar cliente"
 						colorClasses={ELIMINAR_COLORS}

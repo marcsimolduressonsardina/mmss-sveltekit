@@ -1,17 +1,18 @@
 <script lang="ts">
 	import { OrderUtilites } from '$lib/shared/order.utilities';
-	import type { Order } from '$lib/type/api.type';
-	import { OrderStatus } from '$lib/type/order.type';
 	import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
 	import Button from '../button/Button.svelte';
 	import WhatsAppButton from '../button/WhatsAppButton.svelte';
 	import Divider from '../Divider.svelte';
 	import { WHATSAPP_COLORS } from '$lib/ui/ui.constants';
-	import type { ISameDayOrderCounters } from '$lib/server/service/order.service';
 	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 	import { getStatusUIInfo } from '$lib/ui/ui.helper';
-	import Banner from '../Banner.svelte';
 	import { Icon } from 'svelte-awesome';
+	import {
+		OrderStatus,
+		type ISameDayOrderCounters,
+		type Order
+	} from '@marcsimolduressonsardina/core';
 
 	export let order: Order;
 	export let counters: ISameDayOrderCounters;

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import type { PageData } from './$types';
-	import { FileType, type File as MMSSFile } from '$lib/type/api.type';
+	import { FileType, type File as MMSSFile } from '@marcsimolduressonsardina/core';
 	import Gallery from '$lib/components/order/Gallery.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import UploadedFile from '$lib/components/order/UploadedFile.svelte';

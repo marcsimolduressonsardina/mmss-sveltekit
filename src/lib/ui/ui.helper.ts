@@ -1,4 +1,3 @@
-import { OrderStatus } from '$lib/type/order.type';
 import {
 	faCheckCircle,
 	faTruck,
@@ -11,6 +10,7 @@ import {
 	DISABLED_COLORS,
 	HOME_BUTTON_DEFAULT_CLASSES
 } from './ui.constants';
+import { OrderStatus } from '@marcsimolduressonsardina/core';
 
 export function generateButtonClasses(
 	textWhite: boolean,

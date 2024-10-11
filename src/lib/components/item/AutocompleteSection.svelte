@@ -2,12 +2,15 @@
 	import { Autocomplete, popup } from '@skeletonlabs/skeleton';
 	import type { AutocompleteOption, PopupSettings } from '@skeletonlabs/skeleton';
 
-	import type { PricingType } from '$lib/type/pricing.type';
 	import Icon from 'svelte-awesome';
 	import plus from 'svelte-awesome/icons/plus';
 	import Spacer from './Spacer.svelte';
-	import type { ListPrice } from '$lib/type/api.type';
-	import { PricingUtilites } from '$lib/shared/pricing.utilites';
+	import {
+		PricingUtilites,
+		type ListPrice,
+		type PricingType
+	} from '@marcsimolduressonsardina/core';
+	import { formulasStringMap } from '$lib/shared/pricing.utilites';
 
 	export let sectionTitle: string;
 	export let label: string;
@@ -26,9 +29,9 @@
 
 	function getSelectLabel(price: ListPrice) {
 		if (price.description == null || price.description === '') {
-			return `${price.id} (${PricingUtilites.getPriceString(price)})`;
+			return `${price.id} (${PricingUtilites.getPriceString(price, formulasStringMap)})`;
 		}
-		return `${price.description} (${PricingUtilites.getPriceString(price)})`;
+		return `${price.description} (${PricingUtilites.getPriceString(price, formulasStringMap)})`;
 	}
 
 	function addFunction() {

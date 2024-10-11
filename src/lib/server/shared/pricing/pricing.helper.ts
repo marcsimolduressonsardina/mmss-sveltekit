@@ -1,10 +1,7 @@
-import { PricingService } from '$lib/server/service/pricing.service';
-import type { AllPrices } from '$lib/shared/pricing.utilites';
-import { PricingType } from '$lib/type/pricing.type';
+import { PricingType, type AllPrices, type PricingService } from '@marcsimolduressonsardina/core';
 
 export class PricingHelper {
-	public static async getPricing(): Promise<AllPrices> {
-		const pricingProvider = new PricingService();
+	public static async getPricing(pricingProvider: PricingService): Promise<AllPrices> {
 		const moldPricesPromise = pricingProvider.getPricingList(PricingType.MOLD);
 		const glassPromise = pricingProvider.getPricingList(PricingType.GLASS);
 		const ppPricesPromise = pricingProvider.getPricingList(PricingType.PP);

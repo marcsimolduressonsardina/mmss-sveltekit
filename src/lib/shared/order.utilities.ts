@@ -1,17 +1,20 @@
 import { PUBLIC_DOMAIN_URL } from '$env/static/public';
-import type {
-	CalculatedItem,
-	Order,
-	PreCalculatedItemPart,
-	CalculatedItemPart,
-	CalculatedItemPartWithType
-} from '$lib/type/api.type';
-import { DimensionsType, OrderStatus } from '$lib/type/order.type';
-import { PricingType } from '$lib/type/pricing.type';
+
 import { DateTime } from 'luxon';
 import { z } from 'zod';
-import { CalculatedItemUtilities, otherExtraId } from './calculated-item.utilites';
-import { allPricingTypes } from './pricing.utilites';
+import {
+	allPricingTypes,
+	CalculatedItemUtilities,
+	DimensionsType,
+	OrderStatus,
+	otherExtraId,
+	PricingType,
+	type CalculatedItem,
+	type CalculatedItemPart,
+	type CalculatedItemPartWithType,
+	type Order,
+	type PreCalculatedItemPart
+} from '@marcsimolduressonsardina/core';
 
 export class OrderUtilites {
 	public static getOrderPublicId(order: Order): string {
@@ -154,12 +157,6 @@ export class OrderUtilites {
 		// If no decimals, return the number as it is
 		return num;
 	}
-}
-
-export const tempCustomerUuid = 'temp-customer';
-
-export function isOrderTemp(order: Order): boolean {
-	return order.customer.id === tempCustomerUuid;
 }
 
 export const orderStatusMap: Record<OrderStatus, string> = {

@@ -1,8 +1,11 @@
 <script lang="ts">
 	import Box from '$lib/components/Box.svelte';
-	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
 	import { OrderUtilites } from '$lib/shared/order.utilities';
-	import type { Order, CalculatedItem } from '$lib/type/api.type';
+	import {
+		type CalculatedItem,
+		type Order,
+		CalculatedItemUtilities
+	} from '@marcsimolduressonsardina/core';
 
 	export let order: Order;
 	export let calculatedItem: CalculatedItem;

@@ -6,7 +6,7 @@
 	import { enhance } from '$app/forms';
 	import Banner from '$lib/components/Banner.svelte';
 	import { getStatusUIInfo } from '$lib/ui/ui.helper';
-	import { OrderStatus } from '$lib/type/order.type';
+	import { OrderStatus } from '@marcsimolduressonsardina/core';
 </script>
 
 <div class="space-y-4 p-4">

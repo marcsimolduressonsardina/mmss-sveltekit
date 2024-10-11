@@ -1,12 +1,17 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, RouteParams } from './$types';
-import { OrderService, type ISameDayOrderCounters } from '$lib/server/service/order.service';
-import { CalculatedItemService } from '$lib/server/service/calculated-item.service';
-import { OrderStatus } from '$lib/type/order.type';
-import type { AppUser, Order } from '$lib/type/api.type';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
-import type { CalculatedItem } from '../../../../lib/type/api.type';
-import { FileService } from '$lib/server/service/file.service';
+import {
+	CalculatedItemService,
+	FileService,
+	OrderService,
+	OrderStatus,
+	type AppUser,
+	type CalculatedItem,
+	type ISameDayOrderCounters,
+	type Order
+} from '@marcsimolduressonsardina/core';
+import { AuthService } from '$lib/server/service/auth.service';
 
 async function setOrderStatus(
 	status: OrderStatus,
@@ -20,7 +25,7 @@ async function setOrderStatus(
 		throw fail(403, {});
 	}
 
-	const orderService = new OrderService(appUser);
+	const orderService = new OrderService(AuthService.generateConfiguration(appUser));
 
 	const order = await orderService.getOrderById(id);
 	if (!order) {
@@ -40,9 +45,10 @@ async function loadData(
 	calculatedItem: CalculatedItem | null;
 	hasFiles: boolean;
 }> {
-	const orderService = new OrderService(user);
-	const calculatedItemService = new CalculatedItemService();
-	const fileService = new FileService(user);
+	const config = AuthService.generateConfiguration(user);
+	const orderService = new OrderService(config);
+	const calculatedItemService = new CalculatedItemService(config);
+	const fileService = new FileService(config);
 	const order = await orderService.getOrderById(orderId);
 	const calculatedItem = await calculatedItemService.getCalculatedItem(orderId);
 	const files = await fileService.getFilesByOrder(orderId);

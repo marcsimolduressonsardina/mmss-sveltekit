@@ -2,7 +2,7 @@
 	import Icon from 'svelte-awesome';
 	import plus from 'svelte-awesome/icons/plus';
 	import Spacer from './Spacer.svelte';
-	import type { ListPrice } from '$lib/type/api.type';
+	import type { ListPrice } from '@marcsimolduressonsardina/core';
 
 	export let added: Boolean;
 	export let sectionTitle: string;

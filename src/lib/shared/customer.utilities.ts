@@ -1,4 +1,4 @@
-import type { Customer } from '$lib/type/api.type';
+import type { Customer } from '@marcsimolduressonsardina/core';
 import { z } from 'zod';
 
 const phoneRegex = z

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { DateTime } from 'luxon';
 	import { goto } from '$app/navigation';
-	import type { FullOrder } from '$lib/type/api.type';
 	import { Icon } from 'svelte-awesome';
 	import {
 		faEye,
@@ -12,11 +11,15 @@
 		faCoins,
 		faLocationDot
 	} from '@fortawesome/free-solid-svg-icons';
-	import { OrderUtilites, orderStatusMap, tempCustomerUuid } from '$lib/shared/order.utilities';
-	import { OrderStatus } from '$lib/type/order.type';
-	import { CalculatedItemUtilities } from '$lib/shared/calculated-item.utilites';
+	import { OrderUtilites, orderStatusMap } from '$lib/shared/order.utilities';
 	import { getStatusUIInfo, getStatusUIInfoWithPaymentInfo } from '$lib/ui/ui.helper';
 	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
+	import {
+		OrderStatus,
+		type FullOrder,
+		CalculatedItemUtilities,
+		OrderUtilities as CoreOrderUtilities
+	} from '@marcsimolduressonsardina/core';
 
 	export let fullOrder: FullOrder;
 	export let showCustomer: boolean = true;
@@ -56,7 +59,7 @@
 					</div>
 				</div>
 
-				{#if showCustomer && order.customer.id !== tempCustomerUuid}
+				{#if showCustomer && !CoreOrderUtilities.isOrderTemp(order)}
 					<div>
 						<div class="flex items-center text-gray-600">
 							<Icon class="mr-2 text-gray-500" data={faUserLarge} />
@@ -68,7 +71,7 @@
 					</div>
 				{/if}
 
-				{#if order.customer.id === tempCustomerUuid}
+				{#if CoreOrderUtilities.isOrderTemp(order)}
 					<div>
 						<div class="flex items-center text-gray-600">
 							<Icon class="mr-2 text-gray-500" data={faUserLarge} />
@@ -146,7 +149,7 @@
 				class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white shadow transition-all duration-200 hover:bg-blue-700"
 				on:click={() => goto(`/orders/${order.id}`)}
 			>
-				{#if order.customer.id === tempCustomerUuid}
+				{#if CoreOrderUtilities.isOrderTemp(order)}
 					<Icon class="mr-1" data={faChain} />
 					{order.status === OrderStatus.QUOTE ? 'Vincular presupuesto' : 'Vincular pedido'}
 				{:else if order.status === OrderStatus.QUOTE}

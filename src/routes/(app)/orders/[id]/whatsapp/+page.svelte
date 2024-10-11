@@ -4,7 +4,7 @@
 	import { OrderUtilites } from '$lib/shared/order.utilities';
 	import type { PageData } from './$types';
 
-	import { OrderStatus } from '$lib/type/order.type';
+	import { OrderStatus } from '@marcsimolduressonsardina/core';
 	import WhatsAppButton from '$lib/components/button/WhatsAppButton.svelte';
 	import Button from '$lib/components/button/Button.svelte';
 	import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';

@@ -3,18 +3,20 @@
 	import { Table, tableMapperValues, RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
 	import type { TableSource } from '@skeletonlabs/skeleton';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { PricingFormula, PricingType } from '$lib/type/pricing.type';
 	import { writable } from 'svelte/store';
-	import {
-		emptyPricing,
-		fitFormulas,
-		formulasMap,
-		pricingTypesMap
-	} from '$lib/shared/pricing.utilites';
-	import type { ListPrice, MaxArea, MaxAreaM2 } from '$lib/type/api.type';
+	import { formulasMap, pricingTypesMap } from '$lib/shared/pricing.utilites';
 	import { goto } from '$app/navigation';
 	import { Icon } from 'svelte-awesome';
 	import plus from 'svelte-awesome/icons/plus';
+	import {
+		emptyPricing,
+		PricingFormula,
+		PricingType,
+		type MaxArea,
+		type MaxAreaM2,
+		fitFormulas,
+		type ListPrice
+	} from '@marcsimolduressonsardina/core';
 
 	export let data: PageData;
 	let pricingData = writable(emptyPricing);

@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { PricingType } from '$lib/type/pricing.type';
 	import Icon from 'svelte-awesome';
 	import plus from 'svelte-awesome/icons/plus';
 	import Spacer from './Spacer.svelte';
-	import type { ListPriceForm } from '$lib/type/api.type';
+	import type { ListPriceWithMold, PricingType } from '@marcsimolduressonsardina/core';
 
 	export let sectionTitle: string;
 	export let label: string;
@@ -13,8 +12,8 @@
 		moldId?: string,
 		extraInfo?: string
 	) => void;
-	export let prices: ListPriceForm[];
-	export let extraPrices: ListPriceForm[] = [];
+	export let prices: ListPriceWithMold[];
+	export let extraPrices: ListPriceWithMold[] = [];
 	export let locationIdForExtraPrices: string | undefined = undefined;
 	export let priorityFirst: boolean = true;
 	export let showExtraInfo: boolean = false;
@@ -24,7 +23,7 @@
 	let extraInfo: string | undefined = undefined;
 	let selectedId = '';
 
-	function getSelectLabel(price: ListPriceForm): string {
+	function getSelectLabel(price: ListPriceWithMold): string {
 		return price.description ?? price.id;
 	}
 
@@ -35,10 +34,10 @@
 		}
 	}
 
-	let pricesMap = new Map<string, ListPriceForm>();
+	let pricesMap = new Map<string, ListPriceWithMold>();
 
-	function generateMap(ps: ListPriceForm[]) {
-		const pm = new Map<string, ListPriceForm>();
+	function generateMap(ps: ListPriceWithMold[]) {
+		const pm = new Map<string, ListPriceWithMold>();
 		ps.forEach((p) => {
 			pm.set(getId(p), p);
 		});
@@ -46,21 +45,21 @@
 		pricesMap = pm;
 	}
 
-	function getId(p: ListPriceForm): string {
+	function getId(p: ListPriceWithMold): string {
 		return `${p.id}${p.moldId ? '_' + p.moldId : ''}`;
 	}
 
-	function updateSelectedId(df: ListPriceForm[]) {
+	function updateSelectedId(df: ListPriceWithMold[]) {
 		if (priorityFirst && df && df.length > 0 && selectedId === '') {
 			selectedId = getId(df[0]);
 		}
 	}
 
 	function insertElementsBeforeKey(
-		originalArray: ListPriceForm[],
-		newArray: ListPriceForm[],
+		originalArray: ListPriceWithMold[],
+		newArray: ListPriceWithMold[],
 		key: string
-	): ListPriceForm[] {
+	): ListPriceWithMold[] {
 		const keyIndex = originalArray.findIndex((p) => p.id === key);
 		if (keyIndex === -1) {
 			return originalArray;
@@ -70,11 +69,11 @@
 	}
 
 	function getDefaultPrices(
-		pi: ListPriceForm[],
-		epi: ListPriceForm[],
+		pi: ListPriceWithMold[],
+		epi: ListPriceWithMold[],
 		keyFound: boolean,
 		key?: string
-	): ListPriceForm[] {
+	): ListPriceWithMold[] {
 		const defaultPrices = pi.filter((p) => p.priority > 0).sort((a, b) => b.priority - a.priority);
 		if (!keyFound || key == null) {
 			return [...defaultPrices, ...epi]
@@ -86,11 +85,11 @@
 	}
 
 	function getNormalPrices(
-		pi: ListPriceForm[],
-		epi: ListPriceForm[],
+		pi: ListPriceWithMold[],
+		epi: ListPriceWithMold[],
 		keyFound: boolean,
 		key?: string
-	): ListPriceForm[] {
+	): ListPriceWithMold[] {
 		const normalPrices = pi.filter((p) => p.priority === 0);
 		if (!keyFound || key == null) {
 			return [...normalPrices, ...epi].filter((p) => p.priority === 0);
