@@ -9,7 +9,6 @@ import {
 	FILES_BUCKET,
 	LIST_PRICING_TABLE,
 	MOLD_PRICES_BUCKET,
-	ORDER_AUDIT_TRAIL_QUEUE_URL,
 	ORDER_AUDIT_TRAIL_TABLE,
 	ORDER_TABLE
 } from '$env/static/private';
@@ -35,7 +34,6 @@ export class AuthService {
 			moldPricesBucket: MOLD_PRICES_BUCKET,
 			fileTable: FILE_TABLE,
 			listPricingTable: LIST_PRICING_TABLE,
-			orderAuditTrailQueueUrl: ORDER_AUDIT_TRAIL_QUEUE_URL,
 			orderAuditTrailTable: ORDER_AUDIT_TRAIL_TABLE,
 			orderTable: ORDER_TABLE,
 			credentials: {
