@@ -5,11 +5,12 @@
 	import Box from '$lib/components/Box.svelte';
 	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
 	import { ACCIONES_NEUTRES_COLORS } from '$lib/ui/ui.constants';
+	import path from 'path';
 
 	export let data;
 	export let title = 'Crear Cliente';
 	export let buttonText = 'Crear';
-	const { form, errors, enhance, submitting } = superForm(data.form);
+	const { form, errors, allErrors, enhance, submitting } = superForm(data.form);
 </script>
 
 <Box {title}>
@@ -41,6 +42,19 @@
 						bind:value={$form.phone}
 					/>
 				</div>
+
+				{#if $allErrors.length}
+					{#each $allErrors as error}
+						{#if error.path === 'phone'}
+							{#if error.messages.includes('Invalid')}
+								El formato del teléfono no es correcto
+							{/if}
+							{#if error.messages.includes('Phone already in use')}
+								El teléfono ya se usa para otro cliente
+							{/if}
+						{/if}
+					{/each}
+				{/if}
 
 				<SubmitButton icon={faEdit} text={buttonText} colorClasses={ACCIONES_NEUTRES_COLORS}
 				></SubmitButton>

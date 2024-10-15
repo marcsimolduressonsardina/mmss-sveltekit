@@ -16,19 +16,39 @@ const config = {
 	theme: {
 		extend: {
 			keyframes: {
-				loadtwo: {
-					'50%': { transform: 'rotate(-80deg)' }
-				},
-				glow: {
+				siriGlow: {
 					'0%, 100%': {
-						boxShadow: '0 0 15px rgba(236, 72, 153, 0.7), 0 0 20px rgba(59, 130, 246, 0.7)'
+						boxShadow: `
+							-10px -5px 20px rgba(236, 72, 153, 0.7),
+							10px 5px 30px rgba(59, 130, 246, 0.6),
+							-15px 10px 40px rgba(72, 191, 227, 0.6)`,
+						transform: 'rotate(0deg) scale(1)' // Base size
 					},
-					'50%': { boxShadow: '0 0 30px rgba(236, 72, 153, 1), 0 0 35px rgba(59, 130, 246, 1)' }
+					'25%': {
+						boxShadow: `
+							5px -15px 25px rgba(236, 72, 153, 1),
+							-10px 15px 45px rgba(59, 130, 246, 1),
+							15px -10px 55px rgba(72, 191, 227, 1)`,
+						transform: 'rotate(10deg) scale(1.1)' // Slight rotation and scale
+					},
+					'50%': {
+						boxShadow: `
+							-12px 10px 35px rgba(236, 72, 153, 0.9),
+							15px -10px 50px rgba(59, 130, 246, 0.8),
+							-8px 15px 60px rgba(72, 191, 227, 0.8)`,
+						transform: 'rotate(20deg) scale(1.2)' // Peak size
+					},
+					'75%': {
+						boxShadow: `
+							15px -12px 30px rgba(236, 72, 153, 0.8),
+							-15px 10px 40px rgba(59, 130, 246, 0.7),
+							10px -15px 50px rgba(72, 191, 227, 0.7)`,
+						transform: 'rotate(-10deg) scale(1.05)' // Return to smaller size
+					}
 				}
 			},
 			animation: {
-				loadtwo: 'loadtwo 3s ease-in-out infinite',
-				glow: 'glow 3s ease-in-out infinite'
+				siriGlow: 'siriGlow 2.5s ease-in-out infinite' // Slightly faster, smoother animation
 			}
 		}
 	},
