@@ -1,11 +1,11 @@
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
-import { superValidate } from 'sveltekit-superforms';
+import { superValidate, setError } from 'sveltekit-superforms';
 import type { PageServerLoad } from './$types';
 import { zod } from 'sveltekit-superforms/adapters';
 import { customerSchema } from '$lib/shared/customer.utilities';
 import { fail, redirect } from '@sveltejs/kit';
 import { AuthService } from '$lib/server/service/auth.service';
-import { CustomerService } from '@marcsimolduressonsardina/core';
+import { CustomerService, InvalidDataError } from '@marcsimolduressonsardina/core';
 
 export const load = (async ({ params, locals }) => {
 	const { id } = params;
@@ -38,7 +38,15 @@ export const actions = {
 			throw redirect(302, '/');
 		}
 
-		await customerService.updateCustomerData(existingCustomer, form.data.name, form.data.phone);
+		try {
+			await customerService.updateCustomerData(existingCustomer, form.data.name, form.data.phone);
+		} catch (error) {
+			if (error instanceof InvalidDataError) {
+				return setError(form, 'phone', 'Phone already in use');
+			}
+			throw fail(500);
+		}
+
 		return redirect(302, `/customers/${existingCustomer.id}`);
 	}
 };

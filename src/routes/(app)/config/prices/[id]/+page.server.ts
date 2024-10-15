@@ -97,7 +97,7 @@ export const actions = {
 		const { id } = params;
 		const pricingService = new PricingService(AuthService.generateConfiguration(appUser));
 		const listPrice = await getListPrice(id, pricingService);
-		await pricingService.deleteListPrices(listPrice.type, [listPrice.id]);
+		await pricingService.deleteListPrices([listPrice]);
 		return redirect(302, `/config/prices/list?type=${listPrice.type}`);
 	}
 };

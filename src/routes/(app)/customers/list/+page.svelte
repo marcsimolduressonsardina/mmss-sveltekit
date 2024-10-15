@@ -1,101 +1,67 @@
 <script lang="ts">
-	import type { PageData } from './$types';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { faUserLarge } from '@fortawesome/free-solid-svg-icons/faUserLarge';
-	import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft';
-	import { faAnglesLeft } from '@fortawesome/free-solid-svg-icons/faAnglesLeft';
-	import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight';
+	import { faMagnifyingGlassPlus } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlassPlus';
 	import Button from '$lib/components/button/Button.svelte';
 	import { ACCIONES_NEUTRES_COLORS, PEDIDOS_COLORS } from '$lib/ui/ui.constants';
+	import type { Customer } from '@marcsimolduressonsardina/core';
+	import { onMount } from 'svelte';
+	import ClickButton from '$lib/components/button/ClickButton.svelte';
 
-	export let data: PageData;
+	let customers: Customer[] = [];
+	let loading = false;
+	let lastKey: Record<string, string | number> | undefined = undefined;
+
+	async function loadCustomers() {
+		loading = true;
+		const response = await fetch('/api/customers/list', {
+			method: 'POST',
+			body: JSON.stringify({ lastKey }),
+			headers: {
+				'content-type': 'application/json'
+			}
+		});
+
+		const customerPaginationResponse = (await response.json()) as {
+			customers: Customer[];
+			lastKey?: Record<string, string | number>;
+		};
+
+		customers = [...customers, ...customerPaginationResponse.customers];
+		lastKey = customerPaginationResponse.lastKey;
+		loading = false;
+	}
+
+	onMount(async () => {
+		await loadCustomers();
+	});
 </script>
 
 <div class="pl-3 pr-3 pt-3 text-lg font-medium">Listado de clientes</div>
 <div class="space flex w-full flex-col gap-1 p-2">
-	{#await data.paginatedResult}
-		<ProgressBar />
-	{:then paginatedResult}
-		<div class="flex flex-row gap-1 py-2">
-			{#if !data.isFirstPage}
-				{#if data.prev}
-					<Button
-						link={`/customers/list`}
-						text=""
-						icon={faAnglesLeft}
-						colorClasses={ACCIONES_NEUTRES_COLORS}
-					></Button>
-					<Button
-						link={`/customers/list?next=${data.prev}&history=${data.prevHistoryStackString}`}
-						text=""
-						icon={faChevronLeft}
-						colorClasses={ACCIONES_NEUTRES_COLORS}
-					></Button>
-				{:else}
-					<Button
-						link={`/customers/list`}
-						text=""
-						icon={faChevronLeft}
-						colorClasses={ACCIONES_NEUTRES_COLORS}
-					></Button>
-				{/if}
-			{/if}
+	<div class="flex w-full flex-col gap-1 lg:grid lg:grid-cols-4">
+		{#each customers as customer}
+			<Button
+				textWhite={false}
+				link={`/customers/${customer.id}`}
+				text={customer.name}
+				icon={faUserLarge}
+				colorClasses={PEDIDOS_COLORS}
+			></Button>
+		{/each}
 
-			{#if paginatedResult.nextKey}
-				<Button
-					link={`/customers/list?next=${paginatedResult.nextKey}&history=${data.nextHistoryStackString}`}
-					text=""
-					icon={faChevronRight}
-					colorClasses={ACCIONES_NEUTRES_COLORS}
-				></Button>
-			{/if}
-		</div>
+		{#if lastKey}
+			<ClickButton
+				textWhite={true}
+				colorClasses={ACCIONES_NEUTRES_COLORS}
+				onClick={loadCustomers}
+				text="Cargar más"
+				icon={faMagnifyingGlassPlus}
+			></ClickButton>
+		{/if}
+	</div>
 
-		<div class="flex w-full flex-col gap-1 lg:grid lg:grid-cols-4">
-			{#each paginatedResult.customers as customer}
-				<Button
-					textWhite={false}
-					link={`/customers/${customer.id}`}
-					text={customer.name}
-					icon={faUserLarge}
-					colorClasses={PEDIDOS_COLORS}
-				></Button>
-			{/each}
-		</div>
-
-		<div class="flex flex-row gap-1 py-2">
-			{#if !data.isFirstPage}
-				{#if data.prev}
-					<Button
-						link={`/customers/list`}
-						text=""
-						icon={faAnglesLeft}
-						colorClasses={ACCIONES_NEUTRES_COLORS}
-					></Button>
-					<Button
-						link={`/customers/list?next=${data.prev}&history=${data.prevHistoryStackString}`}
-						text=""
-						icon={faChevronLeft}
-						colorClasses={ACCIONES_NEUTRES_COLORS}
-					></Button>
-				{:else}
-					<Button
-						link={`/customers/list`}
-						text=""
-						icon={faChevronLeft}
-						colorClasses={ACCIONES_NEUTRES_COLORS}
-					></Button>
-				{/if}
-			{/if}
-
-			{#if paginatedResult.nextKey}
-				<Button
-					link={`/customers/list?next=${paginatedResult.nextKey}&history=${data.nextHistoryStackString}`}
-					text=""
-					icon={faChevronRight}
-					colorClasses={ACCIONES_NEUTRES_COLORS}
-				></Button>
-			{/if}
-		</div>
-	{/await}
+	{#if loading}
+		<ProgressBar text="Cargando clientes"></ProgressBar>
+	{/if}
 </div>
