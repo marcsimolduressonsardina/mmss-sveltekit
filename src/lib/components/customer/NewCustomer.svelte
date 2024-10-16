@@ -5,7 +5,6 @@
 	import Box from '$lib/components/Box.svelte';
 	import SubmitButton from '$lib/components/button/SubmitButton.svelte';
 	import { ACCIONES_NEUTRES_COLORS } from '$lib/ui/ui.constants';
-	import path from 'path';
 
 	export let data;
 	export let title = 'Crear Cliente';
