@@ -5,7 +5,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { customerSchema } from '$lib/shared/customer.utilities';
 import { fail, redirect } from '@sveltejs/kit';
 import { AuthService } from '$lib/server/service/auth.service';
-import { CustomerService, InvalidDataError } from '@marcsimolduressonsardina/core';
+import { CustomerService, InvalidKeyError } from '@marcsimolduressonsardina/core';
 
 export const load = (async ({ params, locals }) => {
 	const { id } = params;
@@ -41,7 +41,7 @@ export const actions = {
 		try {
 			await customerService.updateCustomerData(existingCustomer, form.data.name, form.data.phone);
 		} catch (error) {
-			if (error instanceof InvalidDataError) {
+			if (error instanceof InvalidKeyError) {
 				return setError(form, 'phone', 'Phone already in use');
 			}
 			throw fail(500);

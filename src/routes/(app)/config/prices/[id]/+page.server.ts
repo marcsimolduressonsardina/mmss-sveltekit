@@ -5,6 +5,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { listPriceSchemaEdit } from '$lib/shared/pricing.utilites';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import {
+	InvalidKeyError,
 	PricingFormula,
 	PricingService,
 	PricingType,
@@ -87,6 +88,9 @@ export const actions = {
 			listPrice.discountAllowed = form.data.discountAllowed;
 			await pricingService.updatePricing(listPrice);
 		} catch (error: unknown) {
+			if (error instanceof InvalidKeyError) {
+				return setError(form, 'id', 'Id already in use');
+			}
 			return setError(form, '', 'Error actualizando el item. Intente de nuevo.');
 		}
 
