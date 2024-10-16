@@ -5,6 +5,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { listPriceSchemaNew } from '$lib/shared/pricing.utilites';
 import { AuthUtilities } from '$lib/server/shared/auth/auth.utilites';
 import {
+	InvalidKeyError,
 	PricingService,
 	PricingUtilites,
 	type MaxArea,
@@ -59,6 +60,9 @@ export const actions = {
 				maxD2
 			);
 		} catch (error: unknown) {
+			if (error instanceof InvalidKeyError) {
+				return setError(form, 'id', 'Id already in use');
+			}
 			return setError(form, '', 'Error creando el item. Intente de nuevo.');
 		}
 

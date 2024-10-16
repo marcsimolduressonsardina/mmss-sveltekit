@@ -8,12 +8,12 @@
 	export let data: PageData;
 </script>
 
-<div class="pl-3 pr-3 pt-3 text-lg font-medium">
+<div class="pl-3 pr-3 pt-3 text-lg">
 	Búsqueda de clientes - {data.decodedSearchQuery}
 </div>
 <div class="space flex w-full flex-col gap-1 p-2">
 	{#await data.customers}
-		<ProgressBar text={'Buscando'} />
+		<ProgressBar text={'Buscando clientes'} />
 	{:then customers}
 		<div class="flex w-full flex-col gap-1 lg:grid lg:grid-cols-4">
 			{#each customers as customer}
@@ -27,6 +27,10 @@
 					colorClasses={PEDIDOS_COLORS}
 				></Button>
 			{/each}
+
+			{#if customers.length === 0}
+				<span class="text-md pr-3">No se ha encontrado ningún cliente</span>
+			{/if}
 		</div>
 	{/await}
 </div>

@@ -2,21 +2,32 @@
 	export let text: string | undefined = undefined;
 </script>
 
-<div class="flex w-full flex-col items-center pt-4 text-center">
-	<div class="relative flex h-10 w-10 items-center justify-center">
-		<!-- Outer glow with fuchsia and blue -->
+<div class="flex w-full flex-col items-center overflow-visible p-7 text-center">
+	<div class="relative flex h-16 w-16 items-center justify-center overflow-visible">
+		<!-- Siri-like glow effect -->
 		<div
-			class="animate-glow absolute z-[0] h-full w-full rounded-lg bg-gradient-to-br from-fuchsia-500 to-blue-500 opacity-80 blur-md"
+			class="animate-siriGlow absolute z-[0] h-full w-full rounded-lg bg-gradient-to-br from-fuchsia-500 to-blue-500 opacity-90 blur-lg"
 		></div>
-		<!-- Rotating square -->
-		<div
-			class="absolute z-[1] h-full w-full animate-[loadtwo_3s_ease-in-out_infinite] rounded-lg bg-gradient-to-br from-indigo-700 to-indigo-400 blur-[0.5px]"
-		></div>
+		<!-- Gray box with white icon -->
+		<div class="absolute z-[1] flex h-12 w-12 items-center justify-center rounded-lg bg-gray-800">
+			<!-- Image with the icon -->
+			<img src="/mmss_favicon_white.ico" alt="Icon" class="h-7 w-7" />
+		</div>
 	</div>
-	<div class="pt-2.5">
+
+	<div class="relative z-[1] pt-1">
+		<!-- Ensures the text container is above other elements except glow -->
 		{#if text != null}
-			<p class="text-md animate-pulse font-semibold text-gray-800">{text}</p>
+			<div class="mt-2 rounded-full bg-gray-800 px-3 py-1.5 text-white shadow-lg">
+				<p class="text-sm font-medium">{text}</p>
+				<!-- Smaller and medium weight for a more refined look -->
+			</div>
 		{/if}
-		<p class="animate-fadeIn text-xs italic text-gray-600">Un momento, por favor...</p>
+	</div>
+
+	<div class="z-[0] pt-2.5">
+		<!-- Ensure this is below the glow -->
+		<p class="animate-fadeIn text-xs italic text-gray-500">Un momento, por favor...</p>
+		<!-- Smaller and lighter style -->
 	</div>
 </div>

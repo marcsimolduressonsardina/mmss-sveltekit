@@ -23,7 +23,7 @@
 	export let data;
 	export let isNew: boolean;
 	const toastStore = getToastStore();
-	const { form, errors, enhance, submitting } = superForm(data.form, {
+	const { form, errors, enhance, submitting, allErrors } = superForm(data.form, {
 		dataType: 'json'
 	});
 
@@ -155,6 +155,20 @@
 				disabled={isNew ? false : true}
 				bind:value={$form.id}
 			/>
+			{#if $allErrors.length}
+				{#each $allErrors as error}
+					{#if error.path === 'id'}
+						<span class="pt-1 font-semibold text-red-700">
+							{#if error.messages.includes('id should not contain spaces')}
+								El id no puede contener espacios
+							{/if}
+							{#if error.messages.includes('Id already in use')}
+								Este id ya se usa para otro precio
+							{/if}
+						</span>
+					{/if}
+				{/each}
+			{/if}
 		</label>
 
 		<label class="label" for="description">
