@@ -95,6 +95,8 @@
 	let leftPP: number | string = $form.ppDimensions == null ? '' : $form.ppDimensions.left;
 	let rightPP: number | string = $form.ppDimensions == null ? '' : $form.ppDimensions.right;
 	$form.ppDimensions = $form.ppDimensions != null ? $form.ppDimensions : undefined;
+	// Hardcoded NO-PP id
+	const noPPId = 'SIN_PASPARTU';
 
 	// Size vars
 	let totalHeightBox = 0;
@@ -180,6 +182,10 @@
 		}
 
 		return parsedNumber;
+	}
+
+	function isValidNumber(input: string | number): boolean {
+		return typeof input === 'number' && !isNaN(input);
 	}
 
 	function getOrderDimensions() {
@@ -427,11 +433,18 @@
 		observations: boolean,
 		description: boolean,
 		discount: boolean,
-		exteriorDimensions: boolean
+		exteriorDimensions: boolean,
+		ppMeasures: boolean
 	) {
 		const parts = [];
 		if (!pp) {
 			parts.push('Falta PP');
+		}
+
+		if (!ppMeasures) {
+			parts.push(
+				'Faltan medidas del PP. Si no hay PP deben ser 0, si hay PP deben ser mayores a 0.'
+			);
 		}
 
 		if (!hanger) {
@@ -481,6 +494,71 @@
 		return parts;
 	}
 
+	function calculateAddedPPMeasures(
+		parts: TempParts,
+		asymetricPP: boolean,
+		ppIsNumber: boolean,
+		ppValue: number
+	): boolean {
+		if (asymetricPP) {
+			return true;
+		}
+
+		if (parts.length === 1 && parts[0].pre.id === noPPId) {
+			return ppIsNumber && !asymetricPP && ppValue === 0;
+		}
+
+		if ((parts.length === 1 && parts[0].pre.id !== noPPId) || parts.length > 1) {
+			return ppIsNumber && !asymetricPP && ppValue > 0;
+		}
+
+		return false;
+	}
+
+	function calculateAddedAsymetricPPMeasures(
+		parts: TempParts,
+		asymetricPP: boolean,
+		upIsNumber: boolean,
+		upValue: number,
+		downIsNumber: boolean,
+		downValue: number,
+		leftIsNumber: boolean,
+		leftValue: number,
+		rightIsNumber: boolean,
+		rightValue: number
+	): boolean {
+		if (!asymetricPP) {
+			return true;
+		}
+
+		if (parts.length === 1 && parts[0].pre.id === noPPId) {
+			// All sides are numbers and value 0
+			return (
+				upIsNumber &&
+				downIsNumber &&
+				leftIsNumber &&
+				rightIsNumber &&
+				upValue === 0 &&
+				downValue === 0 &&
+				leftValue === 0 &&
+				rightValue === 0
+			);
+		}
+
+		if ((parts.length === 1 && parts[0].pre.id !== noPPId) || parts.length > 1) {
+			// All sides are numbers and at least one value is not 0
+			return (
+				upIsNumber &&
+				downIsNumber &&
+				leftIsNumber &&
+				rightIsNumber &&
+				(upValue > 0 || downValue > 0 || leftValue > 0 || rightValue > 0)
+			);
+		}
+
+		return false;
+	}
+
 	// Added vars
 
 	$: exteriorDimensions = $form.dimenstionsType === DimensionsType.EXTERIOR;
@@ -503,6 +581,26 @@
 	$: addedExteriorDimensions =
 		!exteriorDimensions || ($form.exteriorHeight != null && $form.exteriorWidth != null);
 	$: descriptionChipList = $form.description.length > 0 ? [] : ['Sin obra'];
+	$: addedPPMeaseures =
+		calculateAddedPPMeasures(
+			partsToCalulatePreview,
+			asymetricPP,
+			isValidNumber($form.pp),
+			extractNumber($form.pp)
+		) &&
+		calculateAddedAsymetricPPMeasures(
+			partsToCalulatePreview,
+			asymetricPP,
+			isValidNumber(upPP),
+			extractNumber(upPP),
+			isValidNumber(downPP),
+			extractNumber(downPP),
+			isValidNumber(leftPP),
+			extractNumber(leftPP),
+			isValidNumber(rightPP),
+			extractNumber(rightPP)
+		);
+
 	$: missingReasons = calculateMissingLabels(
 		addedPP,
 		addedHanger,
@@ -515,7 +613,8 @@
 		addedObservations,
 		addedDescription,
 		addedDiscount,
-		addedExteriorDimensions
+		addedExteriorDimensions,
+		addedPPMeaseures
 	);
 
 	$: {
@@ -629,7 +728,7 @@
 					on:change={() => handleDimensionsChangeEvent()}
 					bind:value={$form.pp}
 					disabled={asymetricPP}
-					class:input-success={$form.pp > 0}
+					class:input-success={addedPPMeaseures}
 				/>
 			</label>
 
@@ -656,7 +755,7 @@
 						name="upPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={upPP}
-						class:input-success={extractNumber(upPP) > 0}
+						class:input-success={addedPPMeaseures}
 					/>
 				</label>
 
@@ -670,7 +769,7 @@
 						name="downPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={downPP}
-						class:input-success={extractNumber(downPP) > 0}
+						class:input-success={addedPPMeaseures}
 					/>
 				</label>
 
@@ -684,7 +783,7 @@
 						name="leftPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={leftPP}
-						class:input-success={extractNumber(leftPP) > 0}
+						class:input-success={addedPPMeaseures}
 					/>
 				</label>
 
@@ -698,7 +797,7 @@
 						name="rightPP"
 						on:change={() => handleDimensionsChangeEvent()}
 						bind:value={rightPP}
-						class:input-success={extractNumber(rightPP) > 0}
+						class:input-success={addedPPMeaseures}
 					/>
 				</label>
 			{/if}
