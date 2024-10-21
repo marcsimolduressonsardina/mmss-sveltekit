@@ -583,13 +583,13 @@
 	$: descriptionChipList = $form.description.length > 0 ? [] : ['Sin obra'];
 	$: addedPPMeaseures =
 		calculateAddedPPMeasures(
-			partsToCalulatePreview,
+			partsToCalulatePreview.filter((p) => p.pre.type === PricingType.PP),
 			asymetricPP,
 			isValidNumber($form.pp),
 			extractNumber($form.pp)
 		) &&
 		calculateAddedAsymetricPPMeasures(
-			partsToCalulatePreview,
+			partsToCalulatePreview.filter((p) => p.pre.type === PricingType.PP),
 			asymetricPP,
 			isValidNumber(upPP),
 			extractNumber(upPP),
